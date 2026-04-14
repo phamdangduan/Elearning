@@ -88,7 +88,18 @@ public class ReviewServiceImpl implements ReviewService {
         Page<Review> reviewPage = reviewRepository.findByCourse_Id(courseId, pageable);
         
         List<ReviewResponse> reviewResponses = reviewPage.stream()
-                .map(reviewMapper::toResponse)
+                .map(review -> {
+                    ReviewResponse response = reviewMapper.toResponse(review);
+                    // Set userName và avatar từ user
+                    if (review.getUser() != null) {
+                        response.setUserName(review.getUser().getUserName());
+                        // Nếu có profile, lấy avatar từ profile
+                        if (review.getUser().getProfile() != null) {
+                            response.setAvatar(review.getUser().getProfile().getAvatar());
+                        }
+                    }
+                    return response;
+                })
                 .toList();
         
         return PageResponse.<ReviewResponse>builder()

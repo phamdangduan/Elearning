@@ -4,6 +4,7 @@ import com.example.Elearning.dto.ApiResponse;
 import com.example.Elearning.dto.request.CreatedSectionRequest;
 import com.example.Elearning.dto.request.UpdateSectionRequest;
 import com.example.Elearning.dto.response.CreatedSectionResponse;
+import com.example.Elearning.dto.response.SectionResponse;
 import com.example.Elearning.exception.SuccessCode;
 import com.example.Elearning.service.SectionService;
 import com.example.Elearning.service.impl.SectionServiceImpl;
@@ -13,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Slf4j
 @RestController
@@ -20,6 +23,11 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class SectionController {
     private final SectionService sectionService;
+
+    @GetMapping("/course/{courseId}")
+    ApiResponse<List<SectionResponse>> getSectionsByCourseId(@PathVariable String courseId) {
+        return ApiResponse.ok(sectionService.getSectionsByCourseId(courseId), SuccessCode.GET_SECTIONS_SUCCESS);
+    }
 
     @PostMapping("/created/{courseId}")
     ApiResponse<CreatedSectionResponse> createSection(@PathVariable String courseId,

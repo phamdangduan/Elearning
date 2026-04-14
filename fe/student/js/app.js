@@ -106,9 +106,9 @@ function renderCourseCard(course, index) {
                 </div>
                 <div class="course-footer">
                     ${formatPrice(course.price)}
-                    <button class="enroll-btn" onclick="event.stopPropagation(); handleEnroll('${course.id}')">
+                    <a class="enroll-btn" href="detailcourse.html?courseId=${course.id}" onclick="event.stopPropagation()">
                         ${isFree ? 'Đăng ký miễn phí' : 'Xem chi tiết'}
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -134,10 +134,16 @@ async function loadCourses(reset = true) {
     if (keyword) qParts.push(`keyword=${encodeURIComponent(keyword)}`);
     if (state.activeCategory) qParts.push(`categoryId=${state.activeCategory}`);
 
-    const data = await apiGet(`/course/search?${qParts.join('&')}`);
+    const url = `/course/search?${qParts.join('&')}`;
+    console.log('[loadCourses] Fetching:', url);
+    
+    const data = await apiGet(url);
     state.loading = false;
 
-    if (!data?.data) {
+    console.log('[loadCourses] Response:', data);
+
+    if (!data?.result) {
+        console.warn('[loadCourses] No data received');
         document.getElementById('coursesGrid').innerHTML = `
             <div style="grid-column:1/-1; text-align:center; padding: 60px; color: var(--text-muted)">
                 <i class="fas fa-box-open" style="font-size:48px; margin-bottom:16px"></i>
@@ -146,8 +152,10 @@ async function loadCourses(reset = true) {
         return;
     }
 
-    const courses = data.data.content || [];
-    state.totalPages = data.data.totalPages || 1;
+    const courses = data.result.content || [];
+    console.log('[loadCourses] Courses count:', courses.length);
+    
+    state.totalPages = data.result.totalPages || 1;
     state.courses = reset ? courses : [...state.courses, ...courses];
 
     const grid = document.getElementById('coursesGrid');
@@ -183,9 +191,9 @@ async function loadCourses(reset = true) {
 /* ── Load Categories ── */
 async function loadCategories() {
     const data = await apiGet('/category');
-    if (!data?.data) return;
+    if (!data?.result) return;
 
-    const categories = data.data;
+    const categories = data.result;
     state.categories = categories;
 
     // Filter tabs
@@ -231,26 +239,41 @@ function filterByCategory(id, name) {
 /* ── Load Instructors ── */
 async function loadInstructors() {
     const data = await apiGet('/profile/instructors');
-    if (!data?.data) return;
+    if (!data?.result) return;
 
-    const instructors = data.data.slice(0, 4);
+    const instructors = data.result.slice(0, 4);
+    
+    // Fetch stats for all instructors
+    const statsPromises = instructors.map(inst => 
+        apiGet(`/instructor/stats?instructorId=${inst.id}`)
+    );
+    const statsResults = await Promise.all(statsPromises);
+    
     const grid = document.getElementById('instructorsGrid');
-    grid.innerHTML = instructors.map(inst => {
-        const initial = (inst.firstName || inst.fullName || inst.user?.userName || 'G')[0].toUpperCase();
+    grid.innerHTML = instructors.map((inst, idx) => {
+        const initial = (inst.firstName || inst.fullName || inst.userName || 'G')[0].toUpperCase();
+        const instructorId = inst.id;
+        
+        // Get stats from API
+        const stats = statsResults[idx]?.result;
+        const rating = stats?.averageRating ? parseFloat(stats.averageRating).toFixed(1) : 'N/A';
+        const totalCourses = stats?.totalCourses || 0;
+        const courseText = totalCourses.toString();
+        
         return `
-            <div class="instructor-card">
+            <div class="instructor-card" onclick="window.location.href='detailprofileteacher.html?teacherId=${instructorId}'" style="cursor:pointer">
                 <div class="instructor-avatar">
                     ${inst.avatar ? `<img src="${inst.avatar}" alt="${inst.fullName}">` : `<span style="font-size:28px;font-weight:700">${initial}</span>`}
                 </div>
-                <div class="instructor-name">${inst.fullName || inst.firstName || 'Giáo viên'}</div>
+                <div class="instructor-name">${inst.fullName || inst.firstName || inst.userName || 'Giáo viên'}</div>
                 <div class="instructor-bio">${inst.bio || 'Giảng viên chuyên nghiệp với nhiều năm kinh nghiệm'}</div>
                 <div class="instructor-stats">
                     <div class="ins-stat">
-                        <div class="ins-stat-val"><i class="fas fa-star" style="color:#f59e0b;font-size:12px"></i> 4.8</div>
+                        <div class="ins-stat-val"><i class="fas fa-star" style="color:#f59e0b;font-size:12px"></i> ${rating}</div>
                         <div class="ins-stat-lab">Đánh giá</div>
                     </div>
                     <div class="ins-stat">
-                        <div class="ins-stat-val">12+</div>
+                        <div class="ins-stat-val">${courseText}</div>
                         <div class="ins-stat-lab">Khóa học</div>
                     </div>
                 </div>
@@ -264,9 +287,9 @@ async function loadUserProfile() {
     if (!state.userId) return;
 
     const data = await apiGet(`/profile/me?userId=${state.userId}`);
-    if (!data?.data) return;
+    if (!data?.result) return;
 
-    state.profile = data.data;
+    state.profile = data.result;
     const profile = state.profile;
     const fullName = profile.fullName || profile.firstName || 'Học viên';
 
@@ -290,9 +313,9 @@ async function loadUserProfile() {
 /* ── Load Student Stats ── */
 async function loadStudentStats() {
     const data = await apiGet(`/student/stats?studentId=${state.userId}`);
-    if (!data?.data) return;
+    if (!data?.result) return;
 
-    const stats = data.data;
+    const stats = data.result;
     document.getElementById('sc-enrolled').textContent = stats.totalEnrolledCourses || 0;
     document.getElementById('sc-completed').textContent = stats.totalCompletedCourses || 0;
     document.getElementById('sc-inprogress').textContent = stats.totalInProgressCourses || 0;
@@ -316,12 +339,12 @@ async function loadStudentStats() {
 /* ── Load My Enrollments (Continue Learning) ── */
 async function loadMyEnrollments() {
     const data = await apiGet(`/enrollment/my-enrollment?userId=${state.userId}&page=0&size=3&sort=enrollmentDate,desc`);
-    if (!data?.data?.content) {
+    if (!data?.result?.content) {
         document.getElementById('continueSection').style.display = 'none';
         return;
     }
 
-    const enrollments = data.data.content;
+    const enrollments = data.result.content;
     const grid = document.getElementById('continueGrid');
 
     if (enrollments.length === 0) {
@@ -381,14 +404,14 @@ async function loadNotifications() {
     ]);
 
     // Update badge
-    const count = countData?.data || 0;
+    const count = countData?.result || 0;
     const badge = document.getElementById('notiBadge');
     badge.textContent = count;
     badge.dataset.count = count;
 
-    if (!notiData?.data?.content) return;
+    if (!notiData?.result?.content) return;
 
-    const notis = notiData.data.content;
+    const notis = notiData.result.content;
     const list = document.getElementById('notiList');
 
     if (notis.length === 0) {
@@ -433,12 +456,12 @@ async function openCourseModal(courseId) {
     document.body.style.overflow = 'hidden';
 
     const data = await apiGet(`/course/${courseId}`);
-    if (!data?.data) {
+    if (!data?.result) {
         content.innerHTML = '<p style="padding:40px;text-align:center">Không tìm thấy khóa học</p>';
         return;
     }
 
-    const course = data.data;
+    const course = data.result;
     const isFree = !course.price || Number(course.price) === 0;
     const rating = parseFloat(course.averageRating) || 0;
     const cats = course.categories?.map(c => `<span class="cat-tag">${c.name}</span>`).join('') || '';
@@ -485,7 +508,7 @@ async function handleEnroll(courseId) {
 
     // Check enrollment status
     const statusData = await apiGet(`/enrollment/status?userId=${state.userId}&courseId=${courseId}`);
-    if (statusData?.data?.isEnrolled) {
+    if (statusData?.result?.isEnrolled) {
         showToast('Bạn đã đăng ký khóa học này rồi!', 'warning');
         window.location.href = `learn.html?courseId=${courseId}`;
         return;
@@ -493,7 +516,7 @@ async function handleEnroll(courseId) {
 
     // Check if course is free
     const courseData = await apiGet(`/course/${courseId}`);
-    const course = courseData?.data;
+    const course = courseData?.result;
 
     if (!course) { showToast('Không tìm thấy khóa học', 'error'); return; }
 

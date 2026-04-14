@@ -3,6 +3,7 @@ package com.example.Elearning.service.impl;
 import com.example.Elearning.dto.request.CreatedSectionRequest;
 import com.example.Elearning.dto.request.UpdateSectionRequest;
 import com.example.Elearning.dto.response.CreatedSectionResponse;
+import com.example.Elearning.dto.response.SectionResponse;
 import com.example.Elearning.entity.Lesson;
 import com.example.Elearning.entity.Section;
 import com.example.Elearning.exception.AppException;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -65,5 +68,15 @@ public class SectionServiceImpl implements SectionService {
         }
         sectionRepository.delete(section);
         return null;
+    }
+
+    @Override
+    public List<SectionResponse> getSectionsByCourseId(String courseId) {
+
+        List<Section> sections = sectionRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
+        
+        return sections.stream()
+                .map(sectionMapper::toSectionResponse)
+                .toList();
     }
 }

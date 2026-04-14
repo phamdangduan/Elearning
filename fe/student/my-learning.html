@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Học Của Tôi - EduVN</title>
+    <meta
+      name="description"
+      content="Quản lý và theo dõi tiến trình học tập của bạn trên EduVN. Xem các khóa học đã đăng ký, tiến độ và chứng chỉ."
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      /* ── CSS Variables ── */
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --primary-light: #3b82f6;
+        --primary-xlight: #dbeafe;
+        --accent: #06b6d4;
+        --accent-light: #cffafe;
+        --secondary: #1e293b;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --bg-primary: #f8faff;
+        --bg-card: #ffffff;
+        --bg-dark: #0f172a;
+        --border: #e2e8f0;
+        --border-focus: #93c5fd;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --orange: #f97316;
+        --purple: #8b5cf6;
+
+        --radius-sm: 8px;
+        --radius: 12px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+        --radius-full: 9999px;
+
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+        --shadow: 0 4px 16px rgba(37,99,235,0.1);
+        --shadow-md: 0 8px 32px rgba(37,99,235,0.15);
+        --shadow-lg: 0 20px 60px rgba(37,99,235,0.2);
+        --shadow-float: 0 20px 40px rgba(0,0,0,0.12);
+
+        --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+        --transition-fast: all 0.15s ease;
+
+        --nav-height: 72px;
+        --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; font-size: 16px; }
+      body {
+        font-family: var(--font);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      a { text-decoration: none; color: inherit; transition: var(--transition-fast); }
+      ul { list-style: none; }
+      img { max-width: 100%; display: block; }
+      button { cursor: pointer; border: none; background: none; font-family: var(--font); }
+      input, select { font-family: var(--font); }
+
+      .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── NAVBAR ── */
+      .navbar {
+        position: fixed; top: 0; left: 0; right: 0;
+        height: var(--nav-height);
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        z-index: 1000; transition: var(--transition);
+      }
+      .navbar.scrolled {
+        background: rgba(255,255,255,0.98);
+        box-shadow: 0 4px 24px rgba(37,99,235,0.1);
+      }
+      .nav-container {
+        max-width: 1340px; margin: 0 auto; padding: 0 24px;
+        height: 100%; display: flex; align-items: center; gap: 32px;
+      }
+      .nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+      .logo-icon {
+        width: 40px; height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 18px;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+      }
+      .logo-text { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+      .logo-accent { color: var(--primary); }
+      .nav-links { display: flex; gap: 4px; flex: 1; }
+      .nav-link {
+        padding: 8px 16px; border-radius: var(--radius-full);
+        font-size: 15px; font-weight: 500; color: var(--text-secondary);
+        transition: var(--transition-fast);
+      }
+      .nav-link:hover, .nav-link.active { color: var(--primary); background: var(--primary-xlight); }
+      .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+      .nav-search {
+        display: flex; align-items: center; gap: 8px;
+        background: var(--bg-primary); border: 1.5px solid var(--border);
+        border-radius: var(--radius-full); padding: 8px 16px; transition: var(--transition);
+      }
+      .nav-search:focus-within {
+        border-color: var(--primary); background: white;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      }
+      .nav-search i { color: var(--text-muted); font-size: 14px; }
+      .nav-search input {
+        border: none; background: none; outline: none;
+        font-size: 14px; color: var(--text-primary); width: 200px;
+      }
+      .icon-btn {
+        width: 40px; height: 40px; border-radius: var(--radius-full);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; color: var(--text-secondary);
+        background: var(--bg-primary); border: 1.5px solid var(--border);
+        transition: var(--transition); position: relative;
+      }
+      .icon-btn:hover { color: var(--primary); background: var(--primary-xlight); border-color: var(--border-focus); }
+      .noti-badge {
+        position: absolute; top: -4px; right: -4px;
+        background: var(--danger); color: white;
+        font-size: 10px; font-weight: 700; width: 18px; height: 18px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        border: 2px solid white;
+      }
+      .nav-notification { position: relative; }
+      .nav-user { position: relative; }
+      .user-avatar-wrapper {
+        display: flex; align-items: center; gap: 10px; padding: 6px 12px;
+        border-radius: var(--radius-full); cursor: pointer; transition: var(--transition);
+        border: 1.5px solid var(--border); background: var(--bg-primary);
+      }
+      .user-avatar-wrapper:hover { background: var(--primary-xlight); border-color: var(--border-focus); }
+      .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 14px; overflow: hidden;
+      }
+      .user-name-nav { font-size: 14px; font-weight: 600; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .user-dropdown {
+        position: absolute; top: calc(100% + 12px); right: 0;
+        width: 280px; background: white; border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-float); border: 1px solid var(--border);
+        display: none; z-index: 500; animation: dropIn 0.2s ease; overflow: hidden;
+      }
+      .user-dropdown.show { display: block; }
+      @keyframes dropIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .dropdown-header {
+        display: flex; align-items: center; gap: 12px; padding: 20px;
+        background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+      }
+      .dropdown-avatar {
+        width: 48px; height: 48px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 20px; overflow: hidden; flex-shrink: 0;
+      }
+      .dropdown-name { font-weight: 700; font-size: 15px; }
+      .dropdown-email { font-size: 12px; color: var(--text-muted); }
+      .user-dropdown hr { border: none; border-top: 1px solid var(--border); }
+      .dropdown-menu-list { padding: 8px 0; }
+      .dropdown-menu-list li a {
+        display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+        font-size: 14px; color: var(--text-secondary); transition: var(--transition-fast);
+      }
+      .dropdown-menu-list li a:hover { background: var(--bg-primary); color: var(--primary); }
+      .dropdown-menu-list li a i { width: 16px; color: var(--text-muted); }
+      .logout-btn {
+        width: 100%; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+        font-size: 14px; color: var(--danger); transition: var(--transition-fast);
+      }
+      .logout-btn:hover { background: #fef2f2; }
+      .hamburger { display: none; flex-direction: column; gap: 5px; padding: 4px; }
+      .hamburger span { width: 24px; height: 2px; background: var(--text-secondary); border-radius: 2px; }
+
+      /* ── PAGE HEADER ── */
+      .page-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #1e40af 70%, #1d4ed8 100%);
+        padding-top: calc(var(--nav-height) + 48px);
+        padding-bottom: 72px;
+        position: relative; overflow: hidden;
+      }
+      .page-header-bg { position: absolute; inset: 0; pointer-events: none; }
+      .page-header-bg .shape {
+        position: absolute; border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+      }
+      .page-header-bg .s1 {
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+        top: -200px; right: -80px;
+      }
+      .page-header-bg .s2 {
+        width: 360px; height: 360px;
+        background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+        bottom: -120px; left: -60px; animation-delay: 3s;
+      }
+      .page-header-bg .grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-25px) scale(1.04); }
+      }
+      .page-header-inner {
+        max-width: 1280px; margin: 0 auto; padding: 0 24px;
+        position: relative; z-index: 1;
+      }
+      .breadcrumb {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 28px; font-size: 13px; color: rgba(255,255,255,0.55);
+      }
+      .breadcrumb a { color: rgba(255,255,255,0.65); }
+      .breadcrumb a:hover { color: #60a5fa; }
+      .breadcrumb i { font-size: 10px; }
+      .breadcrumb .current { color: rgba(255,255,255,0.9); }
+
+      .page-header-content {
+        display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;
+      }
+      .page-header-left { color: white; }
+      .page-header-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: var(--radius-full);
+        padding: 6px 16px; font-size: 12px; font-weight: 700;
+        color: #93c5fd; text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 16px;
+      }
+      .page-header-title {
+        font-size: clamp(28px, 4vw, 48px);
+        font-weight: 900; line-height: 1.1;
+        letter-spacing: -1px; margin-bottom: 12px;
+      }
+      .page-header-title .grad {
+        background: linear-gradient(90deg, #60a5fa, #06b6d4, #34d399);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      }
+      .page-header-sub { font-size: 16px; color: rgba(255,255,255,0.7); max-width: 480px; }
+
+      /* Header stats */
+      .header-stats {
+        display: flex; gap: 20px; flex-shrink: 0;
+      }
+      .header-stat {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: var(--radius-lg);
+        padding: 20px 28px; text-align: center; min-width: 110px;
+      }
+      .header-stat-val { font-size: 30px; font-weight: 900; color: white; }
+      .header-stat-lab { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+      /* Wave */
+      .page-wave { position: relative; bottom: -1px; left: 0; right: 0; }
+      .page-wave svg { display: block; width: 100%; }
+
+      /* ── MAIN BODY ── */
+      .main-body { padding: 48px 0 80px; }
+      .main-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── FILTER / SEARCH BAR ── */
+      .filter-bar {
+        display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        margin-bottom: 40px;
+        background: white; border-radius: var(--radius-lg);
+        padding: 20px 24px; border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+      }
+      .filter-bar-search {
+        flex: 1; min-width: 200px;
+        display: flex; align-items: center; gap: 10px;
+        background: var(--bg-primary); border: 1.5px solid var(--border);
+        border-radius: var(--radius-full); padding: 10px 18px;
+        transition: var(--transition);
+      }
+      .filter-bar-search:focus-within {
+        border-color: var(--primary); background: white;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+      }
+      .filter-bar-search i { color: var(--text-muted); font-size: 15px; }
+      .filter-bar-search input {
+        border: none; background: none; outline: none;
+        font-size: 14px; color: var(--text-primary); width: 100%;
+      }
+      .filter-divider { width: 1px; height: 32px; background: var(--border); }
+      .filter-select-wrap { position: relative; }
+      .filter-select {
+        appearance: none; -webkit-appearance: none;
+        padding: 10px 36px 10px 14px;
+        border: 1.5px solid var(--border); border-radius: var(--radius-full);
+        font-size: 13px; font-weight: 600; color: var(--text-secondary);
+        background: var(--bg-primary); cursor: pointer; outline: none;
+        transition: var(--transition);
+      }
+      .filter-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+      .filter-select-wrap::after {
+        content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+        color: var(--text-muted); pointer-events: none; font-size: 13px;
+      }
+      .view-toggle { display: flex; gap: 4px; }
+      .view-btn {
+        width: 36px; height: 36px; border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; color: var(--text-muted);
+        border: 1.5px solid var(--border); background: var(--bg-primary);
+        transition: var(--transition); cursor: pointer;
+      }
+      .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+      /* ── TABS ── */
+      .course-tabs {
+        display: flex; gap: 4px; margin-bottom: 32px;
+        background: white; border-radius: var(--radius-lg);
+        padding: 6px; border: 1px solid var(--border);
+        width: fit-content; box-shadow: var(--shadow-sm);
+      }
+      .course-tab {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 20px; border-radius: var(--radius);
+        font-size: 14px; font-weight: 600; color: var(--text-muted);
+        transition: var(--transition); cursor: pointer;
+      }
+      .course-tab.active {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+      }
+      .course-tab:not(.active):hover { color: var(--primary); background: var(--primary-xlight); }
+      .tab-count {
+        background: rgba(255,255,255,0.25);
+        border-radius: var(--radius-full);
+        padding: 1px 8px; font-size: 11px; font-weight: 700;
+      }
+      .course-tab:not(.active) .tab-count {
+        background: var(--bg-primary); color: var(--text-muted);
+      }
+
+      /* ── COURSE CARDS GRID ── */
+      .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+      .courses-grid.list-view {
+        grid-template-columns: 1fr;
+      }
+
+      /* Course Card */
+      .my-course-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
+        cursor: pointer;
+        display: flex; flex-direction: column;
+      }
+      .my-course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--border-focus);
+      }
+
+      /* Completed ribbon */
+      .ribbon {
+        position: absolute; top: 12px; left: -6px;
+        background: var(--success); color: white;
+        font-size: 11px; font-weight: 700; padding: 4px 12px 4px 14px;
+        border-radius: 0 var(--radius-full) var(--radius-full) 0;
+        display: flex; align-items: center; gap: 5px;
+        box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        z-index: 2;
+      }
+      .ribbon::before {
+        content: ''; position: absolute; left: 0; bottom: -6px;
+        border-left: 6px solid #065f46; border-bottom: 6px solid transparent;
+      }
+
+      /* Thumbnail */
+      .card-thumb {
+        position: relative; height: 186px; overflow: hidden;
+        background: linear-gradient(135deg, #1e3a8a, #2563eb, #06b6d4);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .card-thumb-emoji { font-size: 60px; line-height: 1; position: relative; z-index: 1; }
+      .card-thumb-overlay {
+        position: absolute; inset: 0; background: rgba(0,0,0,0.18);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: var(--transition);
+      }
+      .my-course-card:hover .card-thumb-overlay { opacity: 1; }
+      .play-circle {
+        width: 54px; height: 54px; background: white; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary); font-size: 22px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        transform: scale(0.8); transition: var(--transition);
+      }
+      .my-course-card:hover .play-circle { transform: scale(1); }
+
+      /* Progress bar on thumb */
+      .thumb-progress {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        height: 4px; background: rgba(255,255,255,0.2);
+      }
+      .thumb-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #34d399, #06b6d4);
+        transition: width 0.8s ease;
+      }
+
+      /* Card Body */
+      .card-body {
+        padding: 20px; display: flex; flex-direction: column; flex: 1;
+      }
+      .card-category {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.5px; color: var(--primary); margin-bottom: 8px;
+        display: flex; align-items: center; gap: 5px;
+      }
+      .card-title {
+        font-size: 15px; font-weight: 700; color: var(--text-primary);
+        line-height: 1.45; margin-bottom: 8px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .card-instructor {
+        font-size: 13px; color: var(--text-muted);
+        display: flex; align-items: center; gap: 6px; margin-bottom: 14px;
+      }
+      .card-instructor img, .card-instructor .instr-av {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 9px; font-weight: 700; color: white; flex-shrink: 0;
+      }
+
+      /* Progress */
+      .card-progress { margin-bottom: 16px; }
+      .progress-label-row {
+        display: flex; justify-content: space-between;
+        font-size: 12px; margin-bottom: 6px;
+      }
+      .progress-label-row span { color: var(--text-muted); }
+      .progress-label-row .pct { font-weight: 700; color: var(--primary); }
+      .progress-bar {
+        height: 7px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        border-radius: var(--radius-full); transition: width 1s ease;
+      }
+      .progress-bar-fill.done { background: linear-gradient(90deg, var(--success), #34d399); }
+
+      /* Meta */
+      .card-meta {
+        display: flex; gap: 14px; flex-wrap: wrap;
+        font-size: 12px; color: var(--text-muted); margin-bottom: 16px;
+      }
+      .card-meta span { display: flex; align-items: center; gap: 4px; }
+      .card-meta i { color: var(--primary); font-size: 11px; }
+
+      /* Action row */
+      .card-footer-row {
+        display: flex; gap: 8px; margin-top: auto;
+      }
+      .btn-continue {
+        flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 11px 16px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; border-radius: var(--radius-sm);
+        font-size: 13px; font-weight: 700;
+        transition: var(--transition);
+        box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+      }
+      .btn-continue:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+      .btn-continue.completed {
+        background: linear-gradient(135deg, var(--success), #34d399);
+        box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+      }
+      .btn-more {
+        width: 40px; height: 40px;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-muted); font-size: 15px;
+        transition: var(--transition); flex-shrink: 0;
+      }
+      .btn-more:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-xlight); }
+
+      /* ── LIST VIEW (alternative layout) ── */
+      .courses-grid.list-view .my-course-card {
+        flex-direction: row;
+      }
+      .courses-grid.list-view .card-thumb {
+        width: 220px; height: auto; flex-shrink: 0;
+      }
+      .courses-grid.list-view .card-body {
+        flex-direction: column; justify-content: space-between;
+      }
+      .courses-grid.list-view .card-footer-row { margin-top: 16px; }
+
+      /* ── EMPTY STATE ── */
+      .empty-state {
+        text-align: center; padding: 80px 40px;
+        background: white; border-radius: var(--radius-xl);
+        border: 2px dashed var(--border);
+      }
+      .empty-icon {
+        width: 100px; height: 100px;
+        background: var(--primary-xlight); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 42px; color: var(--primary);
+        margin: 0 auto 24px;
+      }
+      .empty-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+      .empty-sub { font-size: 15px; color: var(--text-muted); max-width: 400px; margin: 0 auto 28px; line-height: 1.7; }
+      .btn-browse {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; border-radius: var(--radius-full);
+        font-size: 15px; font-weight: 700;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+        transition: var(--transition);
+      }
+      .btn-browse:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37,99,235,0.4); }
+
+      /* ── CERTIFICATE SECTION ── */
+      .cert-section {
+        margin-top: 56px;
+        background: white; border-radius: var(--radius-xl);
+        border: 1px solid var(--border); overflow: hidden;
+        box-shadow: var(--shadow-sm);
+      }
+      .cert-header {
+        padding: 24px 32px; border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .cert-header-left { display: flex; align-items: center; gap: 14px; }
+      .cert-header-icon {
+        width: 46px; height: 46px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: #d97706; flex-shrink: 0;
+      }
+      .cert-header-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+      .cert-header-sub { font-size: 13px; color: var(--text-muted); }
+      .btn-view-all {
+        display: flex; align-items: center; gap: 7px;
+        padding: 9px 18px; border-radius: var(--radius-full);
+        border: 1.5px solid var(--border); font-size: 13px; font-weight: 600;
+        color: var(--text-secondary); transition: var(--transition);
+      }
+      .btn-view-all:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-xlight); }
+
+      /* Cert cards */
+      .cert-list { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+      .cert-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 20px; align-items: center;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #fefce8, #fff7ed);
+        border: 1px solid #fde68a;
+        border-radius: var(--radius-lg);
+        transition: var(--transition); cursor: pointer;
+      }
+      .cert-card:hover { transform: translateX(6px); box-shadow: var(--shadow); }
+      .cert-icon {
+        width: 56px; height: 56px;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        border-radius: var(--radius);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px; color: white;
+        box-shadow: 0 6px 20px rgba(245,158,11,0.3);
+      }
+      .cert-info {}
+      .cert-course-name { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+      .cert-date { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+      .cert-date i { color: var(--warning); }
+      .cert-id { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
+      .cert-actions { display: flex; gap: 8px; }
+      .cert-btn {
+        display: flex; align-items: center; gap: 6px;
+        padding: 9px 16px; border-radius: var(--radius-sm);
+        font-size: 12px; font-weight: 700; transition: var(--transition);
+      }
+      .cert-btn.download {
+        background: #fef3c7; color: #d97706;
+        border: 1px solid #fde68a;
+      }
+      .cert-btn.download:hover { background: #f59e0b; color: white; }
+      .cert-btn.share {
+        background: var(--primary-xlight); color: var(--primary);
+        border: 1px solid rgba(37,99,235,0.2);
+      }
+      .cert-btn.share:hover { background: var(--primary); color: white; }
+
+      /* ── LEARNING STREAK / CALENDAR ── */
+      .streak-section {
+        margin-top: 40px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      }
+      .streak-card {
+        background: white; border: 1px solid var(--border);
+        border-radius: var(--radius-xl); padding: 28px;
+        box-shadow: var(--shadow-sm);
+      }
+      .streak-card-title {
+        font-size: 16px; font-weight: 800; color: var(--text-primary);
+        margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+      }
+      .streak-card-title i { color: var(--primary); }
+
+      /* Streak dots */
+      .streak-grid {
+        display: flex; flex-wrap: wrap; gap: 5px;
+      }
+      .streak-day {
+        width: 28px; height: 28px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; font-weight: 600;
+        transition: var(--transition);
+      }
+      .streak-day.empty { background: #f1f5f9; color: var(--text-muted); }
+      .streak-day.learned { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
+      .streak-day.today { background: #fef3c7; color: #d97706; border: 2px solid #f59e0b; }
+      .streak-day.super { background: #fef3c7; color: #f59e0b; animation: pulse-gold 1.5s infinite; }
+      @keyframes pulse-gold {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+        50% { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+      }
+
+      .streak-summary {
+        margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+        display: flex; gap: 20px;
+      }
+      .streak-stat { text-align: center; flex: 1; }
+      .streak-stat-val { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+      .streak-stat-lab { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+      /* Skill progress */
+      .skill-list { display: flex; flex-direction: column; gap: 16px; }
+      .skill-item {}
+      .skill-header {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 13px; margin-bottom: 8px;
+      }
+      .skill-name { font-weight: 700; color: var(--text-primary); }
+      .skill-pct { font-weight: 700; color: var(--primary); }
+      .skill-bar {
+        height: 8px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden;
+      }
+      .skill-bar-fill {
+        height: 100%; border-radius: var(--radius-full);
+        transition: width 1s ease 0.3s;
+      }
+      .skill-bar-fill.java { background: linear-gradient(90deg, #f97316, #fb923c); }
+      .skill-bar-fill.spring { background: linear-gradient(90deg, var(--success), #34d399); }
+      .skill-bar-fill.docker { background: linear-gradient(90deg, #2563eb, #06b6d4); }
+      .skill-bar-fill.db { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+      .skill-bar-fill.aws { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+      /* ── FOOTER ── */
+      .footer { background: var(--bg-dark); color: white; padding: 64px 0 0; }
+      .footer-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+      .footer-grid {
+        display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px; padding-bottom: 48px;
+      }
+      .footer-desc { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.55); margin: 16px 0 24px; }
+      .footer-socials { display: flex; gap: 10px; }
+      .social-link {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; color: rgba(255,255,255,0.6); transition: var(--transition);
+      }
+      .social-link:hover { background: var(--primary); border-color: var(--primary); color: white; }
+      .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+      .footer-col ul li { margin-bottom: 10px; }
+      .footer-col ul li a { font-size: 14px; color: rgba(255,255,255,0.55); }
+      .footer-col ul li a:hover { color: white; }
+      .footer-bottom {
+        border-top: 1px solid rgba(255,255,255,0.08); padding: 24px 0;
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 13px; color: rgba(255,255,255,0.4);
+      }
+
+      /* Scroll to top */
+      .scroll-top {
+        position: fixed; bottom: 32px; right: 32px;
+        width: 48px; height: 48px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+        opacity: 0; pointer-events: none; transition: var(--transition); z-index: 999;
+      }
+      .scroll-top.show { opacity: 1; pointer-events: auto; }
+      .scroll-top:hover { transform: translateY(-4px); }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1024px) {
+        .courses-grid { grid-template-columns: repeat(2, 1fr); }
+        .streak-section { grid-template-columns: 1fr; }
+        .header-stats { display: none; }
+        .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      }
+      @media (max-width: 768px) {
+        .courses-grid { grid-template-columns: 1fr; }
+        .course-tabs { width: 100%; overflow-x: auto; }
+        .filter-bar { flex-direction: column; align-items: stretch; }
+        .filter-divider { display: none; }
+        .courses-grid.list-view .my-course-card { flex-direction: column; }
+        .courses-grid.list-view .card-thumb { width: 100%; height: 180px; }
+        .nav-links, .nav-search { display: none; }
+        .page-header-content { flex-direction: column; align-items: flex-start; }
+        .cert-card { grid-template-columns: auto 1fr; }
+        .cert-actions { grid-column: 2; }
+        .footer-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+          <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+          <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+          <li><a href="courses.html" class="nav-link">Khóa học</a></li>
+          <li><a href="my-learning.html" class="nav-link active">Học của tôi</a></li>
+          <li><a href="instructors.html" class="nav-link">Giáo viên</a></li>
+        </ul>
+
+        <div class="nav-right">
+          <div class="nav-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm kiếm khóa học..." />
+          </div>
+
+          <div class="nav-notification">
+            <button class="icon-btn" id="notiBell">
+              <i class="fas fa-bell"></i>
+              <span class="noti-badge">3</span>
+            </button>
+          </div>
+
+          <div class="nav-user">
+            <div class="user-avatar-wrapper" id="userAvatarBtn">
+              <div class="user-avatar"><i class="fas fa-user"></i></div>
+              <span class="user-name-nav" id="userNameNav">Học Viên</span>
+              <i class="fas fa-chevron-down" style="font-size:12px; color: var(--text-muted);"></i>
+            </div>
+            <div class="user-dropdown" id="userDropdown">
+              <div class="dropdown-header">
+                <div class="dropdown-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                  <p class="dropdown-name">Học Viên A</p>
+                  <p class="dropdown-email">hocvien@email.com</p>
+                </div>
+              </div>
+              <hr />
+              <ul class="dropdown-menu-list">
+                <li><a href="profile.html"><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</a></li>
+                <li><a href="my-learning.html"><i class="fas fa-book-open"></i> Khóa học của tôi</a></li>
+                <li><a href="payments.html"><i class="fas fa-credit-card"></i> Lịch sử thanh toán</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Cài đặt</a></li>
+              </ul>
+              <hr />
+              <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+          </div>
+
+          <button class="hamburger">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== PAGE HEADER ===================== -->
+    <section class="page-header">
+      <div class="page-header-bg">
+        <div class="shape s1"></div>
+        <div class="shape s2"></div>
+        <div class="grid"></div>
+      </div>
+
+      <div class="page-header-inner">
+        <nav class="breadcrumb">
+          <a href="index.html">Trang chủ</a>
+          <i class="fas fa-chevron-right"></i>
+          <span class="current">Học của tôi</span>
+        </nav>
+
+        <div class="page-header-content">
+          <div class="page-header-left">
+            <div class="page-header-badge">
+              <i class="fas fa-book-open"></i>
+              <span>Không gian học tập</span>
+            </div>
+            <h1 class="page-header-title">
+              Học Của Tôi<br>
+              <span class="grad">Tiến Độ & Thành Tựu</span>
+            </h1>
+            <p class="page-header-sub">
+              Theo dõi hành trình học tập, tiếp tục khóa học còn dang dở và nhận chứng chỉ khi hoàn thành.
+            </p>
+          </div>
+
+          <div class="header-stats">
+            <div class="header-stat">
+              <div class="header-stat-val" id="hsTotalEnrolled">7</div>
+              <div class="header-stat-lab">Đã đăng ký</div>
+            </div>
+            <div class="header-stat">
+              <div class="header-stat-val" id="hsCompleted">2</div>
+              <div class="header-stat-lab">Hoàn thành</div>
+            </div>
+            <div class="header-stat">
+              <div class="header-stat-val" id="hsHoursLearned">86h</div>
+              <div class="header-stat-lab">Giờ học</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-wave">
+        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#f8faff" d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===================== MAIN BODY ===================== -->
+    <section class="main-body">
+      <div class="main-inner">
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-bar-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm trong khóa học của tôi..." id="mySearchInput" />
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-select-wrap">
+            <select class="filter-select" id="sortSelect">
+              <option value="">Sắp xếp theo</option>
+              <option value="recently">Học gần đây</option>
+              <option value="progress">Tiến độ</option>
+              <option value="az">A → Z</option>
+              <option value="newest">Mới nhất</option>
+            </select>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="view-toggle">
+            <button class="view-btn active" id="gridViewBtn" title="Xem lưới">
+              <i class="fas fa-th-large"></i>
+            </button>
+            <button class="view-btn" id="listViewBtn" title="Xem danh sách">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="course-tabs" id="courseTabs">
+          <button class="course-tab active" data-tab="all" id="tab-all">
+            <i class="fas fa-layer-group"></i>
+            Tất cả
+            <span class="tab-count">7</span>
+          </button>
+          <button class="course-tab" data-tab="inprogress" id="tab-inprogress">
+            <i class="fas fa-spinner"></i>
+            Đang học
+            <span class="tab-count">5</span>
+          </button>
+          <button class="course-tab" data-tab="completed" id="tab-completed">
+            <i class="fas fa-check-circle"></i>
+            Hoàn thành
+            <span class="tab-count">2</span>
+          </button>
+          <button class="course-tab" data-tab="archived" id="tab-archived">
+            <i class="fas fa-archive"></i>
+            Lưu trữ
+            <span class="tab-count">0</span>
+          </button>
+        </div>
+
+        <!-- ── COURSES GRID ── -->
+        <div class="courses-grid" id="coursesGrid">
+
+          <!-- ── Card 1: In Progress ── -->
+          <div class="my-course-card" data-status="inprogress" onclick="window.location.href='detailcourse.html'">
+            <div class="card-thumb">
+              <span class="card-thumb-emoji">☕</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-play"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill" style="width: 72%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-code"></i> Backend</div>
+              <div class="card-title">Java Spring Boot - Từ Cơ Bản Đến Nâng Cao</div>
+              <div class="card-instructor">
+                <div class="instr-av">NA</div>
+                Nguyễn Văn An
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>18 / 25 bài</span>
+                  <span class="pct">72%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 72%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-clock"></i> 4h 20m còn lại</span>
+                <span><i class="fas fa-calendar-alt"></i> Học hôm qua</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue">
+                  <i class="fas fa-play"></i> Tiếp tục học
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 2: In Progress ── -->
+          <div class="my-course-card" data-status="inprogress" onclick="window.location.href='detailcourse.html'">
+            <div class="card-thumb" style="background: linear-gradient(135deg, #065f46, #10b981, #34d399);">
+              <span class="card-thumb-emoji">🏗️</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-play"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill" style="width: 35%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-cubes"></i> Microservices</div>
+              <div class="card-title">Microservices với Spring Cloud & Kubernetes</div>
+              <div class="card-instructor">
+                <div class="instr-av">NA</div>
+                Nguyễn Văn An
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>8 / 22 bài</span>
+                  <span class="pct">35%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 35%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-clock"></i> 12h 40m còn lại</span>
+                <span><i class="fas fa-calendar-alt"></i> Học 3 ngày trước</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue">
+                  <i class="fas fa-play"></i> Tiếp tục học
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 3: Completed ── -->
+          <div class="my-course-card" data-status="completed" onclick="window.location.href='detailcourse.html'">
+            <div class="ribbon"><i class="fas fa-check"></i> Đã hoàn thành</div>
+            <div class="card-thumb" style="background: linear-gradient(135deg, #7c2d12, #ea580c, #fb923c);">
+              <span class="card-thumb-emoji">🗄️</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-redo"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill done" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-database"></i> Database</div>
+              <div class="card-title">MySQL & PostgreSQL Từ A đến Z - Chuyên Sâu</div>
+              <div class="card-instructor">
+                <div class="instr-av" style="background: linear-gradient(135deg, #7c2d12, #ea580c);">LC</div>
+                Le Van C
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>32 / 32 bài</span>
+                  <span class="pct" style="color: var(--success)">100%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill done" style="width: 100%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-trophy" style="color: var(--warning)"></i> Hoàn thành 15/02/2025</span>
+                <span><i class="fas fa-certificate" style="color: var(--warning)"></i> Có chứng chỉ</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue completed">
+                  <i class="fas fa-redo"></i> Xem lại
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 4: In Progress ── -->
+          <div class="my-course-card" data-status="inprogress" onclick="window.location.href='detailcourse.html'">
+            <div class="card-thumb" style="background: linear-gradient(135deg, #4c1d95, #7c3aed, #a78bfa);">
+              <span class="card-thumb-emoji">🔐</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-play"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill" style="width: 58%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-shield-alt"></i> Security</div>
+              <div class="card-title">Spring Security & JWT - Bảo Mật Ứng Dụng Web</div>
+              <div class="card-instructor">
+                <div class="instr-av">NA</div>
+                Nguyễn Văn An
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>11 / 19 bài</span>
+                  <span class="pct">58%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 58%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-clock"></i> 5h 15m còn lại</span>
+                <span><i class="fas fa-calendar-alt"></i> Học tuần trước</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue">
+                  <i class="fas fa-play"></i> Tiếp tục học
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 5: In Progress (new, 0%) ── -->
+          <div class="my-course-card" data-status="inprogress" onclick="window.location.href='detailcourse.html'">
+            <div class="card-thumb" style="background: linear-gradient(135deg, #0c4a6e, #0369a1, #38bdf8);">
+              <span class="card-thumb-emoji">⚛️</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-play"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill" style="width: 8%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-laptop-code"></i> Frontend</div>
+              <div class="card-title">ReactJS Nâng Cao - Hooks, Redux & Testing</div>
+              <div class="card-instructor">
+                <div class="instr-av" style="background: linear-gradient(135deg, #7c3aed, #c026d3);">TB</div>
+                Tran Thi B
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>2 / 28 bài</span>
+                  <span class="pct">8%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 8%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-clock"></i> 20h 10m còn lại</span>
+                <span><i class="fas fa-calendar-alt"></i> Mới đăng ký</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue">
+                  <i class="fas fa-play"></i> Bắt đầu học
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 6: Completed ── -->
+          <div class="my-course-card" data-status="completed" onclick="window.location.href='detailcourse.html'">
+            <div class="ribbon"><i class="fas fa-check"></i> Đã hoàn thành</div>
+            <div class="card-thumb" style="background: linear-gradient(135deg, #134e4a, #0f766e, #2dd4bf);">
+              <span class="card-thumb-emoji">🐳</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-redo"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill done" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fab fa-docker"></i> DevOps</div>
+              <div class="card-title">Docker & Kubernetes - Triển khai ứng dụng thực tế</div>
+              <div class="card-instructor">
+                <div class="instr-av">NA</div>
+                Nguyễn Văn An
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>24 / 24 bài</span>
+                  <span class="pct" style="color: var(--success)">100%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill done" style="width: 100%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-trophy" style="color: var(--warning)"></i> Hoàn thành 01/12/2024</span>
+                <span><i class="fas fa-certificate" style="color: var(--warning)"></i> Có chứng chỉ</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue completed">
+                  <i class="fas fa-redo"></i> Xem lại
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 7: In Progress ── -->
+          <div class="my-course-card" data-status="inprogress" onclick="window.location.href='detailcourse.html'">
+            <div class="card-thumb" style="background: linear-gradient(135deg, #1e1b4b, #4338ca, #818cf8);">
+              <span class="card-thumb-emoji">🏛️</span>
+              <div class="card-thumb-overlay">
+                <div class="play-circle"><i class="fas fa-play"></i></div>
+              </div>
+              <div class="thumb-progress">
+                <div class="thumb-progress-fill" style="width: 45%"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-category"><i class="fas fa-project-diagram"></i> System Design</div>
+              <div class="card-title">System Design - Thiết Kế Hệ Thống Quy Mô Lớn</div>
+              <div class="card-instructor">
+                <div class="instr-av">NA</div>
+                Nguyễn Văn An
+              </div>
+              <div class="card-progress">
+                <div class="progress-label-row">
+                  <span>9 / 20 bài</span>
+                  <span class="pct">45%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 45%"></div>
+                </div>
+              </div>
+              <div class="card-meta">
+                <span><i class="fas fa-clock"></i> 7h 30m còn lại</span>
+                <span><i class="fas fa-calendar-alt"></i> Học 2 ngày trước</span>
+              </div>
+              <div class="card-footer-row">
+                <button class="btn-continue">
+                  <i class="fas fa-play"></i> Tiếp tục học
+                </button>
+                <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- END courses grid -->
+
+        <!-- ── CERTIFICATES ── -->
+        <div class="cert-section" id="certSection">
+          <div class="cert-header">
+            <div class="cert-header-left">
+              <div class="cert-header-icon"><i class="fas fa-certificate"></i></div>
+              <div>
+                <div class="cert-header-title">Chứng Chỉ Của Tôi</div>
+                <div class="cert-header-sub">2 chứng chỉ đã nhận — chia sẻ lên LinkedIn ngay!</div>
+              </div>
+            </div>
+            <a href="#" class="btn-view-all">
+              <i class="fas fa-external-link-alt"></i> Xem tất cả
+            </a>
+          </div>
+
+          <div class="cert-list">
+            <!-- Cert 1 -->
+            <div class="cert-card">
+              <div class="cert-icon">🏆</div>
+              <div class="cert-info">
+                <div class="cert-course-name">MySQL & PostgreSQL Từ A đến Z - Chuyên Sâu</div>
+                <div class="cert-date">
+                  <i class="fas fa-calendar-check"></i>
+                  Cấp ngày 15/02/2025
+                </div>
+                <div class="cert-id">ID: EDUVN-SQL-2025-00482</div>
+              </div>
+              <div class="cert-actions">
+                <button class="cert-btn download"><i class="fas fa-download"></i> Tải xuống</button>
+                <button class="cert-btn share"><i class="fab fa-linkedin"></i> Chia sẻ</button>
+              </div>
+            </div>
+
+            <!-- Cert 2 -->
+            <div class="cert-card">
+              <div class="cert-icon">🎖️</div>
+              <div class="cert-info">
+                <div class="cert-course-name">Docker & Kubernetes - Triển khai ứng dụng thực tế</div>
+                <div class="cert-date">
+                  <i class="fas fa-calendar-check"></i>
+                  Cấp ngày 01/12/2024
+                </div>
+                <div class="cert-id">ID: EDUVN-DK-2024-00217</div>
+              </div>
+              <div class="cert-actions">
+                <button class="cert-btn download"><i class="fas fa-download"></i> Tải xuống</button>
+                <button class="cert-btn share"><i class="fab fa-linkedin"></i> Chia sẻ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── STREAK & SKILLS ── -->
+        <div class="streak-section">
+
+          <!-- Streak Card -->
+          <div class="streak-card">
+            <div class="streak-card-title">
+              <i class="fas fa-fire"></i>
+              Chuỗi Học Tập Tháng Này
+            </div>
+            <div class="streak-grid" id="streakGrid">
+              <!-- Generated by JS -->
+            </div>
+            <div class="streak-summary">
+              <div class="streak-stat">
+                <div class="streak-stat-val" style="color: var(--orange);">🔥 12</div>
+                <div class="streak-stat-lab">Ngày liên tiếp</div>
+              </div>
+              <div class="streak-stat">
+                <div class="streak-stat-val">21</div>
+                <div class="streak-stat-lab">Ngày đã học / tháng</div>
+              </div>
+              <div class="streak-stat">
+                <div class="streak-stat-val" style="color: var(--primary);">86h</div>
+                <div class="streak-stat-lab">Tổng giờ học</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skill Progress -->
+          <div class="streak-card">
+            <div class="streak-card-title">
+              <i class="fas fa-chart-line"></i>
+              Kỹ Năng Đã Học
+            </div>
+            <div class="skill-list">
+              <div class="skill-item">
+                <div class="skill-header">
+                  <span class="skill-name">☕ Java / Spring Boot</span>
+                  <span class="skill-pct">72%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-bar-fill java" style="width: 72%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-header">
+                  <span class="skill-name">🌿 Spring Security</span>
+                  <span class="skill-pct">58%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-bar-fill spring" style="width: 58%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-header">
+                  <span class="skill-name">🐳 Docker / K8s</span>
+                  <span class="skill-pct">100%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-bar-fill docker" style="width: 100%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-header">
+                  <span class="skill-name">🗄️ MySQL / PostgreSQL</span>
+                  <span class="skill-pct">100%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-bar-fill db" style="width: 100%"></div></div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-header">
+                  <span class="skill-name">🏗️ System Design</span>
+                  <span class="skill-pct">45%</span>
+                </div>
+                <div class="skill-bar"><div class="skill-bar-fill aws" style="width: 45%"></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- END streak-section -->
+
+      </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="index.html" class="nav-logo" style="color: white;">
+              <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+              <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+            </a>
+            <p class="footer-desc">Nền tảng học trực tuyến hàng đầu Việt Nam, kết nối học viên với giáo viên chất lượng cao.</p>
+            <div class="footer-socials">
+              <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Khám phá</h4>
+            <ul>
+              <li><a href="courses.html">Tất cả khóa học</a></li>
+              <li><a href="categories.html">Danh mục</a></li>
+              <li><a href="instructors.html">Giáo viên</a></li>
+              <li><a href="#">Blog</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Tài khoản</h4>
+            <ul>
+              <li><a href="profile.html">Hồ sơ</a></li>
+              <li><a href="my-learning.html">Học của tôi</a></li>
+              <li><a href="payments.html">Thanh toán</a></li>
+              <li><a href="settings.html">Cài đặt</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Hỗ trợ</h4>
+            <ul>
+              <li><a href="#">Trung tâm trợ giúp</a></li>
+              <li><a href="#">Liên hệ</a></li>
+              <li><a href="#">Điều khoản</a></li>
+              <li><a href="#">Bảo mật</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© 2024 EduVN. Tất cả quyền được bảo lưu.</p>
+          <p>Made with <i class="fas fa-heart" style="color:#ef4444"></i> in Vietnam</p>
+        </div>
+      </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- ===================== SCRIPTS ===================== -->
+    <script>
+      /* ── Navbar scroll ── */
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 20);
+        document.getElementById('scrollTopBtn').classList.toggle('show', window.scrollY > 300);
+      });
+      document.getElementById('scrollTopBtn').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      /* ── User Dropdown ── */
+      const userAvatarBtn = document.getElementById('userAvatarBtn');
+      const userDropdown = document.getElementById('userDropdown');
+      userAvatarBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('show'));
+
+      /* ── View Toggle (grid / list) ── */
+      const gridViewBtn = document.getElementById('gridViewBtn');
+      const listViewBtn = document.getElementById('listViewBtn');
+      if (gridViewBtn && listViewBtn) {
+        gridViewBtn.addEventListener('click', function () {
+          const coursesGrid = document.getElementById('coursesGrid');
+          coursesGrid.classList.remove('list-view');
+          this.classList.add('active');
+          listViewBtn.classList.remove('active');
+        });
+        listViewBtn.addEventListener('click', function () {
+          const coursesGrid = document.getElementById('coursesGrid');
+          coursesGrid.classList.add('list-view');
+          this.classList.add('active');
+          gridViewBtn.classList.remove('active');
+        });
+      }
+
+      /* ── Streak Grid ── */
+      const today = new Date();
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const learnedDays = new Set([1,2,3,5,6,7,8,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]);
+      const streakGrid = document.getElementById('streakGrid');
+      for (let d = 1; d <= daysInMonth; d++) {
+        const el = document.createElement('div');
+        el.className = 'streak-day';
+        el.textContent = d;
+        if (d === today.getDate()) {
+          el.classList.add('today');
+        } else if (learnedDays.has(d) && d < today.getDate()) {
+          el.classList.add('learned');
+        } else {
+          el.classList.add('empty');
+        }
+        streakGrid.appendChild(el);
+      }
+    </script>
+    
+    <!-- Main JavaScript Handler -->
+    <script src="js/my-learning.js"></script>
+
+  </body>
+</html>

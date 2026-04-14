@@ -15,13 +15,13 @@ import lombok.experimental.FieldDefaults;
 public class ApiResponse<T> {
     int status = 200; // Default status code
     String message;
-    T data;
+    T result;
 
-    public static <T> ApiResponse<T> ok(T data, SuccessCode successCode) {
+    public static <T> ApiResponse<T> ok(T result, SuccessCode successCode) {
         return ApiResponse.<T>builder()
                 .status(successCode.getStatus())
                 .message(successCode.getMessage())
-                .data(data)
+                .result(result)
                 .build();
     }
     public static <T> ApiResponse<T> error(ErrorCode errorCode) {
@@ -34,7 +34,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .status(errorCode.getStatus())
                 .message(errorCode.getMessage())
-                .data(data)
+                .result(data)
                 .build();
     }
 }

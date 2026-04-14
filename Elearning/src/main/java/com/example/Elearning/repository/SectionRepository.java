@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SectionRepository extends JpaRepository<Section, String> {
     @Query("SELECT MAX(s.orderIndex) FROM Section s WHERE s.course.id = :courseId")
     Integer findMaxOrderIndexByCourseId(@Param("courseId") String courseId);
 
     int countByCourseId(String courseId);
+
+    List<Section> findByCourseIdOrderByOrderIndexAsc(String courseId);
 }

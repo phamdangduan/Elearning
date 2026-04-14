@@ -18,6 +18,7 @@ public enum SuccessCode {
     CREATED_SECTION(204, "Created section", HttpStatus.CREATED),
     UPDATED_SECTION(205, "Updated section", HttpStatus.OK),
     DELETED_SECTION(206, "Deleted section", HttpStatus.OK),
+    GET_SECTIONS_SUCCESS(2006, "Get lesson", HttpStatus.OK),
     CREATED_LESSON(207, "Created lesson", HttpStatus.CREATED),
     UPDATED_LESSON(208, "Updated lesson", HttpStatus.OK),
     DELETED_LESSON(209, "Deleted lesson", HttpStatus.OK),

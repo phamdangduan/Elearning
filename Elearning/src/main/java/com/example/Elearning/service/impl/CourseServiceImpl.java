@@ -5,9 +5,7 @@ import com.example.Elearning.dto.request.CourseSearchRequest;
 import com.example.Elearning.dto.request.CreatedCourseRequest;
 import com.example.Elearning.dto.request.UpdateCourseRequest;
 import com.example.Elearning.dto.request.UploadThumbnailRequest;
-import com.example.Elearning.dto.response.CourseDetailResponse;
-import com.example.Elearning.dto.response.CourseResponse;
-import com.example.Elearning.dto.response.CreatedCourseResponse;
+import com.example.Elearning.dto.response.*;
 import com.example.Elearning.entity.Course;
 import com.example.Elearning.enums.CourseStatus;
 import com.example.Elearning.exception.AppException;
@@ -118,6 +116,27 @@ public class CourseServiceImpl implements CourseService {
         response.setTotalReviews(totalReviews);
         response.setAverageRating(averageRating != null ? BigDecimal.valueOf(averageRating) : null);
 
+        // Tính tổng số lessons và tổng thời lượng
+        int totalLessons = 0;
+        int totalDurationSeconds = 0;
+        
+        if (response.getSections() != null) {
+            for (SectionResponse section : response.getSections()) {
+                if (section.getLessons() != null) {
+                    totalLessons += section.getLessons().size();
+                    for (LessonResponse lesson : section.getLessons()) {
+                        Integer duration = lesson.getDurationInSeconds();
+                        if (duration != null) {
+                            totalDurationSeconds += duration;
+                        }
+                    }
+                }
+            }
+        }
+        
+        response.setTotalLessons(totalLessons);
+        response.setTotalDurationSeconds(totalDurationSeconds);
+
         return response;
     }
 
@@ -145,6 +164,27 @@ public class CourseServiceImpl implements CourseService {
 
         response.setTotalReviews(totalReviews);
         response.setAverageRating(averageRating != null ? BigDecimal.valueOf(averageRating) : null);
+
+        // Tính tổng số lessons và tổng thời lượng
+        int totalLessons = 0;
+        int totalDurationSeconds = 0;
+        
+        if (response.getSections() != null) {
+            for (SectionResponse section : response.getSections()) {
+                if (section.getLessons() != null) {
+                    totalLessons += section.getLessons().size();
+                    for (LessonResponse lesson : section.getLessons()) {
+                        Integer duration = lesson.getDurationInSeconds();
+                        if (duration != null) {
+                            totalDurationSeconds += duration;
+                        }
+                    }
+                }
+            }
+        }
+        
+        response.setTotalLessons(totalLessons);
+        response.setTotalDurationSeconds(totalDurationSeconds);
 
         return response;
     }

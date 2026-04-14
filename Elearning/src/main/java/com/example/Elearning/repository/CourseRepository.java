@@ -110,10 +110,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     List<Course> findAllByInstructorId(@Param("instructorId") String instructorId);
 
     // Tính rating trung bình của tất cả khóa học của instructor
-    @Query("SELECT AVG(c.averageRating) FROM Course c " +
-            "WHERE c.user.id = :instructorId " +
-            "AND c.averageRating IS NOT NULL " +
-            "AND c.averageRating > 0")
+    @Query("SELECT AVG(r.rating) FROM Review r " +
+            "WHERE r.course.user.id = :instructorId")
     Double calculateAverageRatingByInstructor(@Param("instructorId") String instructorId);
 
     // Đếm tổng số khóa học của instructor

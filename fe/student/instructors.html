@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giáo Viên - EduVN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --accent: #06b6d4;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --bg-primary: #f8faff;
+      --bg-card: #ffffff;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --shadow: 0 4px 16px rgba(37,99,235,0.1);
+      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      --nav-height: 72px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    img { max-width: 100%; display: block; }
+
+    /* Navbar */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); z-index: 1000;
+    }
+    .navbar.scrolled { background: rgba(255,255,255,0.98); box-shadow: var(--shadow); }
+    .nav-container {
+      max-width: 1340px; margin: 0 auto; padding: 0 24px; height: 100%;
+      display: flex; align-items: center; gap: 32px;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 18px;
+    }
+    .logo-text { font-size: 22px; font-weight: 800; }
+    .logo-accent { color: var(--primary); }
+    .nav-links { display: flex; gap: 4px; flex: 1; }
+    .nav-link {
+      padding: 8px 16px; border-radius: var(--radius-full);
+      font-size: 15px; font-weight: 500; color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .nav-link:hover, .nav-link.active { color: var(--primary); background: #dbeafe; }
+    .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .nav-user { position: relative; }
+    .nav-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-primary); border: 1.5px solid var(--border);
+      border-radius: var(--radius-full); padding: 8px 16px;
+    }
+    .nav-search i { color: var(--text-muted); font-size: 14px; }
+    .nav-search input {
+      border: none; background: none; outline: none;
+      font-size: 14px; width: 200px;
+    }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text-secondary);
+      background: var(--bg-primary); border: 1.5px solid var(--border);
+      transition: var(--transition); position: relative; cursor: pointer;
+    }
+    .icon-btn:hover { color: var(--primary); background: #dbeafe; }
+    .noti-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: #ef4444; color: white;
+      font-size: 10px; font-weight: 700; width: 18px; height: 18px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 2px solid white;
+    }
+    .user-avatar-wrapper {
+      display: flex; align-items: center; gap: 10px; padding: 6px 12px;
+      border-radius: var(--radius-full); cursor: pointer;
+      border: 1.5px solid var(--border); background: var(--bg-primary);
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 14px;
+    }
+    .user-name-nav { font-size: 14px; font-weight: 600; }
+    .user-dropdown {
+      position: absolute; top: calc(100% + 12px); right: 0;
+      width: 280px; background: white; border-radius: var(--radius-lg);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12); border: 1px solid var(--border);
+      display: none; z-index: 500; animation: dropIn 0.2s ease; overflow: hidden;
+    }
+    .user-dropdown.show { display: block; }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .dropdown-header {
+      display: flex; align-items: center; gap: 12px; padding: 20px;
+      background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+    }
+    .dropdown-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px; flex-shrink: 0;
+    }
+    .dropdown-name { font-weight: 700; font-size: 15px; }
+    .dropdown-email { font-size: 12px; color: var(--text-muted); }
+    .user-dropdown hr { border: none; border-top: 1px solid var(--border); }
+    .dropdown-menu-list { padding: 8px 0; }
+    .dropdown-menu-list li a {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      font-size: 14px; color: var(--text-secondary); transition: var(--transition);
+    }
+    .dropdown-menu-list li a:hover { background: var(--bg-primary); color: var(--primary); }
+    .dropdown-menu-list li a i { width: 16px; color: var(--text-muted); }
+    .logout-btn {
+      width: 100%; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+      font-size: 14px; color: #ef4444; transition: var(--transition); cursor: pointer;
+      background: none; border: none; text-align: left;
+    }
+    .logout-btn:hover { background: #fef2f2; }
+
+    /* Page Header */
+    .page-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #1e40af 70%, #1d4ed8 100%);
+      padding-top: calc(var(--nav-height) + 48px); padding-bottom: 72px;
+      position: relative; overflow: hidden; color: white;
+    }
+    .page-header-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    .page-header-title { font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+    .page-header-sub { font-size: 16px; color: rgba(255,255,255,0.7); max-width: 480px; }
+
+    /* Main */
+    .main-body { padding: 48px 0 80px; }
+    .main-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+    /* Instructors Grid */
+    .instructors-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px; margin-top: 40px;
+    }
+    .instructor-card {
+      background: white; border-radius: var(--radius-lg);
+      border: 1px solid var(--border); padding: 32px 24px;
+      text-align: center; transition: var(--transition); cursor: pointer;
+    }
+    .instructor-card:hover {
+      transform: translateY(-5px); box-shadow: var(--shadow);
+      border-color: var(--primary);
+    }
+    .instructor-avatar {
+      width: 100px; height: 100px; border-radius: 50%;
+      margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 700; color: white;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .instructor-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .instructor-bio {
+      font-size: 13px; color: var(--text-muted); margin-bottom: 16px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; min-height: 40px;
+    }
+    .instructor-stats {
+      display: flex; justify-content: center; gap: 20px; padding-top: 16px;
+      border-top: 1px solid var(--border); font-size: 13px;
+    }
+    .instructor-stats span { display: flex; align-items: center; gap: 4px; color: var(--text-muted); }
+    .instructor-stats i { color: var(--primary); }
+
+    /* Loading */
+    .loading {
+      text-align: center; padding: 60px 20px;
+    }
+    .loading i { font-size: 48px; color: var(--primary); }
+
+    /* Footer */
+    .footer { background: #0f172a; color: white; padding: 64px 0 24px; margin-top: 80px; }
+    .footer-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08); padding: 24px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; color: rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+        <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+        <li><a href="courses.html" class="nav-link">Khóa học</a></li>
+        <li><a href="my-learning.html" class="nav-link">Học của tôi</a></li>
+        <li><a href="instructors.html" class="nav-link active">Giáo viên</a></li>
+      </ul>
+      
+      <div class="nav-right">
+        <div class="nav-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Tìm kiếm khóa học..." />
+        </div>
+
+        <div class="nav-notification">
+          <button class="icon-btn">
+            <i class="fas fa-bell"></i>
+            <span class="noti-badge">3</span>
+          </button>
+        </div>
+
+        <div class="nav-user">
+          <div class="user-avatar-wrapper" id="userAvatarBtn">
+            <div class="user-avatar"><i class="fas fa-user"></i></div>
+            <span class="user-name-nav">Học Viên</span>
+            <i class="fas fa-chevron-down" style="font-size:12px; color: var(--text-muted);"></i>
+          </div>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+              <div class="dropdown-avatar"><i class="fas fa-user"></i></div>
+              <div>
+                <p class="dropdown-name">Học Viên A</p>
+                <p class="dropdown-email">hocvien@email.com</p>
+              </div>
+            </div>
+            <hr />
+            <ul class="dropdown-menu-list">
+              <li><a href="profile.html"><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</a></li>
+              <li><a href="my-learning.html"><i class="fas fa-book-open"></i> Khóa học của tôi</a></li>
+              <li><a href="payments.html"><i class="fas fa-credit-card"></i> Lịch sử thanh toán</a></li>
+              <li><a href="settings.html"><i class="fas fa-cog"></i> Cài đặt</a></li>
+            </ul>
+            <hr />
+            <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-inner">
+      <h1 class="page-header-title">Giáo Viên Tiêu Biểu</h1>
+      <p class="page-header-sub">
+        Học từ những chuyên gia hàng đầu trong lĩnh vực
+      </p>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <section class="main-body">
+    <div class="main-inner">
+      <div class="instructors-grid" id="instructorsGrid">
+        <div class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p style="margin-top: 20px; color: var(--text-muted);">Đang tải danh sách giáo viên...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <p>© 2024 EduVN. Tất cả quyền được bảo lưu.</p>
+        <p>Made with <i class="fas fa-heart" style="color:#ef4444"></i> in Vietnam</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+
+    // Load instructors
+    async function loadInstructors() {
+      try {
+        const response = await fetch(`${API_BASE}/profile/instructors`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const result = await response.json();
+        const instructors = result.result || [];
+        
+        renderInstructors(instructors);
+      } catch (error) {
+        console.error('Error loading instructors:', error);
+        document.getElementById('instructorsGrid').innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--warning);"></i>
+            <p style="margin-top: 20px; color: var(--text-muted);">Không thể tải danh sách giáo viên</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render instructors
+    async function renderInstructors(instructors) {
+      if (!instructors || instructors.length === 0) {
+        document.getElementById('instructorsGrid').innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+            <p style="color: var(--text-muted);">Chưa có giáo viên nào</p>
+          </div>
+        `;
+        return;
+      }
+
+      const colors = [
+        'linear-gradient(135deg, #10b981, #34d399)',
+        'linear-gradient(135deg, #f97316, #fb923c)',
+        'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+        'linear-gradient(135deg, #2563eb, #06b6d4)',
+        'linear-gradient(135deg, #dc2626, #f87171)',
+      ];
+
+      // Fetch stats for all instructors
+      const statsPromises = instructors.map(instructor => 
+        fetch(`${API_BASE}/instructor/stats?instructorId=${instructor.id}`)
+          .then(res => res.ok ? res.json() : null)
+          .catch(() => null)
+      );
+
+      const statsResults = await Promise.all(statsPromises);
+
+      const html = instructors.map((instructor, idx) => {
+        const name = instructor.fullName || instructor.userName || 'Giáo viên';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        const color = colors[idx % colors.length];
+        const bio = instructor.bio || 'Giảng viên chuyên nghiệp';
+
+        // Get stats from API
+        const stats = statsResults[idx]?.result;
+        const rating = stats?.averageRating ? parseFloat(stats.averageRating).toFixed(1) : 'N/A';
+        const totalCourses = stats?.totalCourses || 0;
+        const courseText = totalCourses > 0 ? `${totalCourses} khóa học` : 'Chưa có khóa học';
+
+        return `
+          <div class="instructor-card" onclick="window.location.href='detailprofileteacher.html?teacherId=${instructor.id}'">
+            <div class="instructor-avatar" style="background: ${color};">
+              ${instructor.avatar ? `<img src="${instructor.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />` : initials}
+            </div>
+            <div class="instructor-name">${name}</div>
+            <div class="instructor-bio">${bio}</div>
+            <div class="instructor-stats">
+              <span><i class="fas fa-star"></i> ${rating}</span>
+              <span><i class="fas fa-book"></i> ${courseText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('instructorsGrid').innerHTML = html;
+    }
+
+    // Navbar scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // User Dropdown
+    const userAvatarBtn = document.getElementById('userAvatarBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    if (userAvatarBtn && userDropdown) {
+      userAvatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('show');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('show'));
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadInstructors);
+  </script>
+</body>
+</html>

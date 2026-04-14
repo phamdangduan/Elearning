@@ -28,6 +28,8 @@ public class CourseDetailResponse {
     BigDecimal averageRating;
     Integer totalReviews;
     Integer totalEnrollments;
+    Integer totalLessons;
+    Integer totalDurationSeconds;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hồ Sơ Giáo Viên - EduVN</title>
+    <meta
+      name="description"
+      content="Xem hồ sơ chi tiết giáo viên, các khóa học đang giảng dạy và đánh giá từ học viên trên EduVN."
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      /* ── CSS Variables ── */
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --primary-light: #3b82f6;
+        --primary-xlight: #dbeafe;
+        --accent: #06b6d4;
+        --accent-light: #cffafe;
+        --secondary: #1e293b;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --bg-primary: #f8faff;
+        --bg-card: #ffffff;
+        --bg-dark: #0f172a;
+        --border: #e2e8f0;
+        --border-focus: #93c5fd;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --orange: #f97316;
+        --purple: #8b5cf6;
+
+        --radius-sm: 8px;
+        --radius: 12px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+        --radius-full: 9999px;
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+        --shadow: 0 4px 16px rgba(37, 99, 235, 0.1);
+        --shadow-md: 0 8px 32px rgba(37, 99, 235, 0.15);
+        --shadow-lg: 0 20px 60px rgba(37, 99, 235, 0.2);
+        --shadow-float: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-fast: all 0.15s ease;
+
+        --nav-height: 72px;
+        --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; font-size: 16px; }
+      body {
+        font-family: var(--font);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      a { text-decoration: none; color: inherit; transition: var(--transition-fast); }
+      ul { list-style: none; }
+      img { max-width: 100%; display: block; }
+      button { cursor: pointer; border: none; background: none; font-family: var(--font); }
+      input { font-family: var(--font); }
+
+      .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+      /* ── NAVBAR ── */
+      .navbar {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: var(--nav-height);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        z-index: 1000;
+        transition: var(--transition);
+      }
+      .navbar.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 4px 24px rgba(37, 99, 235, 0.1);
+      }
+      .nav-container {
+        max-width: 1340px;
+        margin: 0 auto;
+        padding: 0 24px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+      }
+      .nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+      .logo-icon {
+        width: 40px; height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 18px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      .logo-text { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+      .logo-accent { color: var(--primary); }
+      .nav-links { display: flex; gap: 4px; flex: 1; }
+      .nav-link {
+        padding: 8px 16px;
+        border-radius: var(--radius-full);
+        font-size: 15px; font-weight: 500;
+        color: var(--text-secondary);
+        transition: var(--transition-fast);
+      }
+      .nav-link:hover, .nav-link.active {
+        color: var(--primary);
+        background: var(--primary-xlight);
+      }
+      .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+      .nav-search {
+        display: flex; align-items: center; gap: 8px;
+        background: var(--bg-primary);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-full);
+        padding: 8px 16px;
+        transition: var(--transition);
+      }
+      .nav-search:focus-within {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+      .nav-search i { color: var(--text-muted); font-size: 14px; }
+      .nav-search input {
+        border: none; background: none; outline: none;
+        font-size: 14px; color: var(--text-primary); width: 200px;
+      }
+      .icon-btn {
+        width: 40px; height: 40px;
+        border-radius: var(--radius-full);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; color: var(--text-secondary);
+        background: var(--bg-primary);
+        border: 1.5px solid var(--border);
+        transition: var(--transition); position: relative;
+      }
+      .icon-btn:hover { color: var(--primary); background: var(--primary-xlight); border-color: var(--border-focus); }
+
+      /* Notification */
+      .nav-notification { position: relative; }
+      .noti-badge {
+        position: absolute; top: -4px; right: -4px;
+        background: var(--danger); color: white;
+        font-size: 10px; font-weight: 700;
+        width: 18px; height: 18px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid white;
+      }
+
+      /* User */
+      .nav-user { position: relative; }
+      .user-avatar-wrapper {
+        display: flex; align-items: center; gap: 10px;
+        padding: 6px 12px;
+        border-radius: var(--radius-full);
+        cursor: pointer; transition: var(--transition);
+        border: 1.5px solid var(--border);
+        background: var(--bg-primary);
+      }
+      .user-avatar-wrapper:hover { background: var(--primary-xlight); border-color: var(--border-focus); }
+      .user-avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 14px; overflow: hidden;
+      }
+      .user-name-nav { font-size: 14px; font-weight: 600; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+      /* User Dropdown */
+      .user-dropdown {
+        position: absolute; top: calc(100% + 12px); right: 0;
+        width: 280px; background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-float);
+        border: 1px solid var(--border);
+        display: none; z-index: 500;
+        animation: dropSlideIn 0.2s ease; overflow: hidden;
+      }
+      .user-dropdown.show { display: block; }
+      @keyframes dropSlideIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .dropdown-header {
+        display: flex; align-items: center; gap: 12px;
+        padding: 20px;
+        background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+      }
+      .dropdown-avatar {
+        width: 48px; height: 48px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 20px; overflow: hidden; flex-shrink: 0;
+      }
+      .dropdown-name { font-weight: 700; font-size: 15px; }
+      .dropdown-email { font-size: 12px; color: var(--text-muted); }
+      .user-dropdown hr { border: none; border-top: 1px solid var(--border); }
+      .dropdown-menu-list { padding: 8px 0; }
+      .dropdown-menu-list li a {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 20px; font-size: 14px; color: var(--text-secondary);
+        transition: var(--transition-fast);
+      }
+      .dropdown-menu-list li a:hover { background: var(--bg-primary); color: var(--primary); }
+      .dropdown-menu-list li a i { width: 16px; color: var(--text-muted); }
+      .logout-btn {
+        width: 100%; padding: 14px 20px;
+        display: flex; align-items: center; gap: 12px;
+        font-size: 14px; color: var(--danger);
+        transition: var(--transition-fast);
+      }
+      .logout-btn:hover { background: #fef2f2; }
+
+      /* Hamburger */
+      .hamburger { display: none; flex-direction: column; gap: 5px; padding: 4px; }
+      .hamburger span { width: 24px; height: 2px; background: var(--text-secondary); border-radius: 2px; transition: var(--transition); }
+
+      /* ── TEACHER HERO BANNER ── */
+      .teacher-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #1e40af 70%, #1d4ed8 100%);
+        padding-top: calc(var(--nav-height) + 56px);
+        padding-bottom: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .teacher-hero-bg { position: absolute; inset: 0; pointer-events: none; }
+      .teacher-hero-bg .shape {
+        position: absolute; border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+      }
+      .teacher-hero-bg .shape-1 {
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+        top: -200px; right: -80px;
+      }
+      .teacher-hero-bg .shape-2 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+        bottom: -100px; left: -60px; animation-delay: 3s;
+      }
+      .teacher-hero-bg .shape-3 {
+        width: 280px; height: 280px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+        top: 40%; left: 35%; animation-delay: 5s;
+      }
+      .hero-grid-overlay {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-25px) scale(1.04); }
+      }
+
+      .teacher-hero-inner {
+        max-width: 1280px; margin: 0 auto;
+        padding: 0 24px 64px;
+        position: relative; z-index: 1;
+      }
+
+      /* Breadcrumb */
+      .breadcrumb {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 40px; font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .breadcrumb a { color: rgba(255, 255, 255, 0.65); }
+      .breadcrumb a:hover { color: #60a5fa; }
+      .breadcrumb i { font-size: 10px; }
+      .breadcrumb span.current { color: rgba(255, 255, 255, 0.9); }
+
+      /* Profile Card Inside Hero */
+      .teacher-profile-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 40px;
+        align-items: center;
+      }
+
+      /* Avatar */
+      .teacher-avatar-wrap { position: relative; flex-shrink: 0; }
+      .teacher-avatar {
+        width: 140px; height: 140px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #60a5fa, #06b6d4, #8b5cf6);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 54px; font-weight: 800; color: white;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        position: relative;
+        overflow: hidden;
+      }
+      .teacher-avatar img { width: 100%; height: 100%; object-fit: cover; }
+      .verified-badge {
+        position: absolute;
+        bottom: 6px; right: 6px;
+        width: 32px; height: 32px;
+        background: var(--success);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 14px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      }
+
+      /* Teacher Info */
+      .teacher-info { color: white; }
+      .teacher-expertise-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-full);
+        padding: 6px 16px;
+        font-size: 12px; font-weight: 700;
+        color: #93c5fd; text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 14px;
+      }
+      .teacher-name {
+        font-size: clamp(28px, 4vw, 46px);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+      }
+      .teacher-title {
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.72);
+        margin-bottom: 20px;
+        max-width: 560px;
+        line-height: 1.6;
+      }
+
+      /* Rating Row */
+      .teacher-rating-row {
+        display: flex; align-items: center; flex-wrap: wrap; gap: 20px;
+        margin-bottom: 0;
+      }
+      .rating-block { display: flex; align-items: center; gap: 6px; }
+      .stars { display: flex; gap: 2px; }
+      .stars i { color: #f59e0b; font-size: 15px; }
+      .rating-num { font-size: 16px; font-weight: 800; color: #fbbf24; }
+      .rating-count { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+      .meta-pill {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 14px; color: rgba(255, 255, 255, 0.8);
+      }
+      .meta-pill i { color: #60a5fa; font-size: 15px; }
+      .meta-pill .val { color: white; font-weight: 700; }
+
+      /* Right Side - Action Buttons */
+      .teacher-actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+      .btn-follow {
+        display: flex; align-items: center; gap: 10px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-radius: var(--radius);
+        font-size: 15px; font-weight: 700;
+        transition: var(--transition);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        white-space: nowrap;
+      }
+      .btn-follow:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.5); }
+      .btn-message {
+        display: flex; align-items: center; gap: 8px;
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1.5px solid rgba(255, 255, 255, 0.25);
+        border-radius: var(--radius);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px; font-weight: 600;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+      .btn-message:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.4); }
+
+      /* Social links */
+      .teacher-socials { display: flex; gap: 8px; }
+      .social-btn {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255, 255, 255, 0.75); font-size: 15px;
+        transition: var(--transition);
+      }
+      .social-btn:hover { background: rgba(255, 255, 255, 0.25); color: white; border-color: rgba(255, 255, 255, 0.5); }
+
+      /* Hero Wave */
+      .hero-wave { position: relative; bottom: -1px; left: 0; right: 0; }
+      .hero-wave svg { display: block; width: 100%; }
+
+      /* ── STATS STRIP ── */
+      .stats-strip {
+        background: white;
+        border-bottom: 1px solid var(--border);
+        padding: 0;
+      }
+      .stats-strip-inner {
+        max-width: 1280px; margin: 0 auto; padding: 0 24px;
+        display: grid; grid-template-columns: repeat(4, 1fr);
+      }
+      .strip-stat {
+        padding: 24px 20px;
+        display: flex; align-items: center; gap: 14px;
+        border-right: 1px solid var(--border);
+        transition: var(--transition);
+      }
+      .strip-stat:last-child { border-right: none; }
+      .strip-stat:hover { background: var(--bg-primary); }
+      .strip-stat-icon {
+        width: 48px; height: 48px;
+        border-radius: var(--radius);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; flex-shrink: 0;
+      }
+      .strip-stat-icon.blue { background: #eff6ff; color: var(--primary); }
+      .strip-stat-icon.gold { background: #fef3c7; color: #f59e0b; }
+      .strip-stat-icon.green { background: #d1fae5; color: var(--success); }
+      .strip-stat-icon.purple { background: #ede9fe; color: var(--purple); }
+      .strip-stat-val { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+      .strip-stat-lab { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+      /* ── BODY LAYOUT ── */
+      .teacher-body { padding: 56px 0 80px; }
+      .teacher-layout {
+        max-width: 1280px; margin: 0 auto; padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 48px;
+      }
+      .teacher-main { min-width: 0; }
+
+      /* ── SECTION BLOCK ── */
+      .section-block {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        margin-bottom: 28px;
+        transition: var(--transition);
+      }
+      .section-block:hover { box-shadow: var(--shadow); }
+
+      .block-title {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 20px; font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--bg-primary);
+      }
+      .block-title-icon {
+        width: 40px; height: 40px;
+        border-radius: var(--radius-sm);
+        background: var(--primary-xlight);
+        color: var(--primary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 17px; flex-shrink: 0;
+      }
+
+      /* About / Bio */
+      .bio-text {
+        font-size: 15px; line-height: 1.8;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+      }
+      .bio-text p + p { margin-top: 12px; }
+
+      /* Expertise Tags */
+      .expertise-list {
+        display: flex; flex-wrap: wrap; gap: 10px;
+        margin-top: 20px;
+      }
+      .expertise-tag {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 16px;
+        background: var(--primary-xlight);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        font-size: 13px; font-weight: 600;
+        border: 1px solid rgba(37, 99, 235, 0.15);
+        transition: var(--transition);
+      }
+      .expertise-tag:hover { background: var(--primary); color: white; }
+      .expertise-tag i { font-size: 12px; }
+
+      /* ── COURSES SECTION ── */
+      .course-filter-tabs {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .course-filter-tab {
+        padding: 8px 18px;
+        border-radius: var(--radius-full);
+        font-size: 13px; font-weight: 600;
+        color: var(--text-secondary);
+        background: var(--bg-primary);
+        border: 1.5px solid var(--border);
+        transition: var(--transition);
+        cursor: pointer;
+      }
+      .course-filter-tab.active,
+      .course-filter-tab:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      /* Course Card */
+      .courses-list { display: flex; flex-direction: column; gap: 20px; }
+
+      .course-card-h {
+        display: grid;
+        grid-template-columns: 180px 1fr auto;
+        gap: 20px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+      .course-card-h:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--border-focus);
+      }
+
+      .course-thumb-h {
+        height: 140px;
+        background: linear-gradient(135deg, #1e3a8a, #2563eb, #06b6d4);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 50px;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+      .course-thumb-h .thumb-overlay {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.15);
+      }
+      .course-thumb-h-emoji { position: relative; z-index: 1; }
+
+      .course-info-h {
+        padding: 20px 0 20px 0;
+        display: flex; flex-direction: column; justify-content: center;
+        min-width: 0;
+      }
+      .course-level-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        width: fit-content;
+      }
+      .course-level-badge.beginner { background: #d1fae5; color: #065f46; }
+      .course-level-badge.intermediate { background: #fef3c7; color: #92400e; }
+      .course-level-badge.advanced { background: #ede9fe; color: #5b21b6; }
+
+      .course-h-title {
+        font-size: 16px; font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .course-h-meta {
+        display: flex; flex-wrap: wrap; gap: 14px;
+        font-size: 13px; color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .course-h-meta span { display: flex; align-items: center; gap: 5px; }
+      .course-h-meta i { color: var(--primary); font-size: 12px; }
+
+      .course-h-rating {
+        display: flex; align-items: center; gap: 6px;
+      }
+      .course-h-rating .stars-sm i { color: #f59e0b; font-size: 12px; }
+      .course-h-rating .r-num { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+      .course-h-rating .r-count { font-size: 12px; color: var(--text-muted); }
+
+      .course-price-h {
+        padding: 20px;
+        display: flex; flex-direction: column;
+        align-items: flex-end; justify-content: center;
+        border-left: 1px solid var(--border);
+        min-width: 120px;
+        gap: 8px;
+      }
+      .price-now { font-size: 20px; font-weight: 800; color: var(--primary); }
+      .price-old { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
+      .price-discount {
+        background: #fef3c7; color: #d97706;
+        font-size: 11px; font-weight: 700;
+        padding: 2px 7px; border-radius: var(--radius-sm);
+      }
+      .btn-view-course {
+        display: flex; align-items: center; gap: 6px;
+        padding: 9px 18px;
+        background: var(--primary-xlight);
+        color: var(--primary);
+        border-radius: var(--radius-sm);
+        font-size: 13px; font-weight: 700;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+      .btn-view-course:hover { background: var(--primary); color: white; }
+
+      /* ── REVIEWS ── */
+      .reviews-summary {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 32px;
+        align-items: center;
+        margin-bottom: 32px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .big-rating {
+        text-align: center;
+        background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+        border-radius: var(--radius-lg);
+        padding: 28px 36px;
+      }
+      .big-rating-num {
+        font-size: 56px; font-weight: 900;
+        color: var(--primary); line-height: 1;
+        margin-bottom: 8px;
+      }
+      .big-rating-stars { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
+      .big-rating-stars i { color: #f59e0b; font-size: 20px; }
+      .big-rating-label { font-size: 13px; color: var(--text-muted); }
+
+      /* Star Breakdown */
+      .star-breakdown { display: flex; flex-direction: column; gap: 10px; }
+      .star-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+      .star-row-label { display: flex; align-items: center; gap: 4px; color: var(--text-muted); width: 50px; flex-shrink: 0; }
+      .star-row-label i { color: #f59e0b; font-size: 12px; }
+      .star-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden; }
+      .star-bar-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: var(--radius-full); }
+      .star-row-pct { width: 36px; text-align: right; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; }
+
+      /* Review Cards */
+      .reviews-list { display: flex; flex-direction: column; gap: 20px; }
+
+      .review-card {
+        background: var(--bg-primary);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        border: 1px solid var(--border);
+        transition: var(--transition);
+      }
+      .review-card:hover { box-shadow: var(--shadow); }
+
+      .review-header {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 14px;
+      }
+      .reviewer-avatar {
+        width: 44px; height: 44px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; font-weight: 700; color: white;
+        flex-shrink: 0;
+      }
+      .reviewer-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+      .review-date { font-size: 12px; color: var(--text-muted); }
+      .review-stars { display: flex; gap: 2px; margin-left: auto; }
+      .review-stars i { color: #f59e0b; font-size: 14px; }
+      .review-text { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+
+      /* Helpful row */
+      .review-helpful {
+        display: flex; align-items: center; gap: 10px;
+        margin-top: 12px; padding-top: 12px;
+        border-top: 1px solid var(--border);
+        font-size: 12px; color: var(--text-muted);
+      }
+      .helpful-btn {
+        display: flex; align-items: center; gap: 5px;
+        padding: 5px 12px;
+        border-radius: var(--radius-full);
+        border: 1.5px solid var(--border);
+        font-size: 12px; color: var(--text-muted);
+        transition: var(--transition-fast); cursor: pointer;
+      }
+      .helpful-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+      /* ── RIGHT SIDEBAR ── */
+      .teacher-sidebar { }
+
+      /* Sticky Card */
+      .sidebar-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 24px;
+        position: sticky;
+        top: calc(var(--nav-height) + 24px);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .sidebar-card:hover { box-shadow: var(--shadow); }
+
+      .sidebar-card-header {
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 16px; font-weight: 800;
+        color: var(--text-primary);
+        display: flex; align-items: center; gap: 10px;
+      }
+      .sidebar-card-header i { color: var(--primary); }
+
+      /* Contact Form */
+      .contact-form { padding: 24px; }
+      .form-group { margin-bottom: 16px; }
+      .form-label {
+        display: block; font-size: 13px; font-weight: 600;
+        color: var(--text-secondary); margin-bottom: 6px;
+      }
+      .form-input {
+        width: 100%; padding: 11px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 14px; color: var(--text-primary);
+        outline: none; transition: var(--transition);
+        background: var(--bg-primary);
+      }
+      .form-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+      .form-textarea { min-height: 100px; resize: vertical; }
+      .btn-send {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; padding: 14px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; border-radius: var(--radius-sm);
+        font-size: 15px; font-weight: 700;
+        transition: var(--transition);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+      }
+      .btn-send:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37, 99, 235, 0.4); }
+
+      /* Top Courses Mini */
+      .mini-course-list { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+      .mini-course-item {
+        display: flex; gap: 14px; align-items: center;
+        padding: 12px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        transition: var(--transition); cursor: pointer;
+      }
+      .mini-course-item:hover { background: var(--bg-primary); border-color: var(--border-focus); transform: translateX(4px); }
+      .mini-course-thumb {
+        width: 56px; height: 56px;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; flex-shrink: 0;
+      }
+      .mini-course-name { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin-bottom: 4px; }
+      .mini-course-price { font-size: 14px; font-weight: 800; color: var(--primary); }
+
+      /* Achievement badges */
+      .achievement-list { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 12px; }
+      .achievement-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px;
+        background: var(--bg-primary);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      .achievement-icon {
+        width: 44px; height: 44px;
+        border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; flex-shrink: 0;
+      }
+      .achievement-icon.gold { background: #fef3c7; color: #f59e0b; }
+      .achievement-icon.blue { background: #eff6ff; color: var(--primary); }
+      .achievement-icon.green { background: #d1fae5; color: var(--success); }
+      .achievement-icon.purple { background: #ede9fe; color: var(--purple); }
+      .achievement-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+      .achievement-desc { font-size: 12px; color: var(--text-muted); }
+
+      /* ── Load More Button ── */
+      .load-more-wrap { text-align: center; margin-top: 24px; }
+      .btn-load-more {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 12px 28px;
+        border: 1.5px solid var(--primary);
+        border-radius: var(--radius-full);
+        color: var(--primary); font-size: 14px; font-weight: 700;
+        transition: var(--transition); cursor: pointer;
+      }
+      .btn-load-more:hover { background: var(--primary); color: white; }
+
+      /* ── FOOTER ── */
+      .footer {
+        background: var(--bg-dark);
+        color: white;
+        padding: 64px 0 0;
+      }
+      .footer-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        padding-bottom: 48px;
+      }
+      .footer-desc { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.55); margin: 16px 0 24px; }
+      .footer-socials { display: flex; gap: 10px; }
+      .social-link {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; color: rgba(255,255,255,0.6);
+        transition: var(--transition);
+      }
+      .social-link:hover { background: var(--primary); border-color: var(--primary); color: white; }
+      .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: white; }
+      .footer-col ul li { margin-bottom: 10px; }
+      .footer-col ul li a { font-size: 14px; color: rgba(255,255,255,0.55); }
+      .footer-col ul li a:hover { color: white; }
+      .footer-bottom {
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding: 24px 0;
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 13px; color: rgba(255,255,255,0.4);
+      }
+
+      /* ── SCROLL TO TOP ── */
+      .scroll-top {
+        position: fixed; bottom: 32px; right: 32px;
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        opacity: 0; pointer-events: none;
+        transition: var(--transition); z-index: 999;
+        cursor: pointer;
+      }
+      .scroll-top.show { opacity: 1; pointer-events: auto; }
+      .scroll-top:hover { transform: translateY(-4px); }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1024px) {
+        .teacher-profile-card { grid-template-columns: auto 1fr; }
+        .teacher-actions { display: none; }
+        .teacher-layout { grid-template-columns: 1fr; }
+        .teacher-sidebar { display: none; }
+        .stats-strip-inner { grid-template-columns: repeat(2, 1fr); }
+        .strip-stat:nth-child(2) { border-right: none; }
+        .footer-grid { grid-template-columns: 1fr 1fr; }
+      }
+
+      @media (max-width: 768px) {
+        .teacher-profile-card { grid-template-columns: 1fr; text-align: center; }
+        .teacher-avatar-wrap { margin: 0 auto; }
+        .teacher-rating-row { justify-content: center; }
+        .nav-links, .nav-search { display: none; }
+        .course-card-h { grid-template-columns: 1fr; }
+        .course-thumb-h { height: 180px; }
+        .course-price-h { border-left: none; border-top: 1px solid var(--border); flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        .reviews-summary { grid-template-columns: 1fr; }
+        .footer-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <!-- Logo -->
+        <a href="index.html" class="nav-logo">
+          <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+          <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+        </a>
+
+        <!-- Nav Links -->
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+          <li><a href="courses.html" class="nav-link">Khóa học</a></li>
+          <li><a href="my-learning.html" class="nav-link">Học của tôi</a></li>
+          <li><a href="instructors.html" class="nav-link active">Giáo viên</a></li>
+        </ul>
+
+        <!-- Nav Right -->
+        <div class="nav-right">
+          <!-- Search bar mini -->
+          <div class="nav-search" id="navSearch">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm kiếm khóa học..." id="navSearchInput" />
+          </div>
+
+          <!-- Notification Bell -->
+          <div class="nav-notification" id="notificationBtn">
+            <button class="icon-btn" id="notiBell">
+              <i class="fas fa-bell"></i>
+              <span class="noti-badge" id="notiBadge">3</span>
+            </button>
+          </div>
+
+          <!-- User Profile -->
+          <div class="nav-user" id="navUser">
+            <div class="user-avatar-wrapper" id="userAvatarBtn">
+              <div class="user-avatar" id="userAvatarNav">
+                <i class="fas fa-user"></i>
+              </div>
+              <span class="user-name-nav" id="userNameNav">Học Viên</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+
+            <!-- User Dropdown -->
+            <div class="user-dropdown" id="userDropdown">
+              <div class="dropdown-header">
+                <div class="dropdown-avatar"><i class="fas fa-user"></i></div>
+                <div>
+                  <p class="dropdown-name" id="dropdownName">Học Viên A</p>
+                  <p class="dropdown-email" id="dropdownEmail">hocvien@email.com</p>
+                </div>
+              </div>
+              <hr />
+              <ul class="dropdown-menu-list">
+                <li><a href="profile.html"><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</a></li>
+                <li><a href="my-learning.html"><i class="fas fa-book-open"></i> Khóa học của tôi</a></li>
+                <li><a href="payments.html"><i class="fas fa-credit-card"></i> Lịch sử thanh toán</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Cài đặt</a></li>
+              </ul>
+              <hr />
+              <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile toggle -->
+          <button class="hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== TEACHER HERO ===================== -->
+    <section class="teacher-hero" id="teacherHero">
+      <!-- Background shapes -->
+      <div class="teacher-hero-bg">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="hero-grid-overlay"></div>
+      </div>
+
+      <div class="teacher-hero-inner">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="index.html">Trang chủ</a>
+          <i class="fas fa-chevron-right"></i>
+          <a href="instructors.html">Giáo viên</a>
+          <i class="fas fa-chevron-right"></i>
+          <span class="current">Nguyễn Văn An</span>
+        </nav>
+
+        <!-- Profile Card -->
+        <div class="teacher-profile-card" id="teacherProfileCard">
+          <!-- Avatar -->
+          <div class="teacher-avatar-wrap">
+            <div class="teacher-avatar" id="teacherAvatar">NA</div>
+            <div class="verified-badge" title="Giáo viên đã xác minh">
+              <i class="fas fa-check"></i>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="teacher-info">
+            <div class="teacher-expertise-badge">
+              <i class="fas fa-code"></i>
+              <span id="teacherExpertise">Backend Development</span>
+            </div>
+            <h1 class="teacher-name" id="teacherName">Nguyễn Văn An</h1>
+            <p class="teacher-title" id="teacherTitle">
+              Giảng viên Java Spring Boot với 10 năm kinh nghiệm. Chuyên gia về Microservices, 
+              Cloud Architecture và RESTful API. Từng làm tại các công ty công nghệ hàng đầu.
+            </p>
+
+            <!-- Rating & Meta -->
+            <div class="teacher-rating-row">
+              <div class="rating-block">
+                <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+                <span class="rating-num" id="teacherRating">4.8</span>
+                <span class="rating-count" id="teacherReviewCount">(1,240 đánh giá)</span>
+              </div>
+              <div class="meta-pill">
+                <i class="fas fa-users"></i>
+                <span class="val" id="teacherStudents">8,500+</span>
+                <span>học viên</span>
+              </div>
+              <div class="meta-pill">
+                <i class="fas fa-book"></i>
+                <span class="val" id="teacherCourseCount">12</span>
+                <span>khóa học</span>
+              </div>
+              <div class="meta-pill">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="teacherLocation">Hà Nội, Việt Nam</span>
+              </div>
+            </div>
+
+            <!-- Socials -->
+            <div class="teacher-socials" style="margin-top: 20px;">
+              <a href="#" class="social-btn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a href="#" class="social-btn" title="GitHub"><i class="fab fa-github"></i></a>
+              <a href="#" class="social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="social-btn" title="Website"><i class="fas fa-globe"></i></a>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="teacher-actions">
+            <button class="btn-follow" id="followBtn">
+              <i class="fas fa-user-plus"></i>
+              Theo dõi giáo viên
+            </button>
+            <button class="btn-message">
+              <i class="fas fa-envelope"></i>
+              Nhắn tin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wave -->
+      <div class="hero-wave">
+        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#f8faff" d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===================== STATS STRIP ===================== -->
+    <section class="stats-strip">
+      <div class="stats-strip-inner">
+        <div class="strip-stat">
+          <div class="strip-stat-icon blue"><i class="fas fa-book-open"></i></div>
+          <div>
+            <div class="strip-stat-val" id="statCourses">12</div>
+            <div class="strip-stat-lab">Khóa học</div>
+          </div>
+        </div>
+        <div class="strip-stat">
+          <div class="strip-stat-icon gold"><i class="fas fa-star"></i></div>
+          <div>
+            <div class="strip-stat-val" id="statRating">4.8</div>
+            <div class="strip-stat-lab">Đánh giá TB</div>
+          </div>
+        </div>
+        <div class="strip-stat">
+          <div class="strip-stat-icon green"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="strip-stat-val" id="statStudents">8.5K+</div>
+            <div class="strip-stat-lab">Học viên</div>
+          </div>
+        </div>
+        <div class="strip-stat">
+          <div class="strip-stat-icon purple"><i class="fas fa-comment-dots"></i></div>
+          <div>
+            <div class="strip-stat-val" id="statReviews">1,240</div>
+            <div class="strip-stat-lab">Đánh giá</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== BODY ===================== -->
+    <section class="teacher-body">
+      <div class="teacher-layout">
+
+        <!-- ── MAIN COLUMN ── -->
+        <div class="teacher-main">
+
+          <!-- About -->
+          <div class="section-block" id="aboutSection">
+            <div class="block-title">
+              <div class="block-title-icon"><i class="fas fa-user-circle"></i></div>
+              Giới thiệu
+            </div>
+            <div class="bio-text" id="teacherBio">
+              <p>
+                Xin chào! Tôi là Nguyễn Văn An, một kỹ sư phần mềm và giảng viên với hơn 
+                <strong>10 năm kinh nghiệm</strong> trong lĩnh vực phát triển phần mềm backend. 
+                Tôi đam mê xây dựng các hệ thống phân tán, tối ưu hiệu suất và chia sẻ kiến thức 
+                với cộng đồng lập trình viên Việt Nam.
+              </p>
+              <p>
+                Trước khi trở thành giảng viên, tôi đã làm việc tại nhiều công ty công nghệ lớn 
+                như FPT Software, VNG, và Shopee Vietnam trong vai trò Senior Backend Engineer và 
+                Tech Lead. Tôi có kinh nghiệm thực tế trong việc xây dựng hệ thống phục vụ 
+                hàng triệu người dùng.
+              </p>
+              <p>
+                Phương châm giảng dạy của tôi là <em>"Học từ thực tế"</em> — mỗi khóa học đều 
+                bao gồm các dự án thực tế, case study từ kinh nghiệm làm việc tại doanh nghiệp, 
+                giúp học viên sẵn sàng cho môi trường làm việc chuyên nghiệp.
+              </p>
+            </div>
+
+            <!-- Expertise Tags -->
+            <div class="expertise-list">
+              <span class="expertise-tag"><i class="fab fa-java"></i> Java Spring Boot</span>
+              <span class="expertise-tag"><i class="fas fa-cubes"></i> Microservices</span>
+              <span class="expertise-tag"><i class="fas fa-cloud"></i> AWS / Cloud</span>
+              <span class="expertise-tag"><i class="fas fa-database"></i> MySQL / MongoDB</span>
+              <span class="expertise-tag"><i class="fas fa-project-diagram"></i> System Design</span>
+              <span class="expertise-tag"><i class="fab fa-docker"></i> Docker / K8s</span>
+              <span class="expertise-tag"><i class="fas fa-code-branch"></i> RESTful API</span>
+              <span class="expertise-tag"><i class="fas fa-shield-alt"></i> Spring Security</span>
+            </div>
+          </div>
+
+          <!-- Courses -->
+          <div class="section-block" id="coursesSection">
+            <div class="block-title">
+              <div class="block-title-icon"><i class="fas fa-play-circle"></i></div>
+              Khóa Học Của Tôi
+              <span style="margin-left: auto; font-size: 14px; font-weight: 600; color: var(--text-muted);" id="courseTotal">12 khóa học</span>
+            </div>
+
+            <!-- Filter tabs -->
+            <div class="course-filter-tabs">
+              <button class="course-filter-tab active" data-filter="all">Tất cả</button>
+              <button class="course-filter-tab" data-filter="popular">Phổ biến nhất</button>
+              <button class="course-filter-tab" data-filter="new">Mới nhất</button>
+              <button class="course-filter-tab" data-filter="beginner">Mới bắt đầu</button>
+            </div>
+
+            <!-- Courses List -->
+            <div class="courses-list" id="teacherCoursesList">
+
+              <!-- Course 1 -->
+              <div class="course-card-h" onclick="window.location.href='detailcourse.html'">
+                <div class="course-thumb-h">
+                  <div class="thumb-overlay"></div>
+                  <span class="course-thumb-h-emoji">☕</span>
+                </div>
+                <div class="course-info-h">
+                  <span class="course-level-badge beginner"><i class="fas fa-seedling"></i> Cơ bản</span>
+                  <div class="course-h-title">Java Spring Boot - Từ Cơ Bản Đến Nâng Cao</div>
+                  <div class="course-h-meta">
+                    <span><i class="fas fa-clock"></i> 42 giờ</span>
+                    <span><i class="fas fa-play-circle"></i> 186 bài học</span>
+                    <span><i class="fas fa-users"></i> 3,200 học viên</span>
+                    <span><i class="fas fa-sync-alt"></i> Cập nhật 12/2024</span>
+                  </div>
+                  <div class="course-h-rating">
+                    <div class="stars-sm">
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="r-num">4.8</span>
+                    <span class="r-count">(542 đánh giá)</span>
+                  </div>
+                </div>
+                <div class="course-price-h">
+                  <div class="price-now">799.000₫</div>
+                  <div class="price-old">1.299.000₫</div>
+                  <div class="price-discount">-38%</div>
+                  <button class="btn-view-course"><i class="fas fa-arrow-right"></i> Xem khóa</button>
+                </div>
+              </div>
+
+              <!-- Course 2 -->
+              <div class="course-card-h" onclick="window.location.href='detailcourse.html'">
+                <div class="course-thumb-h" style="background: linear-gradient(135deg, #065f46, #10b981, #34d399);">
+                  <div class="thumb-overlay"></div>
+                  <span class="course-thumb-h-emoji">🏗️</span>
+                </div>
+                <div class="course-info-h">
+                  <span class="course-level-badge intermediate"><i class="fas fa-layer-group"></i> Trung cấp</span>
+                  <div class="course-h-title">Microservices với Spring Cloud & Kubernetes</div>
+                  <div class="course-h-meta">
+                    <span><i class="fas fa-clock"></i> 38 giờ</span>
+                    <span><i class="fas fa-play-circle"></i> 154 bài học</span>
+                    <span><i class="fas fa-users"></i> 2,100 học viên</span>
+                    <span><i class="fas fa-sync-alt"></i> Cập nhật 01/2025</span>
+                  </div>
+                  <div class="course-h-rating">
+                    <div class="stars-sm">
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                    </div>
+                    <span class="r-num">4.9</span>
+                    <span class="r-count">(318 đánh giá)</span>
+                  </div>
+                </div>
+                <div class="course-price-h">
+                  <div class="price-now">999.000₫</div>
+                  <div class="price-old">1.599.000₫</div>
+                  <div class="price-discount">-38%</div>
+                  <button class="btn-view-course"><i class="fas fa-arrow-right"></i> Xem khóa</button>
+                </div>
+              </div>
+
+              <!-- Course 3 -->
+              <div class="course-card-h" onclick="window.location.href='detailcourse.html'">
+                <div class="course-thumb-h" style="background: linear-gradient(135deg, #4c1d95, #7c3aed, #a78bfa);">
+                  <div class="thumb-overlay"></div>
+                  <span class="course-thumb-h-emoji">🔐</span>
+                </div>
+                <div class="course-info-h">
+                  <span class="course-level-badge intermediate"><i class="fas fa-layer-group"></i> Trung cấp</span>
+                  <div class="course-h-title">Spring Security & JWT - Bảo Mật Ứng Dụng Web</div>
+                  <div class="course-h-meta">
+                    <span><i class="fas fa-clock"></i> 24 giờ</span>
+                    <span><i class="fas fa-play-circle"></i> 98 bài học</span>
+                    <span><i class="fas fa-users"></i> 1,850 học viên</span>
+                    <span><i class="fas fa-sync-alt"></i> Cập nhật 11/2024</span>
+                  </div>
+                  <div class="course-h-rating">
+                    <div class="stars-sm">
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="r-num">4.7</span>
+                    <span class="r-count">(280 đánh giá)</span>
+                  </div>
+                </div>
+                <div class="course-price-h">
+                  <div class="price-now">699.000₫</div>
+                  <div class="price-old">1.099.000₫</div>
+                  <div class="price-discount">-36%</div>
+                  <button class="btn-view-course"><i class="fas fa-arrow-right"></i> Xem khóa</button>
+                </div>
+              </div>
+
+              <!-- Course 4 -->
+              <div class="course-card-h" onclick="window.location.href='detailcourse.html'">
+                <div class="course-thumb-h" style="background: linear-gradient(135deg, #7c2d12, #ea580c, #fb923c);">
+                  <div class="thumb-overlay"></div>
+                  <span class="course-thumb-h-emoji">🗄️</span>
+                </div>
+                <div class="course-info-h">
+                  <span class="course-level-badge advanced"><i class="fas fa-rocket"></i> Nâng cao</span>
+                  <div class="course-h-title">System Design - Thiết Kế Hệ Thống Quy Mô Lớn</div>
+                  <div class="course-h-meta">
+                    <span><i class="fas fa-clock"></i> 30 giờ</span>
+                    <span><i class="fas fa-play-circle"></i> 112 bài học</span>
+                    <span><i class="fas fa-users"></i> 1,200 học viên</span>
+                    <span><i class="fas fa-sync-alt"></i> Cập nhật 02/2025</span>
+                  </div>
+                  <div class="course-h-rating">
+                    <div class="stars-sm">
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                    </div>
+                    <span class="r-num">4.9</span>
+                    <span class="r-count">(100 đánh giá)</span>
+                  </div>
+                </div>
+                <div class="course-price-h">
+                  <div class="price-now">1.199.000₫</div>
+                  <div class="price-old">1.899.000₫</div>
+                  <div class="price-discount">-37%</div>
+                  <button class="btn-view-course"><i class="fas fa-arrow-right"></i> Xem khóa</button>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="load-more-wrap">
+              <button class="btn-load-more" id="loadMoreCoursesBtn">
+                <i class="fas fa-plus"></i>
+                Xem thêm khóa học (8 khóa còn lại)
+              </button>
+            </div>
+          </div>
+
+          <!-- Reviews Section -->
+          <div class="section-block" id="reviewsSection">
+            <div class="block-title">
+              <div class="block-title-icon"><i class="fas fa-star"></i></div>
+              Đánh Giá Về Giáo Viên
+            </div>
+
+            <!-- Rating Summary -->
+            <div class="reviews-summary">
+              <div class="big-rating">
+                <div class="big-rating-num">4.8</div>
+                <div class="big-rating-stars">
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="big-rating-label">Điểm trung bình</div>
+              </div>
+
+              <div class="star-breakdown">
+                <div class="star-row">
+                  <span class="star-row-label"><i class="fas fa-star"></i> 5</span>
+                  <div class="star-bar"><div class="star-bar-fill" style="width: 72%"></div></div>
+                  <span class="star-row-pct">72%</span>
+                </div>
+                <div class="star-row">
+                  <span class="star-row-label"><i class="fas fa-star"></i> 4</span>
+                  <div class="star-bar"><div class="star-bar-fill" style="width: 20%"></div></div>
+                  <span class="star-row-pct">20%</span>
+                </div>
+                <div class="star-row">
+                  <span class="star-row-label"><i class="fas fa-star"></i> 3</span>
+                  <div class="star-bar"><div class="star-bar-fill" style="width: 6%"></div></div>
+                  <span class="star-row-pct">6%</span>
+                </div>
+                <div class="star-row">
+                  <span class="star-row-label"><i class="fas fa-star"></i> 2</span>
+                  <div class="star-bar"><div class="star-bar-fill" style="width: 1%"></div></div>
+                  <span class="star-row-pct">1%</span>
+                </div>
+                <div class="star-row">
+                  <span class="star-row-label"><i class="fas fa-star"></i> 1</span>
+                  <div class="star-bar"><div class="star-bar-fill" style="width: 1%"></div></div>
+                  <span class="star-row-pct">1%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Review Cards -->
+            <div class="reviews-list" id="reviewsList">
+
+              <!-- Review 1 -->
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="reviewer-avatar" style="background: linear-gradient(135deg, #2563eb, #06b6d4);">HM</div>
+                  <div>
+                    <div class="reviewer-name">Hoàng Minh Tuấn</div>
+                    <div class="review-date"><i class="fas fa-calendar" style="color: var(--text-muted); font-size: 11px;"></i> 15/03/2025</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Thầy An giảng dạy rất rõ ràng và dễ hiểu. Các ví dụ trong khóa học đều sát với thực tế công việc. 
+                  Sau khi hoàn thành khóa học Spring Boot, tôi đã apply được vào vị trí Java Developer ở một công ty fintech. 
+                  Cảm ơn thầy rất nhiều! 🎉
+                </p>
+                <div class="review-helpful">
+                  <span>Có hữu ích không?</span>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-up"></i> Có (34)</button>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-down"></i> Không (2)</button>
+                </div>
+              </div>
+
+              <!-- Review 2 -->
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="reviewer-avatar" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">TL</div>
+                  <div>
+                    <div class="reviewer-name">Trần Lan Anh</div>
+                    <div class="review-date"><i class="fas fa-calendar" style="color: var(--text-muted); font-size: 11px;"></i> 02/03/2025</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Khóa học Microservices của thầy rất chất lượng. Nội dung bao quát từ lý thuyết đến thực hành, 
+                  project cuối khóa rất hay. Tuy nhiên, một số phần Docker còn hơi nhanh. Nhìn chung rất đáng tiền!
+                </p>
+                <div class="review-helpful">
+                  <span>Có hữu ích không?</span>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-up"></i> Có (28)</button>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-down"></i> Không (1)</button>
+                </div>
+              </div>
+
+              <!-- Review 3 -->
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="reviewer-avatar" style="background: linear-gradient(135deg, #065f46, #10b981);">NP</div>
+                  <div>
+                    <div class="reviewer-name">Nguyễn Phú Đức</div>
+                    <div class="review-date"><i class="fas fa-calendar" style="color: var(--text-muted); font-size: 11px;"></i> 18/02/2025</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Đây là một trong những giáo viên tốt nhất tôi từng học. Thầy không chỉ dạy kỹ thuật mà còn 
+                  chia sẻ rất nhiều kinh nghiệm thực tế từ dự án. Hỗ trợ học viên rất tận tình trong section hỏi đáp. 
+                  Sẽ tiếp tục đăng ký thêm các khóa học của thầy!
+                </p>
+                <div class="review-helpful">
+                  <span>Có hữu ích không?</span>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-up"></i> Có (19)</button>
+                  <button class="helpful-btn"><i class="fas fa-thumbs-down"></i> Không (0)</button>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="load-more-wrap">
+              <button class="btn-load-more" id="loadMoreReviewsBtn">
+                <i class="fas fa-sync-alt"></i>
+                Xem thêm đánh giá
+              </button>
+            </div>
+          </div>
+
+        </div>
+        <!-- END MAIN COLUMN -->
+
+        <!-- ── SIDEBAR ── -->
+        <aside class="teacher-sidebar">
+
+          <!-- Top Courses -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-header">
+              <i class="fas fa-fire"></i>
+              Khóa Học Nổi Bật
+            </div>
+            <div class="mini-course-list">
+              <div class="mini-course-item">
+                <div class="mini-course-thumb">☕</div>
+                <div>
+                  <div class="mini-course-name">Java Spring Boot - Từ Cơ Bản Đến Nâng Cao</div>
+                  <div class="mini-course-price">799.000₫</div>
+                </div>
+              </div>
+              <div class="mini-course-item">
+                <div class="mini-course-thumb" style="background: linear-gradient(135deg, #065f46, #10b981);">🏗️</div>
+                <div>
+                  <div class="mini-course-name">Microservices với Spring Cloud & Kubernetes</div>
+                  <div class="mini-course-price">999.000₫</div>
+                </div>
+              </div>
+              <div class="mini-course-item">
+                <div class="mini-course-thumb" style="background: linear-gradient(135deg, #4c1d95, #7c3aed);">🔐</div>
+                <div>
+                  <div class="mini-course-name">Spring Security & JWT - Bảo Mật Web</div>
+                  <div class="mini-course-price">699.000₫</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-header">
+              <i class="fas fa-trophy"></i>
+              Thành Tựu
+            </div>
+            <div class="achievement-list">
+              <div class="achievement-item">
+                <div class="achievement-icon gold"><i class="fas fa-crown"></i></div>
+                <div>
+                  <div class="achievement-name">Top Giảng Viên</div>
+                  <div class="achievement-desc">Xếp hạng Top 5 EduVN 2024</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-icon blue"><i class="fas fa-users"></i></div>
+                <div>
+                  <div class="achievement-name">8.500+ Học Viên</div>
+                  <div class="achievement-desc">Vượt mốc 8K học viên</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-icon green"><i class="fas fa-star"></i></div>
+                <div>
+                  <div class="achievement-name">Điểm 4.8/5.0</div>
+                  <div class="achievement-desc">Đánh giá xuất sắc từ học viên</div>
+                </div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-icon purple"><i class="fas fa-certificate"></i></div>
+                <div>
+                  <div class="achievement-name">12 Khóa Học</div>
+                  <div class="achievement-desc">Đã xuất bản 12 khóa học</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact / Message -->
+          <div class="sidebar-card">
+            <div class="sidebar-card-header">
+              <i class="fas fa-envelope"></i>
+              Liên Hệ Giáo Viên
+            </div>
+            <div class="contact-form">
+              <div class="form-group">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-input" placeholder="Nhập họ tên của bạn..." id="contactName" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="email@example.com" id="contactEmail" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tin nhắn</label>
+                <textarea class="form-input form-textarea" placeholder="Gửi câu hỏi hoặc lời nhắn cho giáo viên..." id="contactMessage"></textarea>
+              </div>
+              <button class="btn-send" id="sendMessageBtn">
+                <i class="fas fa-paper-plane"></i>
+                Gửi tin nhắn
+              </button>
+            </div>
+          </div>
+
+        </aside>
+        <!-- END SIDEBAR -->
+
+      </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="index.html" class="nav-logo" style="color: white;">
+              <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+              <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+            </a>
+            <p class="footer-desc">Nền tảng học trực tuyến hàng đầu Việt Nam, kết nối học viên với giáo viên chất lượng cao.</p>
+            <div class="footer-socials">
+              <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Khám phá</h4>
+            <ul>
+              <li><a href="courses.html">Tất cả khóa học</a></li>
+              <li><a href="categories.html">Danh mục</a></li>
+              <li><a href="instructors.html">Giáo viên</a></li>
+              <li><a href="#">Blog</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Tài khoản</h4>
+            <ul>
+              <li><a href="profile.html">Hồ sơ</a></li>
+              <li><a href="my-learning.html">Học của tôi</a></li>
+              <li><a href="payments.html">Thanh toán</a></li>
+              <li><a href="settings.html">Cài đặt</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Hỗ trợ</h4>
+            <ul>
+              <li><a href="#">Trung tâm trợ giúp</a></li>
+              <li><a href="#">Liên hệ</a></li>
+              <li><a href="#">Điều khoản</a></li>
+              <li><a href="#">Bảo mật</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>© 2024 EduVN. Tất cả quyền được bảo lưu.</p>
+          <p>Made with <i class="fas fa-heart" style="color: #ef4444;"></i> in Vietnam</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTopBtn">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ===================== SCRIPTS ===================== -->
+    <script src="js/detailprofileteacher.js"></script>
+
+  </body>
+</html>

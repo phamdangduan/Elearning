@@ -130,12 +130,15 @@ function renderCourses(enrollments) {
 
   coursesGrid.innerHTML = enrollments.map(enrollment => createCourseCard(enrollment)).join('');
   
-  // Add click handlers
+  // Add click handlers - click anywhere on card goes to learn page
   document.querySelectorAll('.my-course-card').forEach(card => {
     const courseId = card.dataset.courseId;
+    
+    // Card click - navigate to learn page
     card.addEventListener('click', (e) => {
+      // Only prevent if clicking the more button
       if (!e.target.closest('.btn-more')) {
-        window.location.href = `detailcourse.html?id=${courseId}`;
+        window.location.href = `learn.html?courseId=${courseId}`;
       }
     });
   });
@@ -159,14 +162,15 @@ function createCourseCard(enrollment) {
   const progress = parseFloat(enrollment.progress) || 0;
   const enrollmentDate = enrollment.enrollmentDate || '';
   
+  // Use actual values from API
+  const completedLessons = enrollment.completedLessons || 0;
+  const totalLessons = enrollment.totalLessons || 0;
+  
   const isCompleted = progress >= 100;
   const status = isCompleted ? 'completed' : 'inprogress';
   
   // Mock data for fields not in MyEnrollmentResponse
-  // TODO: Update API to include these fields or fetch separately
-  const categoryName = 'Backend'; // Default category
-  const completedLessons = Math.floor(progress / 100 * 25); // Estimate
-  const totalLessons = 25; // Default
+  const categoryName = enrollment.categoryName || 'Backend'; // Use from API if available
   const totalDuration = 72000; // 20 hours in seconds
   const remainingDuration = totalDuration * (100 - progress) / 100;
   
@@ -218,7 +222,7 @@ function createCourseCard(enrollment) {
         </div>
         
         <div class="card-footer-row">
-          <button class="btn-continue ${isCompleted ? 'completed' : ''}" onclick="window.location.href='detailcourse.html?id=${courseId}'">
+          <button class="btn-continue ${isCompleted ? 'completed' : ''}" data-course-id="${courseId}">
             <i class="fas fa-${isCompleted ? 'redo' : 'play'}"></i> ${isCompleted ? 'Xem lại' : (progress > 0 ? 'Tiếp tục học' : 'Bắt đầu học')}
           </button>
           <button class="btn-more" data-course-id="${courseId}"><i class="fas fa-ellipsis-v"></i></button>
@@ -293,8 +297,11 @@ function setupEventListeners() {
   // Sort
   sortSelect.addEventListener('change', sortCourses);
   
-  // Category filter
-  categorySelect.addEventListener('change', filterCourses);
+  // Category filter (if exists)
+  const categorySelect = document.getElementById('categorySelect');
+  if (categorySelect) {
+    categorySelect.addEventListener('change', filterCourses);
+  }
 }
 
 // ── Filter Courses ──

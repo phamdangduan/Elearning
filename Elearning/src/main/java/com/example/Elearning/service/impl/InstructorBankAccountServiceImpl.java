@@ -40,8 +40,11 @@ public class InstructorBankAccountServiceImpl implements InstructorBankAccountSe
             throw new AppException(ErrorCode.USER_NOT_TEACHER);
         }
 
-        if (bankAccountRepository.existsByUserIdAndAccountNumber(userId, request.getAccountNumber())) {
-            throw new AppException(ErrorCode.BANK_ACCOUNT_ALREADY_EXISTS);
+        // Only check duplicate if accountNumber is provided
+        if (request.getAccountNumber() != null && !request.getAccountNumber().isEmpty()) {
+            if (bankAccountRepository.existsByUserIdAndAccountNumber(userId, request.getAccountNumber())) {
+                throw new AppException(ErrorCode.BANK_ACCOUNT_ALREADY_EXISTS);
+            }
         }
 
         var bank = bankAccountMapper.toEntity(request);

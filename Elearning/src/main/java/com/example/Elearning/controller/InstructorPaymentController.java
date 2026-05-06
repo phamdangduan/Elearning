@@ -32,6 +32,28 @@ public class InstructorPaymentController {
         );
     }
 
+    @GetMapping("/debug-revenue")
+    public ApiResponse<?> debugInstructorRevenue(@RequestParam String instructorId) {
+        List<PaymentRequestResponse> allPayments = paymentRequestService.getInstructorPaymentRequests(instructorId, null);
+        List<PaymentRequestResponse> confirmedPayments = paymentRequestService.getInstructorPaymentRequests(instructorId, PaymentStatus.CONFIRMED);
+        
+        java.math.BigDecimal totalConfirmed = confirmedPayments.stream()
+                .map(p -> p.getAmount())
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+        
+        return ApiResponse.ok(
+                java.util.Map.of(
+                        "instructorId", instructorId,
+                        "totalPayments", allPayments.size(),
+                        "confirmedPayments", confirmedPayments.size(),
+                        "totalConfirmedRevenue", totalConfirmed,
+                        "allPayments", allPayments,
+                        "confirmedPaymentsList", confirmedPayments
+                ),
+                SuccessCode.GET_PAYMENT_REQUESTS_SUCCESS
+        );
+    }
+
     @PutMapping("/{paymentRequestId}/confirm")
     public ApiResponse<PaymentRequestResponse> confirmPaymentRequest(
             @RequestParam String userId,

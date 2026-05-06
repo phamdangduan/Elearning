@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Giảng viên - EduVN Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .instructor-card {
+      background: white; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      padding: 24px; transition: var(--transition); box-shadow: var(--shadow-sm);
+    }
+    .instructor-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .instructor-card-top { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+    .instructor-avatar {
+      width:60px; height:60px; border-radius:50%; flex-shrink:0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display:flex; align-items:center; justify-content:center;
+      color:white; font-size:22px; font-weight:800; overflow:hidden;
+    }
+    .instructor-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+    .instructor-info { flex:1; min-width:0; }
+    .instructor-name { font-size:16px; font-weight:800; color:var(--text-primary); margin-bottom:3px; }
+    .instructor-email { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .instructor-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+    .ins-stat { text-align:center; padding:10px; background:var(--bg-primary); border-radius:var(--radius-sm); }
+    .ins-stat-val { font-size:18px; font-weight:900; color:var(--text-primary); }
+    .ins-stat-lab { font-size:10px; color:var(--text-muted); margin-top:2px; }
+    .instructor-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:20px; }
+  </style>
+</head>
+<body>
+<div class="teacher-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><i class="fas fa-shield-alt"></i></div>
+      <span class="sidebar-brand-name">Edu<span>VN</span></span>
+      <span class="sidebar-role admin-role">Admin</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Quản trị viên</div>
+        <div class="sidebar-user-role">Super Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Tổng quan</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Báo cáo & Thống kê</span></a>
+      <span class="nav-group-label">Quản lý</span>
+      <a href="users.html" class="nav-item"><i class="fas fa-users"></i><span>Người dùng</span></a>
+      <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Khóa học</span></a>
+      <a href="instructors.html" class="nav-item active"><i class="fas fa-chalkboard-teacher"></i><span>Giảng viên</span></a>
+      <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a>
+      <span class="nav-group-label">Hệ thống</span>
+      <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../teacher/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang giảng viên</span></a>
+      <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+    </div>
+  </aside>
+
+  <header class="topnav">
+    <div>
+      <div class="topnav-title">Quản lý Giảng viên</div>
+      <div class="topnav-subtitle">Xem thông tin và hiệu suất của từng giảng viên</div>
+    </div>
+    <div class="topnav-right">
+      <div style="position:relative">
+        <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+        <div class="noti-dropdown" id="notiDropdown">
+          <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+          <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+        </div>
+      </div>
+      <div class="dropdown">
+        <div class="user-pill" id="userPillBtn">
+          <div class="user-pill-avatar" id="topNavAvatar">A</div>
+          <span class="user-pill-name" id="topNavUserName">Admin</span>
+          <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+        </div>
+        <div class="dropdown-menu" id="userDropdown">
+          <div class="dropdown-item" onclick="location.href='../teacher/index.html'"><i class="fas fa-exchange-alt"></i>Trang giảng viên</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">🎓 Quản lý Giảng viên</div>
+        <div class="page-subtitle">Theo dõi hiệu suất và quản lý tài khoản giảng viên</div>
+      </div>
+      <div class="page-header-actions">
+        <div class="view-toggle" style="display:flex;gap:4px">
+          <button class="page-btn active" id="viewGridBtn" onclick="switchView('grid')" title="Lưới"><i class="fas fa-th-large"></i></button>
+          <button class="page-btn" id="viewTableBtn" onclick="switchView('table')" title="Bảng"><i class="fas fa-table"></i></button>
+        </div>
+        <button class="btn btn-outline" onclick="loadInstructors()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-content"><div class="stat-value" id="statTotal">–</div><div class="stat-label">Tổng giảng viên</div></div></div>
+      <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-content"><div class="stat-value" id="statActive">–</div><div class="stat-label">Đang hoạt động</div></div></div>
+      <div class="stat-card orange"><div class="stat-icon teal"><i class="fas fa-money-bill-wave"></i></div><div class="stat-content"><div class="stat-value" id="statRevenue">–</div><div class="stat-label">Tổng doanh thu GV</div></div></div>
+      <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-star"></i></div><div class="stat-content"><div class="stat-value" id="statAvgRating">–</div><div class="stat-label">Rating trung bình</div></div></div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Tìm tên, email giảng viên...">
+      </div>
+      <select class="form-select" id="sortFilter" style="max-width:160px;padding:9px 14px">
+        <option value="revenue_desc">Doanh thu cao</option>
+        <option value="students_desc">Nhiều học viên</option>
+        <option value="rating_desc">Rating cao</option>
+        <option value="name_asc">Tên A→Z</option>
+        <option value="courses_desc">Nhiều khóa học</option>
+      </select>
+    </div>
+
+    <!-- Grid/Table View -->
+    <div id="gridView">
+      <div class="instructor-grid" id="instructorGrid">
+        <div class="skeleton" style="height:220px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:220px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:220px;border-radius:var(--radius-lg)"></div>
+      </div>
+    </div>
+    <div id="tableView" style="display:none">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> Danh sách giảng viên <span class="badge badge-info" id="displayCount" style="font-size:12px"></span></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Giảng viên</th><th>Khóa học</th><th>Học viên</th><th>Doanh thu</th><th>Rating</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody id="instructorTableBody"><tr><td colspan="8"><div class="skeleton" style="height:52px;margin:16px;border-radius:var(--radius-sm)"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Instructor Detail Modal -->
+<div class="modal-overlay" id="instructorModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fas fa-chalkboard-teacher"></i> Chi tiết giảng viên</h3>
+      <button class="modal-close" onclick="closeModal('instructorModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="instructorModalBody"></div>
+    <div class="modal-footer" id="instructorModalFooter">
+      <button class="btn btn-outline" onclick="closeModal('instructorModal')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/common.js?v=2"></script>
+<script src="js/instructors.js?v=2"></script>
+</body>
+</html>

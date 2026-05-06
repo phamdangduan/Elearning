@@ -15,5 +15,6 @@ public interface SectionRepository extends JpaRepository<Section, String> {
 
     int countByCourseId(String courseId);
 
-    List<Section> findByCourseIdOrderByOrderIndexAsc(String courseId);
+    @Query("SELECT s FROM Section s LEFT JOIN FETCH s.lessons WHERE s.course.id = :courseId ORDER BY s.orderIndex ASC")
+    List<Section> findByCourseIdOrderByOrderIndexAsc(@Param("courseId") String courseId);
 }

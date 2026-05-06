@@ -43,6 +43,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     UserRepository userRepository;
     NotificationService notificationService;
     CourseEnrollmentService courseEnrollmentService;
+    com.example.Elearning.service.FileStorageService fileStorageService;
 
 
     private String generateReferenceCode(String studentId, String courseId) {
@@ -155,6 +156,10 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
                 .build();
     }
 
+    @Override
+    public com.example.Elearning.dto.response.FileUploadResponse uploadProofImage(org.springframework.web.multipart.MultipartFile file, String folder) {
+        return fileStorageService.uploadImage(file, folder);
+    }
 
     @Override
     public PaymentRequestResponse uploadPaymentProof(String studentId, String paymentRequestId, UploadPaymentProofRequest request) {

@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khóa học - EduVN Teacher</title>
+    <meta name="description" content="Quản lý, tạo và chỉnh sửa khóa học dành cho giảng viên EduVN.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <style>
+        /* Course grid */
+        .course-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; }
+        .course-card {
+            background:white; border-radius:var(--radius-lg);
+            border:1px solid var(--border); box-shadow:var(--shadow-sm);
+            overflow:hidden; transition:var(--transition);
+        }
+        .course-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
+        .course-thumb {
+            width:100%; height:180px; object-fit:cover;
+            background: linear-gradient(135deg, #1e3a8a, #06b6d4);
+            display:flex; align-items:center; justify-content:center;
+            font-size:52px; position:relative;
+        }
+        .course-thumb img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+        .course-thumb-overlay {
+            position:absolute; inset:0;
+            background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+        }
+        .course-thumb-status { position:absolute; top:12px; right:12px; }
+        .course-thumb-emoji { position:relative; z-index:1; font-size:52px; }
+        .course-card-body { padding:18px 20px; }
+        .course-card-title {
+            font-size:15px; font-weight:800; color:var(--text-primary);
+            margin-bottom:10px; line-height:1.4;
+            display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+        }
+        .course-card-meta { display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin-bottom:14px; }
+        .course-card-meta span { display:flex; align-items:center; gap:4px; }
+        .course-card-price { font-size:18px; font-weight:900; color:var(--primary); margin-bottom:14px; }
+        .course-card-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .course-card-actions .btn { flex:1; justify-content:center; font-size:12px; padding:8px 12px; }
+
+        /* Filter bar */
+        .filter-bar {
+            display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+            background:white; padding:16px 20px;
+            border-radius:var(--radius-lg); border:1px solid var(--border);
+            box-shadow:var(--shadow-sm); margin-bottom:24px;
+        }
+        .filter-bar .form-select { padding:9px 14px; min-width:140px; }
+        .filter-search {
+            display:flex; align-items:center; gap:8px;
+            border:1.5px solid var(--border); border-radius:var(--radius-full);
+            padding:9px 16px; flex:1; min-width:200px;
+            transition:var(--transition);
+        }
+        .filter-search:focus-within { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+        .filter-search i { color:var(--text-muted); font-size:13px; }
+        .filter-search input { border:none; background:none; outline:none; font-size:14px; width:100%; }
+
+        /* Course detail panel */
+        .curriculum-wrap { display:flex; flex-direction:column; gap:8px; }
+        .section-item {
+            border:1px solid var(--border); border-radius:var(--radius);
+            overflow:hidden;
+        }
+        .section-header {
+            display:flex; align-items:center; gap:12px;
+            padding:12px 16px; background:var(--bg-primary);
+            cursor:pointer; transition:var(--transition-fast);
+        }
+        .section-header:hover { background:#e2e8f0; }
+        .section-toggle { font-size:12px; color:var(--text-muted); transition:var(--transition-fast); margin-left:auto; }
+        .section-body { border-top:1px solid var(--border); }
+        .lesson-item {
+            display:flex; align-items:center; gap:10px;
+            padding:10px 16px; border-bottom:1px solid var(--border);
+            font-size:13px;
+        }
+        .lesson-item:last-child { border-bottom:none; }
+        .lesson-icon { width:28px; height:28px; border-radius:50%; background:var(--primary-xlight); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+        .lesson-info { flex:1; min-width:0; }
+        .lesson-title { font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lesson-duration { font-size:11px; color:var(--text-muted); }
+        .add-lesson-row { padding:8px 16px; }
+
+        /* Thumbnail preview */
+        .thumb-preview { width:100%; height:160px; border-radius:var(--radius); object-fit:cover; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:48px; margin-bottom:12px; overflow:hidden; }
+        .thumb-preview img { width:100%; height:100%; object-fit:cover; }
+
+        /* View mode */
+        .view-toggle { display:flex; gap:4px; }
+        .view-btn {
+            width:36px; height:36px; border-radius:var(--radius-sm);
+            border:1.5px solid var(--border); display:flex;
+            align-items:center; justify-content:center; font-size:14px;
+            color:var(--text-muted); background:white; cursor:pointer;
+            transition:var(--transition-fast);
+        }
+        .view-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+        /* List mode */
+        .course-list-item {
+            display:flex; align-items:center; gap:16px;
+            padding:16px 20px; border-bottom:1px solid var(--border);
+        }
+        .course-list-item:last-child { border-bottom:none; }
+        .course-list-thumb { width:80px; height:56px; border-radius:var(--radius-sm); flex-shrink:0; overflow:hidden; background:linear-gradient(135deg,var(--primary-xlight),#e0f2fe); display:flex; align-items:center; justify-content:center; font-size:24px; }
+        .course-list-thumb img { width:100%; height:100%; object-fit:cover; }
+        .course-list-info { flex:1; min-width:0; }
+        .course-list-title { font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:4px; }
+        .course-list-meta { font-size:12px; color:var(--text-muted); display:flex; gap:12px; flex-wrap:wrap; }
+        .course-list-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+    </style>
+</head>
+<body>
+<div class="teacher-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <span class="sidebar-brand-name">Edu<span>VN</span></span>
+            <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+                <div class="sidebar-user-role">Giảng viên</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-group-label">Tổng quan</span>
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Thống kê</span></a>
+            <span class="nav-group-label">Khóa học</span>
+            <a href="courses.html" class="nav-item active"><i class="fas fa-book-open"></i><span>Quản lý khóa học</span></a>
+            <a href="courses.html?action=create" class="nav-item"><i class="fas fa-plus-circle"></i><span>Tạo khóa học mới</span></a>
+            <span class="nav-group-label">Học viên</span>
+            <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Yêu cầu thanh toán</span><span class="nav-badge" id="pendingBadge" style="display:none">!</span></a>
+            <a href="students.html" class="nav-item"><i class="fas fa-users"></i><span>Danh sách học viên</span></a>
+            <span class="nav-group-label">Cá nhân</span>
+            <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
+            <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+        </div>
+    </aside>
+
+    <!-- TOP NAV -->
+    <header class="topnav">
+        <div>
+            <div class="topnav-title">Quản lý Khóa học</div>
+            <div class="topnav-subtitle">Tạo, chỉnh sửa và quản lý nội dung khóa học</div>
+        </div>
+        <div class="topnav-right">
+            <div style="position:relative">
+                <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+                <div class="noti-dropdown" id="notiDropdown">
+                    <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+                    <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+                </div>
+            </div>
+            <div class="dropdown">
+                <div class="user-pill" id="userPillBtn">
+                    <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+                    <span class="user-pill-name" id="topNavUserName">...</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i>Hồ sơ cá nhân</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="page-title">📚 Khóa học của tôi</div>
+                <div class="page-subtitle">Quản lý tất cả khóa học bạn đang giảng dạy</div>
+            </div>
+            <div class="page-header-actions">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="viewGrid" title="Grid"><i class="fas fa-th-large"></i></button>
+                    <button class="view-btn" id="viewList" title="List"><i class="fas fa-list"></i></button>
+                </div>
+                <button class="btn btn-primary" id="btnCreateCourse">
+                    <i class="fas fa-plus"></i> Tạo khóa học mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm khóa học...">
+            </div>
+            <select class="form-select" id="statusFilter" style="max-width:160px">
+                <option value="">Tất cả trạng thái</option>
+                <option value="PUBLISHED">Published</option>
+                <option value="DRAFT">Draft</option>
+                <option value="PENDING">Chờ duyệt</option>
+                <option value="ARCHIVED">Archived</option>
+            </select>
+            <select class="form-select" id="sortFilter" style="max-width:160px">
+                <option value="createdAt,desc">Mới nhất</option>
+                <option value="students,desc">Nhiều học viên</option>
+                <option value="revenue,desc">Doanh thu cao</option>
+                <option value="title,asc">A → Z</option>
+            </select>
+        </div>
+
+        <!-- Course list/grid -->
+        <div id="coursesWrap">
+            <div class="course-grid" id="courseGrid">
+                <!-- Loading skeletons -->
+                <div class="card" style="padding:20px">
+                    <div class="skeleton" style="height:180px;border-radius:var(--radius);margin-bottom:16px"></div>
+                    <div class="skeleton" style="height:16px;margin-bottom:8px"></div>
+                    <div class="skeleton" style="height:12px;width:70%"></div>
+                </div>
+                <div class="card" style="padding:20px">
+                    <div class="skeleton" style="height:180px;border-radius:var(--radius);margin-bottom:16px"></div>
+                    <div class="skeleton" style="height:16px;margin-bottom:8px"></div>
+                    <div class="skeleton" style="height:12px;width:70%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;flex-wrap:wrap;gap:12px">
+            <div id="coursesCount" style="font-size:13px;color:var(--text-muted)"></div>
+            <div class="pagination" id="paginationWrap"></div>
+        </div>
+    </main>
+</div>
+
+<!-- ══ CREATE/EDIT COURSE MODAL ══ -->
+<div class="modal-overlay" id="courseModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 id="courseModalTitle"><i class="fas fa-book-open"></i> Tạo khóa học mới</h3>
+            <button class="modal-close" onclick="closeModal('courseModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group" style="grid-column:1/-1">
+                    <label class="form-label">Tiêu đề khóa học <span class="req">*</span></label>
+                    <input type="text" class="form-input" id="courseTitle" placeholder="VD: Lập trình Java Spring Boot từ cơ bản đến nâng cao">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mô tả khóa học <span class="req">*</span></label>
+                <textarea class="form-textarea" id="courseDesc" rows="4" placeholder="Mô tả chi tiết về nội dung, mục tiêu và đối tượng của khóa học..." maxlength="200"></textarea>
+                <div class="form-hint" style="text-align:right;margin-top:4px;">
+                    <span id="descCharCount">0</span>/200 ký tự
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Danh mục <span class="req">*</span></label>
+                    <select class="form-select" id="courseCategoryId">
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Giá (VNĐ) <span class="req">*</span></label>
+                    <input type="number" class="form-input" id="coursePrice" placeholder="VD: 500000" min="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ảnh bìa khóa học</label>
+                
+                <!-- Tab chọn: URL hoặc Upload -->
+                <div style="display:flex;gap:8px;margin-bottom:12px;">
+                    <button type="button" class="btn-tab active" id="tabUrl" onclick="switchThumbnailTab('url')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--primary);color:white;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                        <i class="fas fa-link"></i> Nhập URL
+                    </button>
+                    <button type="button" class="btn-tab" id="tabUpload" onclick="switchThumbnailTab('upload')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:white;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                        <i class="fas fa-upload"></i> Upload ảnh
+                    </button>
+                </div>
+                
+                <!-- URL Input -->
+                <div id="urlSection">
+                    <input type="text" class="form-input" id="courseThumbnail" placeholder="https://example.com/thumbnail.jpg">
+                    <div class="form-hint">Nhập URL ảnh bìa khóa học. Khuyến nghị tỉ lệ 16:9.</div>
+                </div>
+                
+                <!-- Upload Section -->
+                <div id="uploadSection" style="display:none;">
+                    <div style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;background:var(--bg-primary);cursor:pointer;transition:all 0.2s;" id="uploadArea" onclick="document.getElementById('thumbnailFileInput').click()">
+                        <input type="file" id="thumbnailFileInput" accept="image/*" style="display:none;" onchange="handleThumbnailUpload(event)">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:48px;color:var(--primary);margin-bottom:12px;"></i>
+                            <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Kéo thả hoặc click để chọn ảnh</p>
+                            <p style="font-size:12px;color:var(--text-muted);">JPG, PNG, GIF - Tối đa 5MB</p>
+                        </div>
+                        <div id="uploadPreview" style="display:none;">
+                            <img id="previewImage" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:12px;">
+                            <p id="uploadFileName" style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;"></p>
+                            <button type="button" onclick="event.stopPropagation();removeUploadedFile()" style="padding:6px 16px;background:var(--danger);color:white;border-radius:6px;font-size:12px;font-weight:600;">
+                                <i class="fas fa-times"></i> Xóa ảnh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-hint">Ảnh sẽ được upload lên Cloudinary. Khuyến nghị tỉ lệ 16:9.</div>
+                </div>
+            </div>
+            <div class="thumb-preview" id="thumbPreview">🖼️</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('courseModal')">Hủy</button>
+            <button class="btn btn-primary" id="saveCourseBtn" onclick="saveCourse()">
+                <i class="fas fa-save"></i> Lưu khóa học
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ CURRICULUM MODAL ══ -->
+<div class="modal-overlay" id="curriculumModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3><i class="fas fa-list-ul"></i> Quản lý nội dung</h3>
+            <button class="modal-close" onclick="closeModal('curriculumModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="page-header" style="margin-bottom:16px">
+                <div>
+                    <div style="font-size:15px;font-weight:800" id="curriculumCourseTitle">...</div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="showAddSectionForm()">
+                    <i class="fas fa-plus"></i> Thêm chương
+                </button>
+            </div>
+            <!-- Add section inline form -->
+            <div id="addSectionForm" style="display:none;margin-bottom:16px" class="card" style="padding:16px">
+                <div class="card-body" style="padding:16px">
+                    <div class="form-group">
+                        <label class="form-label">Tên chương mới</label>
+                        <input type="text" class="form-input" id="newSectionTitle" placeholder="VD: Giới thiệu và cài đặt môi trường">
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-primary btn-sm" onclick="createSection()"><i class="fas fa-plus"></i> Tạo chương</button>
+                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('addSectionForm').style.display='none'">Hủy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="curriculum-wrap" id="curriculumWrap">
+                <div class="skeleton" style="height:50px;border-radius:var(--radius);margin-bottom:8px"></div>
+                <div class="skeleton" style="height:50px;border-radius:var(--radius)"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ DELETE CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash-alt" style="color:var(--teacher-red)"></i> Xác nhận xóa</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="text-align:center;padding:32px 24px">
+            <div style="font-size:48px;margin-bottom:16px">🗑️</div>
+            <p style="font-size:15px;color:var(--text-secondary);margin-bottom:8px">Bạn có chắc muốn xóa khóa học</p>
+            <p style="font-size:16px;font-weight:700;color:var(--text-primary)" id="deleteCourseTitle"></p>
+            <p style="font-size:13px;color:var(--teacher-red);margin-top:12px">⚠️ Hành động này không thể hoàn tác!</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('deleteModal')">Hủy bỏ</button>
+            <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash-alt"></i> Xóa khóa học</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ ADD LESSON MODAL ══ -->
+<div class="modal-overlay" id="lessonModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-video"></i> Thêm bài học</h3>
+            <button class="modal-close" onclick="closeModal('lessonModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Tên bài học <span class="req">*</span></label>
+                <input type="text" class="form-input" id="lessonTitle" placeholder="VD: Bài 1: Giới thiệu tổng quan">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Loại nội dung</label>
+                    <select class="form-select" id="lessonType">
+                        <option value="VIDEO">🎬 Video</option>
+                        <option value="TEXT">📝 Tài liệu</option>
+                        <option value="QUIZ">❓ Quiz</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Thứ tự</label>
+                    <input type="number" class="form-input" id="lessonOrder" value="1" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Video bài học</label>
+                
+                <!-- Tab chọn: URL hoặc Upload -->
+                <div style="display:flex;gap:8px;margin-bottom:12px;">
+                    <button type="button" class="btn-video-tab active" id="tabVideoUrl" onclick="switchVideoTab('url')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--primary);color:white;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                        <i class="fas fa-link"></i> Nhập URL
+                    </button>
+                    <button type="button" class="btn-video-tab" id="tabVideoUpload" onclick="switchVideoTab('upload')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:white;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                        <i class="fas fa-upload"></i> Upload video
+                    </button>
+                </div>
+                
+                <!-- URL Input -->
+                <div id="videoUrlSection">
+                    <input type="text" class="form-input" id="lessonVideoUrl" placeholder="https://youtube.com/... hoặc https://vimeo.com/...">
+                    <div class="form-hint">Nhập URL video từ YouTube, Vimeo, hoặc link trực tiếp.</div>
+                </div>
+                
+                <!-- Upload Section -->
+                <div id="videoUploadSection" style="display:none;">
+                    <div style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;background:var(--bg-primary);cursor:pointer;transition:all 0.2s;" id="videoUploadArea" onclick="document.getElementById('videoFileInput').click()">
+                        <input type="file" id="videoFileInput" accept="video/*" style="display:none;" onchange="handleVideoUpload(event)">
+                        <div id="videoUploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:48px;color:var(--primary);margin-bottom:12px;"></i>
+                            <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Kéo thả hoặc click để chọn video</p>
+                            <p style="font-size:12px;color:var(--text-muted);">MP4, AVI, MOV - Tối đa 500MB</p>
+                        </div>
+                        <div id="videoUploadPreview" style="display:none;">
+                            <i class="fas fa-file-video" style="font-size:48px;color:var(--primary);margin-bottom:12px;"></i>
+                            <p id="videoUploadFileName" style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;"></p>
+                            <div id="videoUploadProgress" style="display:none;margin:12px 0;">
+                                <div style="background:var(--bg-primary);border-radius:8px;height:8px;overflow:hidden;">
+                                    <div id="videoProgressBar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div>
+                                </div>
+                                <p id="videoProgressText" style="font-size:12px;color:var(--text-muted);margin-top:4px;">Đang upload...</p>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation();removeUploadedVideo()" style="padding:6px 16px;background:var(--danger);color:white;border-radius:6px;font-size:12px;font-weight:600;">
+                                <i class="fas fa-times"></i> Xóa video
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-hint">Video sẽ được upload lên Cloudinary. Dung lượng tối đa 500MB.</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nội dung / Mô tả</label>
+                <textarea class="form-textarea" id="lessonContent" rows="3" placeholder="Mô tả ngắn về nội dung bài học..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('lessonModal')">Hủy</button>
+            <button class="btn btn-primary" id="saveLessonBtn"><i class="fas fa-save"></i> Thêm bài học</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/common.js"></script>
+<script>
+/* ─── State ─── */
+let allCourses = [];
+let filteredCourses = [];
+let currentPage = 0;
+const PAGE_SIZE = 8;
+let viewMode = 'grid'; // 'grid' | 'list'
+let editingCourseId = null;
+let uploadedThumbnailFile = null;  // Lưu file ảnh đã chọn
+let uploadedThumbnailUrl = null;   // Lưu URL sau khi upload
+let uploadedVideoFile = null;      // Lưu file video đã chọn
+let uploadedVideoUrl = null;       // Lưu URL video sau khi upload
+let currentCurriculumCourseId = null;
+let currentSectionId = null;
+let deleteCourseId = null;
+let categories = [];
+
+const COURSE_EMOJIS = {
+    java: '☕', spring: '🌿', devops: '🐳', docker: '🐋',
+    python: '🐍', react: '⚛️', angular: '🅰️', node: '🟢',
+    ai: '🤖', ml: '📊', css: '🎨', database: '🗄️',
+    default: '📚'
+};
+function getCourseEmoji(title) {
+    if (!title) return COURSE_EMOJIS.default;
+    const t = title.toLowerCase();
+    for (const [k, v] of Object.entries(COURSE_EMOJIS)) if (t.includes(k)) return v;
+    return COURSE_EMOJIS.default;
+}
+
+/* ─── Load ─── */
+async function loadCourses() {
+    console.log('Loading courses for TEACHER_ID:', TEACHER_ID);
+    const data = await apiGet(`/course/teacher?userId=${TEACHER_ID}&page=0&size=100&sort=createdAt,desc`);
+    console.log('API response:', data);
+    if (data?.result?.content) {
+        allCourses = data.result.content;
+        console.log('Loaded courses:', allCourses.length);
+    } else {
+        // fallback: search by instructorId
+        console.log('Fallback: searching by instructorId');
+        const d2 = await apiGet(`/course/search?instructorId=${TEACHER_ID}&page=0&size=100`);
+        console.log('Search response:', d2);
+        allCourses = d2?.result?.content || [];
+    }
+    applyFilter();
+}
+
+async function loadCategories() {
+    const data = await apiGet('/category');
+    categories = data?.result || [];
+    const sel = document.getElementById('courseCategoryId');
+    if (sel) {
+        categories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            sel.appendChild(opt);
+        });
+    }
+}
+
+/* ─── Filter/Sort ─── */
+function applyFilter() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+
+    filteredCourses = allCourses.filter(c => {
+        const matchQ = !q || c.title?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q);
+        const matchS = !status || c.status === status;
+        return matchQ && matchS;
+    });
+
+    // Sort
+    if (sort === 'title,asc') filteredCourses.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+    else if (sort === 'students,desc') filteredCourses.sort((a,b) => (b.totalStudents||0)-(a.totalStudents||0));
+    else filteredCourses.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+
+    currentPage = 0;
+    renderCourses();
+}
+
+/* ─── Render ─── */
+function renderCourses() {
+    const start = currentPage * PAGE_SIZE;
+    const page = filteredCourses.slice(start, start + PAGE_SIZE);
+    const total = filteredCourses.length;
+
+    document.getElementById('coursesCount').textContent = `Hiển thị ${start+1}–${Math.min(start+page.length, total)} trong ${total} khóa học`;
+
+    if (viewMode === 'grid') {
+        renderGridView(page);
+    } else {
+        renderListView(page);
+    }
+    renderPagination(total);
+}
+
+function renderGridView(courses) {
+    const wrap = document.getElementById('coursesWrap');
+    if (!courses.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>Chưa có khóa học</h3><p>Bạn chưa tạo khóa học nào.</p><button class="btn btn-primary" onclick="openCreateModal()"><i class="fas fa-plus"></i> Tạo khóa học đầu tiên</button></div>`;
+        return;
+    }
+    const html = `<div class="course-grid">${courses.map(c => courseCardHTML(c)).join('')}</div>`;
+    wrap.innerHTML = html;
+}
+function renderListView(courses) {
+    const wrap = document.getElementById('coursesWrap');
+    if (!courses.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>Chưa có khóa học</h3></div>`;
+        return;
+    }
+    const html = `<div class="card">${courses.map(c => courseListItemHTML(c)).join('')}</div>`;
+    wrap.innerHTML = html;
+}
+
+function courseCardHTML(c) {
+    const statusInfo = COURSE_STATUS[c.status] || { cls:'badge-muted', txt:c.status };
+    const emoji = getCourseEmoji(c.title);
+    const thumb = c.thumbnailUrl;
+    return `<div class="course-card">
+        <div class="course-thumb">
+            ${thumb ? `<img src="${thumb}" alt="${c.title}" onerror="this.style.display='none'">` : ''}
+            <div class="course-thumb-overlay"></div>
+            <div class="course-thumb-emoji">${thumb ? '' : emoji}</div>
+            <div class="course-thumb-status"><span class="badge ${statusInfo.cls}">${statusInfo.txt}</span></div>
+        </div>
+        <div class="course-card-body">
+            <div class="course-card-title">${c.title}</div>
+            <div class="course-card-meta">
+                <span><i class="fas fa-users"></i> ${c.totalStudents||0} học viên</span>
+                <span><i class="fas fa-star" style="color:#f59e0b"></i> ${c.averageRating ? parseFloat(c.averageRating).toFixed(1) : 'Chưa có'}</span>
+                <span><i class="fas fa-tag"></i> ${c.categoryNames?.[0]||'–'}</span>
+            </div>
+            <div class="course-card-price">${(c.price||0).toLocaleString('vi-VN')}đ</div>
+            <div class="course-card-actions">
+                <button class="btn btn-outline btn-sm" onclick="openCurriculum('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')">
+                    <i class="fas fa-list-ul"></i> Nội dung
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openEditModal('${c.id}')">
+                    <i class="fas fa-edit"></i> Sửa
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="publishCourse('${c.id}','${c.status}')" title="${c.status==='PUBLISHED'?'Gỡ publish':'Publish'}">
+                    <i class="fas fa-${c.status==='PUBLISHED'?'eye-slash':'rocket'}"></i>
+                </button>
+                <button class="btn btn-outline btn-sm" style="color:var(--teacher-red)" onclick="openDeleteModal('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function courseListItemHTML(c) {
+    const statusInfo = COURSE_STATUS[c.status] || { cls:'badge-muted', txt:c.status };
+    const emoji = getCourseEmoji(c.title);
+    return `<div class="course-list-item">
+        <div class="course-list-thumb">
+            ${c.thumbnailUrl ? `<img src="${c.thumbnailUrl}" alt="${c.title}" onerror="this.style.display='none'">` : emoji}
+        </div>
+        <div class="course-list-info">
+            <div class="course-list-title">${c.title}</div>
+            <div class="course-list-meta">
+                <span><i class="fas fa-users"></i> ${c.totalStudents||0} học viên</span>
+                <span><i class="fas fa-star" style="color:#f59e0b"></i> ${c.averageRating||'Chưa có'}</span>
+                <span><i class="fas fa-tag"></i> ${c.categoryNames?.[0]||'–'}</span>
+                <span><i class="fas fa-money-bill"></i> ${(c.price||0).toLocaleString('vi-VN')}đ</span>
+            </div>
+        </div>
+        <span class="badge ${statusInfo.cls}" style="flex-shrink:0">${statusInfo.txt}</span>
+        <div class="course-list-actions">
+            <button class="btn btn-outline btn-sm" onclick="openCurriculum('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')"><i class="fas fa-list-ul"></i></button>
+            <button class="btn btn-primary btn-sm" onclick="openEditModal('${c.id}')"><i class="fas fa-edit"></i> Sửa</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--teacher-red)" onclick="openDeleteModal('${c.id}','${(c.title||'').replace(/'/g,"\\'")}')"><i class="fas fa-trash-alt"></i></button>
+        </div>
+    </div>`;
+}
+
+function renderPagination(total) {
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const wrap = document.getElementById('paginationWrap');
+    if (totalPages <= 1) { wrap.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===0?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+    for (let i = 0; i < totalPages; i++) {
+        if (totalPages > 7 && i > 1 && i < totalPages-2 && Math.abs(i-currentPage) > 1) {
+            if (i === 2 || i === totalPages-3) html += `<span class="page-btn" style="pointer-events:none">…</span>`;
+            continue;
+        }
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="changePage(${i})">${i+1}</button>`;
+    }
+    html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages-1?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+    wrap.innerHTML = html;
+}
+function changePage(p) {
+    const total = Math.ceil(filteredCourses.length / PAGE_SIZE);
+    if (p < 0 || p >= total) return;
+    currentPage = p;
+    renderCourses();
+    window.scrollTo({top: 0, behavior:'smooth'});
+}
+
+/* ─── Modal helpers ─── */
+function openModal(id) { document.getElementById(id)?.classList.add('show'); }
+function closeModal(id) { 
+    document.getElementById(id)?.classList.remove('show'); 
+    
+    // Reset lesson modal state when closing
+    if (id === 'lessonModal') {
+        uploadedVideoFile = null;
+        uploadedVideoUrl = null;
+        
+        // Reset video upload UI
+        const videoUploadPreview = document.getElementById('videoUploadPreview');
+        const videoUploadPlaceholder = document.getElementById('videoUploadPlaceholder');
+        if (videoUploadPreview) videoUploadPreview.style.display = 'none';
+        if (videoUploadPlaceholder) videoUploadPlaceholder.style.display = 'block';
+        
+        // Reset video file input
+        const videoFileInput = document.getElementById('videoFileInput');
+        if (videoFileInput) videoFileInput.value = '';
+        
+        // Reset progress bar
+        const videoUploadProgress = document.getElementById('videoUploadProgress');
+        if (videoUploadProgress) videoUploadProgress.style.display = 'none';
+    }
+}
+
+/* ─── Create / Edit Course ─── */
+function openCreateModal() {
+    editingCourseId = null;
+    uploadedThumbnailFile = null;
+    uploadedThumbnailUrl = null;
+    document.getElementById('courseModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Tạo khóa học mới';
+    document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Tạo khóa học';
+    ['courseTitle','courseDesc','courseThumbnail','coursePrice'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('courseCategoryId').value = '';
+    document.getElementById('thumbPreview').innerHTML = '🖼️';
+    switchThumbnailTab('url'); // Reset to URL tab
+    openModal('courseModal');
+}
+
+async function openEditModal(courseId) {
+    editingCourseId = courseId;
+    uploadedThumbnailFile = null;
+    uploadedThumbnailUrl = null;
+    document.getElementById('courseModalTitle').innerHTML = '<i class="fas fa-edit"></i> Chỉnh sửa khóa học';
+    document.getElementById('saveCourseBtn').innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+    const c = allCourses.find(x => x.id === courseId);
+    if (c) {
+        document.getElementById('courseTitle').value = c.title || '';
+        document.getElementById('courseDesc').value = c.description || '';
+        document.getElementById('coursePrice').value = c.price || '';
+        document.getElementById('courseThumbnail').value = c.thumbnailUrl || '';
+        document.getElementById('courseCategoryId').value = c.categoryIds?.[0] || '';
+        updateThumbPreview(c.thumbnailUrl);
+    }
+    switchThumbnailTab('url'); // Reset to URL tab
+    openModal('courseModal');
+}
+
+function updateThumbPreview(url) {
+    const el = document.getElementById('thumbPreview');
+    if (url) el.innerHTML = `<img src="${url}" alt="thumb" onerror="this.parentNode.textContent='🖼️'">`;
+    else el.textContent = '🖼️';
+}
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('courseThumbnail')?.addEventListener('input', e => updateThumbPreview(e.target.value));
+    
+    // Character counter for description
+    const descTextarea = document.getElementById('courseDesc');
+    const charCount = document.getElementById('descCharCount');
+    if (descTextarea && charCount) {
+        descTextarea.addEventListener('input', () => {
+            charCount.textContent = descTextarea.value.length;
+            if (descTextarea.value.length > 200) {
+                charCount.style.color = 'var(--danger)';
+            } else {
+                charCount.style.color = 'var(--text-muted)';
+            }
+        });
+    }
+});
+
+/* ─── Thumbnail Upload Functions ─── */
+function switchThumbnailTab(tab) {
+    const urlSection = document.getElementById('urlSection');
+    const uploadSection = document.getElementById('uploadSection');
+    const tabUrl = document.getElementById('tabUrl');
+    const tabUpload = document.getElementById('tabUpload');
+    
+    if (tab === 'url') {
+        urlSection.style.display = 'block';
+        uploadSection.style.display = 'none';
+        tabUrl.classList.add('active');
+        tabUpload.classList.remove('active');
+        tabUrl.style.background = 'var(--primary)';
+        tabUrl.style.color = 'white';
+        tabUpload.style.background = 'white';
+        tabUpload.style.color = 'var(--text-secondary)';
+    } else {
+        urlSection.style.display = 'none';
+        uploadSection.style.display = 'block';
+        tabUpload.classList.add('active');
+        tabUrl.classList.remove('active');
+        tabUpload.style.background = 'var(--primary)';
+        tabUpload.style.color = 'white';
+        tabUrl.style.background = 'white';
+        tabUrl.style.color = 'var(--text-secondary)';
+    }
+}
+
+async function handleThumbnailUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showToast('Vui lòng chọn file ảnh (JPG, PNG, GIF)', 'warning');
+        return;
+    }
+    
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Kích thước ảnh không được vượt quá 5MB', 'warning');
+        return;
+    }
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('previewImage').src = e.target.result;
+        document.getElementById('uploadFileName').textContent = file.name;
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+        document.getElementById('uploadPreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload to Cloudinary immediately
+    uploadedThumbnailFile = file;
+    await uploadThumbnailToCloudinary(file);
+}
+
+async function uploadThumbnailToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+        showToast('Đang upload ảnh...', 'info');
+        
+        const response = await fetch(`${API_BASE}/course/upload-thumbnail?instructorId=${TEACHER_ID}`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        console.log('Cloudinary upload response:', data);
+        
+        if (data?.result?.url) {
+            uploadedThumbnailUrl = data.result.url;
+            console.log('Set uploadedThumbnailUrl to:', uploadedThumbnailUrl);
+            showToast('Upload ảnh thành công!', 'success');
+            updateThumbPreview(uploadedThumbnailUrl);
+        } else {
+            console.error('No URL in response:', data);
+            showToast('Upload ảnh thất bại', 'error');
+            removeUploadedFile();
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        showToast('Có lỗi khi upload ảnh', 'error');
+        removeUploadedFile();
+    }
+}
+
+function removeUploadedFile() {
+    uploadedThumbnailFile = null;
+    uploadedThumbnailUrl = null;
+    document.getElementById('thumbnailFileInput').value = '';
+    document.getElementById('uploadPlaceholder').style.display = 'block';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('thumbPreview').innerHTML = '🖼️';
+}
+
+/* ─── Video Upload Functions ─── */
+function switchVideoTab(tab) {
+    const urlSection = document.getElementById('videoUrlSection');
+    const uploadSection = document.getElementById('videoUploadSection');
+    const tabUrl = document.getElementById('tabVideoUrl');
+    const tabUpload = document.getElementById('tabVideoUpload');
+    
+    if (tab === 'url') {
+        urlSection.style.display = 'block';
+        uploadSection.style.display = 'none';
+        tabUrl.classList.add('active');
+        tabUpload.classList.remove('active');
+        tabUrl.style.background = 'var(--primary)';
+        tabUrl.style.color = 'white';
+        tabUpload.style.background = 'white';
+        tabUpload.style.color = 'var(--text-secondary)';
+    } else {
+        urlSection.style.display = 'none';
+        uploadSection.style.display = 'block';
+        tabUpload.classList.add('active');
+        tabUrl.classList.remove('active');
+        tabUpload.style.background = 'var(--primary)';
+        tabUpload.style.color = 'white';
+        tabUrl.style.background = 'white';
+        tabUrl.style.color = 'var(--text-secondary)';
+    }
+}
+
+async function handleVideoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('video/')) {
+        showToast('Vui lòng chọn file video (MP4, AVI, MOV)', 'warning');
+        return;
+    }
+    
+    // Validate file size (500MB)
+    if (file.size > 500 * 1024 * 1024) {
+        showToast('Kích thước video không được vượt quá 500MB', 'warning');
+        return;
+    }
+    
+    // Show preview
+    document.getElementById('videoUploadFileName').textContent = file.name;
+    document.getElementById('videoUploadPlaceholder').style.display = 'none';
+    document.getElementById('videoUploadPreview').style.display = 'block';
+    
+    // Upload to Cloudinary immediately
+    uploadedVideoFile = file;
+    await uploadVideoToCloudinary(file);
+}
+
+async function uploadVideoToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('video', file);
+    
+    try {
+        showToast('Đang upload video...', 'info');
+        
+        // Show progress
+        document.getElementById('videoUploadProgress').style.display = 'block';
+        document.getElementById('videoProgressBar').style.width = '0%';
+        document.getElementById('videoProgressText').textContent = 'Đang upload...';
+        
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                document.getElementById('videoProgressBar').style.width = percentComplete + '%';
+                document.getElementById('videoProgressText').textContent = 
+                    `Đang upload... ${Math.round(percentComplete)}%`;
+            }
+        });
+        
+        // Handle completion
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                console.log('Cloudinary video upload response:', data);
+                
+                if (data?.result?.url) {
+                    uploadedVideoUrl = data.result.url;
+                    console.log('Set uploadedVideoUrl to:', uploadedVideoUrl);
+                    showToast('Upload video thành công!', 'success');
+                    document.getElementById('videoProgressText').textContent = 'Upload hoàn tất!';
+                } else {
+                    console.error('No URL in response:', data);
+                    showToast('Upload video thất bại', 'error');
+                    removeUploadedVideo();
+                }
+            } else {
+                console.error('Upload failed with status:', xhr.status);
+                showToast('Upload video thất bại', 'error');
+                removeUploadedVideo();
+            }
+        });
+        
+        // Handle error
+        xhr.addEventListener('error', () => {
+            console.error('Upload error');
+            showToast('Có lỗi khi upload video', 'error');
+            removeUploadedVideo();
+        });
+        
+        // Send request
+        xhr.open('POST', `${API_BASE}/lesson/upload-video?instructorId=${TEACHER_ID}`);
+        xhr.send(formData);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        showToast('Có lỗi khi upload video', 'error');
+        removeUploadedVideo();
+    }
+}
+
+function removeUploadedVideo() {
+    uploadedVideoFile = null;
+    uploadedVideoUrl = null;
+    document.getElementById('videoFileInput').value = '';
+    document.getElementById('videoUploadPlaceholder').style.display = 'block';
+    document.getElementById('videoUploadPreview').style.display = 'none';
+    document.getElementById('videoUploadProgress').style.display = 'none';
+}
+
+async function saveCourse() {
+    const title = document.getElementById('courseTitle').value.trim();
+    const description = document.getElementById('courseDesc').value.trim();
+    const price = parseFloat(document.getElementById('coursePrice').value);
+    const categoryId = document.getElementById('courseCategoryId').value;
+    
+    // Sử dụng URL từ upload nếu có, nếu không thì lấy từ input URL
+    const thumbnailUrl = uploadedThumbnailUrl || document.getElementById('courseThumbnail').value.trim();
+
+    // Validation
+    if (!title) { showToast('Vui lòng nhập tiêu đề khóa học', 'warning'); return; }
+    if (title.length < 3 || title.length > 100) { 
+        showToast('Tiêu đề phải từ 3-100 ký tự', 'warning'); 
+        return; 
+    }
+    if (!description) { showToast('Vui lòng nhập mô tả', 'warning'); return; }
+    if (description.length > 200) { 
+        showToast('Mô tả không được vượt quá 200 ký tự', 'warning'); 
+        return; 
+    }
+    if (isNaN(price) || price < 0) { showToast('Giá không hợp lệ', 'warning'); return; }
+    if (!categoryId) { showToast('Vui lòng chọn danh mục', 'warning'); return; }
+
+    const btn = document.getElementById('saveCourseBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+
+    const body = { 
+        title, 
+        description, 
+        price, 
+        categoryIds: [categoryId]
+    };
+    
+    // Include thumbnailUrl in body if available
+    if (thumbnailUrl) {
+        body.thumbnailUrl = thumbnailUrl;
+    }
+    
+    console.log('Request body:', JSON.stringify(body, null, 2));
+
+    let result;
+    if (editingCourseId) {
+        result = await apiPut(`/course/${editingCourseId}/update?instructorId=${TEACHER_ID}`, body);
+        // Update thumbnail separately if changed
+        if (result?.result && thumbnailUrl && thumbnailUrl !== result.result.thumbnailUrl) {
+            await apiPatch(`/course/${editingCourseId}/thumbnail?instructorId=${TEACHER_ID}`, { thumbnailUrl });
+        }
+    } else {
+        console.log('Creating course with userId:', TEACHER_ID);
+        result = await apiPost(`/course/create?userId=${TEACHER_ID}`, body);
+        console.log('Create course result:', result);
+        // Thumbnail URL is already included in the create request, no need to PATCH
+    }
+
+    btn.disabled = false;
+    console.log('Response status:', result?.status);
+    console.log('Response message:', result?.message);
+    console.log('Response result:', result?.result);
+    
+    if (result && (result.status === 200 || result.status === 201)) {
+        showToast(editingCourseId ? 'Cập nhật khóa học thành công!' : 'Tạo khóa học thành công!', 'success');
+        closeModal('courseModal');
+        await loadCourses();
+    } else {
+        const errorMsg = result?.message || 'Có lỗi xảy ra, vui lòng thử lại';
+        showToast(errorMsg, 'error');
+        console.error('Error response:', result);
+        btn.innerHTML = '<i class="fas fa-save"></i> ' + (editingCourseId ? 'Cập nhật' : 'Tạo khóa học');
+    }
+}
+
+/* ─── Publish ─── */
+async function publishCourse(courseId, currentStatus) {
+    if (currentStatus === 'PUBLISHED') {
+        if (!confirm('Gỡ publish khóa học này?')) return;
+    }
+    const res = await apiPatch(`/course/${courseId}/publish?instructorId=${TEACHER_ID}`);
+    if (res) {
+        showToast(currentStatus === 'PUBLISHED' ? 'Đã gỡ publish' : 'Đã publish khóa học!', 'success');
+        await loadCourses();
+    } else {
+        showToast('Không thể thay đổi trạng thái', 'error');
+    }
+}
+
+/* ─── Delete ─── */
+function openDeleteModal(courseId, title) {
+    deleteCourseId = courseId;
+    document.getElementById('deleteCourseTitle').textContent = title;
+    openModal('deleteModal');
+}
+document.addEventListener('click', e => {
+    if (e.target.id === 'confirmDeleteBtn' || e.target.closest('#confirmDeleteBtn')) {
+        deleteCourseConfirmed();
+    }
+});
+async function deleteCourseConfirmed() {
+    if (!deleteCourseId) return;
+    const res = await apiDelete(`/course/${deleteCourseId}?instructorId=${TEACHER_ID}`);
+    if (res) {
+        showToast('Đã xóa khóa học', 'success');
+        closeModal('deleteModal');
+        deleteCourseId = null;
+        await loadCourses();
+    } else {
+        showToast('Không thể xóa khóa học', 'error');
+    }
+}
+
+/* ─── Curriculum ─── */
+async function openCurriculum(courseId, title) {
+    currentCurriculumCourseId = courseId;
+    document.getElementById('curriculumCourseTitle').textContent = title;
+    document.getElementById('addSectionForm').style.display = 'none';
+    openModal('curriculumModal');
+    await loadSections(courseId);
+}
+
+async function loadSections(courseId) {
+    const data = await apiGet(`/section/course/${courseId}`);
+    const sections = data?.result || [];
+    
+    // Store sections globally for easy access
+    window.currentSections = sections;
+    
+    renderSections(sections);
+}
+
+function renderSections(sections) {
+    const wrap = document.getElementById('curriculumWrap');
+    if (!sections.length) {
+        wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📂</div><h3>Chưa có chương nào</h3><p>Bắt đầu bằng cách thêm chương đầu tiên.</p></div>`;
+        return;
+    }
+    const html = sections.map((s, idx) => {
+        // Calculate lesson count properly
+        const lessons = s.lessonResponses || s.lessons || [];
+        const lessonCount = Array.isArray(lessons) ? lessons.length : (s.lessonCount || 0);
+        
+        return `
+        <div class="section-item">
+            <div class="section-header" onclick="toggleSection('sec-${s.id}','arrow-${s.id}')">
+                <i class="fas fa-folder" style="color:var(--teacher-orange)"></i>
+                <strong style="flex:1">Chương ${idx+1}: ${s.title}</strong>
+                <span style="font-size:12px;color:var(--text-muted);margin-right:12px">${lessonCount} bài học</span>
+                <button class="btn btn-outline btn-sm" style="margin-right:6px" onclick="event.stopPropagation();openAddLesson('${s.id}')">
+                    <i class="fas fa-plus"></i> Thêm bài
+                </button>
+                <button class="btn btn-outline btn-sm" style="color:var(--teacher-red);margin-right:8px" onclick="event.stopPropagation();deleteSection('${s.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <i class="fas fa-chevron-down section-toggle" id="arrow-${s.id}"></i>
+            </div>
+            <div class="section-body" id="sec-${s.id}" style="display:none">
+                ${renderLessons(lessons)}
+            </div>
+        </div>`;
+    }).join('');
+    wrap.innerHTML = html;
+}
+
+function renderLessons(lessons) {
+    if (!Array.isArray(lessons) || !lessons.length) {
+        return `<div style="padding:14px 16px;font-size:13px;color:var(--text-muted)">Chưa có bài học nào</div>`;
+    }
+    return lessons.map((l, i) => `
+        <div class="lesson-item">
+            <div class="lesson-icon"><i class="fas fa-${l.type==='VIDEO'?'play':l.type==='QUIZ'?'question':'file-alt'}"></i></div>
+            <div class="lesson-info">
+                <div class="lesson-title">Bài ${i+1}: ${l.title}</div>
+                <div class="lesson-duration">${l.duration ? l.duration+'min' : l.type || 'VIDEO'}</div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="color:var(--teacher-red)" onclick="deleteLesson('${l.id}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>`).join('');
+}
+
+function toggleSection(bodyId, arrowId) {
+    const body = document.getElementById(bodyId);
+    const arrow = document.getElementById(arrowId);
+    if (!body) return;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function showAddSectionForm() {
+    const form = document.getElementById('addSectionForm');
+    form.style.display = 'block';
+    document.getElementById('newSectionTitle').value = '';
+    document.getElementById('newSectionTitle').focus();
+}
+
+async function createSection() {
+    const title = document.getElementById('newSectionTitle').value.trim();
+    if (!title) { showToast('Vui lòng nhập tên chương', 'warning'); return; }
+
+    const res = await fetch(`${API_BASE}/section/created/${currentCurriculumCourseId}?instructorId=${TEACHER_ID}`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ title, orderIndex: 1 })
+    });
+    const data = await res.json();
+    if (data?.result || data?.status) {
+        showToast('Đã tạo chương mới!', 'success');
+        document.getElementById('addSectionForm').style.display = 'none';
+        await loadSections(currentCurriculumCourseId);
+    } else {
+        showToast('Không thể tạo chương', 'error');
+    }
+}
+
+async function deleteSection(sectionId) {
+    if (!confirm('Xóa chương này và tất cả bài học?')) return;
+    const res = await apiDelete(`/section/${sectionId}/delete?instructorId=${TEACHER_ID}`);
+    if (res) {
+        showToast('Đã xóa chương', 'success');
+        await loadSections(currentCurriculumCourseId);
+    } else { showToast('Không thể xóa', 'error'); }
+}
+
+/* ─── Lesson ─── */
+async function openAddLesson(sectionId, skipOrderCalculation = false) {
+    currentSectionId = sectionId;
+    
+    // Reset uploaded video state
+    uploadedVideoFile = null;
+    uploadedVideoUrl = null;
+    
+    // Reset form fields
+    ['lessonTitle','lessonVideoUrl','lessonContent'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('lessonType').value = 'VIDEO';
+    
+    // Reset video upload UI
+    const videoUploadPreview = document.getElementById('videoUploadPreview');
+    const videoUploadPlaceholder = document.getElementById('videoUploadPlaceholder');
+    if (videoUploadPreview) videoUploadPreview.style.display = 'none';
+    if (videoUploadPlaceholder) videoUploadPlaceholder.style.display = 'block';
+    
+    // Reset video file input
+    const videoFileInput = document.getElementById('videoFileInput');
+    if (videoFileInput) videoFileInput.value = '';
+    
+    // Only calculate order when opening modal fresh (not after saving a lesson)
+    if (!skipOrderCalculation) {
+        // Calculate next order index based on existing lessons in this section
+        try {
+            // First try to get from cached sections data
+            let lessons = [];
+            let dataSource = 'none';
+            
+            if (window.currentSections) {
+                const section = window.currentSections.find(s => s.id === sectionId);
+                if (section) {
+                    lessons = section.lessonResponses || section.lessons || [];
+                    dataSource = 'cache';
+                }
+            }
+            
+            // If no cached data, fetch from API
+            if (lessons.length === 0) {
+                const data = await apiGet(`/section/${sectionId}`);
+                if (data?.result) {
+                    lessons = data.result.lessons || data.result.lessonResponses || [];
+                    dataSource = 'api';
+                }
+            }
+            
+            console.log(`[openAddLesson] Data source: ${dataSource}`);
+            console.log(`[openAddLesson] Section ${sectionId} has ${lessons.length} lessons:`, lessons);
+            
+            // Calculate next order: find the maximum orderIndex and add 1
+            let nextOrder = 1;
+            if (lessons.length > 0) {
+                // Extract all orderIndex values
+                const orders = lessons.map(l => {
+                    const order = l.orderIndex || l.order || 0;
+                    console.log(`  Lesson "${l.title}": orderIndex=${order}`);
+                    return order;
+                }).filter(o => o > 0);
+                
+                console.log(`[openAddLesson] Valid orders found: [${orders.join(', ')}]`);
+                
+                if (orders.length > 0) {
+                    const maxOrder = Math.max(...orders);
+                    nextOrder = maxOrder + 1;
+                    console.log(`[openAddLesson] Max order: ${maxOrder}, Next order: ${nextOrder}`);
+                } else {
+                    // No valid orderIndex found, use lesson count + 1
+                    nextOrder = lessons.length + 1;
+                    console.log(`[openAddLesson] No valid orderIndex, using count + 1: ${nextOrder}`);
+                }
+            } else {
+                console.log(`[openAddLesson] No lessons found, starting with order 1`);
+            }
+            
+            console.log(`[openAddLesson] Setting order input to: ${nextOrder}`);
+            document.getElementById('lessonOrder').value = nextOrder;
+            
+            // Verify it was set
+            const actualValue = document.getElementById('lessonOrder').value;
+            console.log(`[openAddLesson] Order input actual value: ${actualValue}`);
+            
+        } catch (error) {
+            console.error('[openAddLesson] Error calculating lesson order:', error);
+            document.getElementById('lessonOrder').value = 1;
+        }
+    } else {
+        console.log(`[openAddLesson] Skipping order calculation, keeping current value: ${document.getElementById('lessonOrder').value}`);
+    }
+    
+    switchVideoTab('url'); // Reset to URL tab
+    openModal('lessonModal');
+}
+
+document.getElementById('saveLessonBtn')?.addEventListener('click', async () => {
+    if (!currentSectionId) return;
+    const title = document.getElementById('lessonTitle').value.trim();
+    if (!title) { showToast('Vui lòng nhập tên bài học', 'warning'); return; }
+    
+    // Use uploaded video URL if available, otherwise use URL input
+    const videoUrl = uploadedVideoUrl || document.getElementById('lessonVideoUrl').value.trim() || null;
+    
+    const body = {
+        title,
+        type: document.getElementById('lessonType').value,
+        orderIndex: parseInt(document.getElementById('lessonOrder').value) || 1,
+        videoUrl: videoUrl,
+        content: document.getElementById('lessonContent').value.trim() || null
+    };
+    
+    console.log('Creating lesson with video URL:', videoUrl);
+    
+    const res = await fetch(`${API_BASE}/lesson/create/${currentSectionId}?instructorId=${TEACHER_ID}`, {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data?.result || data?.status) {
+        showToast('Đã thêm bài học!', 'success');
+        
+        // Reload sections to show new lesson
+        await loadSections(currentCurriculumCourseId);
+        
+        // Auto-increment order for next lesson
+        const currentOrder = parseInt(document.getElementById('lessonOrder').value) || 1;
+        document.getElementById('lessonOrder').value = currentOrder + 1;
+        
+        // Reset form fields but keep modal open
+        ['lessonTitle','lessonVideoUrl','lessonContent'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('lessonType').value = 'VIDEO';
+        
+        // Reset video upload state and UI
+        uploadedVideoFile = null;
+        uploadedVideoUrl = null;
+        const videoUploadPreview = document.getElementById('videoUploadPreview');
+        const videoUploadPlaceholder = document.getElementById('videoUploadPlaceholder');
+        if (videoUploadPreview) videoUploadPreview.style.display = 'none';
+        if (videoUploadPlaceholder) videoUploadPlaceholder.style.display = 'block';
+        const videoFileInput = document.getElementById('videoFileInput');
+        if (videoFileInput) videoFileInput.value = '';
+        const videoUploadProgress = document.getElementById('videoUploadProgress');
+        if (videoUploadProgress) videoUploadProgress.style.display = 'none';
+        
+        switchVideoTab('url'); // Reset to URL tab
+        
+        // Focus on title input for quick next lesson entry
+        document.getElementById('lessonTitle')?.focus();
+    } else { showToast('Không thể thêm bài học', 'error'); }
+});
+
+async function deleteLesson(lessonId) {
+    if (!confirm('Xóa bài học này?')) return;
+    const res = await apiDelete(`/lesson/${lessonId}/delete?instructorId=${TEACHER_ID}`);
+    if (res) {
+        showToast('Đã xóa bài học', 'success');
+        await loadSections(currentCurriculumCourseId);
+    } else { showToast('Không thể xóa', 'error'); }
+}
+
+/* ─── View toggle ─── */
+document.getElementById('viewGrid')?.addEventListener('click', () => {
+    viewMode = 'grid';
+    document.getElementById('viewGrid').classList.add('active');
+    document.getElementById('viewList').classList.remove('active');
+    renderCourses();
+});
+document.getElementById('viewList')?.addEventListener('click', () => {
+    viewMode = 'list';
+    document.getElementById('viewList').classList.add('active');
+    document.getElementById('viewGrid').classList.remove('active');
+    renderCourses();
+});
+document.getElementById('btnCreateCourse')?.addEventListener('click', openCreateModal);
+
+/* ─── Filter listeners ─── */
+const debouncedFilter = debounce(applyFilter, 300);
+document.getElementById('searchInput')?.addEventListener('input', debouncedFilter);
+document.getElementById('statusFilter')?.addEventListener('change', applyFilter);
+document.getElementById('sortFilter')?.addEventListener('change', applyFilter);
+
+/* ─── Init ─── */
+document.addEventListener('DOMContentLoaded', async () => {
+    await Promise.all([loadCourses(), loadCategories()]);
+
+    // Handle ?action=create
+    const params = new URLSearchParams(location.search);
+    if (params.get('action') === 'create') openCreateModal();
+});
+</script>
+</body>
+</html>

@@ -23,8 +23,7 @@ public class CreatedCourseRequest {
     @Size(max = 200, message = "Description must be less than 200 characters")
     String description;
 
-    @URL(message = "URL ảnh bìa không hợp lệ")
-    String thumbnailUrl;
+    String thumbnailUrl;  // Removed @URL validation to allow empty string or null
 
     BigDecimal price;
 

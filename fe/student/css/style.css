@@ -877,6 +877,16 @@ input { font-family: var(--font); }
     border-color: transparent;
 }
 
+.course-card.enrolled {
+    border: 2px solid #6366f1;
+    background: linear-gradient(to bottom, #f5f3ff 0%, white 100%);
+}
+
+.course-card.enrolled:hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+}
+
 /* Course Thumbnail */
 .course-thumb {
     position: relative;
@@ -908,9 +918,20 @@ input { font-family: var(--font); }
     padding: 4px 10px;
     border-radius: var(--radius-full);
     backdrop-filter: blur(10px);
+    z-index: 2;
 }
 
 .course-badge.free { background: rgba(16,185,129,0.9); }
+.course-badge.enrolled { 
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
 
 .course-play-overlay {
     position: absolute;
@@ -1007,9 +1028,22 @@ input { font-family: var(--font); }
     border-radius: var(--radius-full);
     font-size: 13px; font-weight: 600;
     transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .enroll-btn:hover { background: var(--primary-dark); transform: scale(1.02); }
+
+.enroll-btn.enrolled {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.enroll-btn.enrolled:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: scale(1.05);
+}
 
 /* Skeleton */
 .skeleton-course {

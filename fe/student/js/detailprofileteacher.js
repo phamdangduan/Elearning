@@ -305,6 +305,9 @@ function renderCourses(courses) {
 
     const rating = course.averageRating || 0;
     const reviewCount = course.totalReviews || 0;
+    
+    // Debug log
+    console.log(`Course: ${course.courseTitle}, totalReviews: ${course.totalReviews}, reviewCount: ${reviewCount}`);
 
     return `
       <div class="course-card-h" onclick="window.location.href='detailcourse.html?courseId=${course.courseId}'">

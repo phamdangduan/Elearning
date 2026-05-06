@@ -94,6 +94,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                     }
 
                     response.setProgress(progress);
+                    response.setCompletedLessons(completedLessons != null ? completedLessons.intValue() : 0);
+                    response.setTotalLessons(totalLessons != null ? totalLessons.intValue() : 0);
                     log.info("Calculated progress for course {}: {}%", courseId, progress);
 
                     // Set instructor name

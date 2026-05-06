@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - EduVN Admin</title>
+  <meta name="description" content="Trang quản trị hệ thống EduVN - Tổng quan người dùng, khóa học và doanh thu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .hero-welcome {
+      background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 45%, #06b6d4 100%);
+      border-radius: var(--radius-xl); padding: 32px 36px; margin-bottom: 28px;
+      position: relative; overflow: hidden; color: white;
+    }
+    .hero-welcome::before { content:''; position:absolute; width:300px; height:300px; background:rgba(255,255,255,0.05); border-radius:50%; right:-60px; top:-80px; }
+    .hero-welcome::after  { content:''; position:absolute; width:200px; height:200px; background:rgba(255,255,255,0.05); border-radius:50%; right:80px; bottom:-80px; }
+    .hero-content { position:relative; z-index:1; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-full); padding:5px 14px; font-size:12px; font-weight:700; margin-bottom:12px; }
+    .hero-badge i { color:#fbbf24; }
+    .hero-greeting { font-size:13px; color:rgba(255,255,255,0.65); margin-bottom:8px; font-weight:500; }
+    .hero-name { font-size:clamp(22px,3vw,32px); font-weight:900; margin-bottom:8px; letter-spacing:-0.5px; }
+    .hero-desc { font-size:15px; color:rgba(255,255,255,0.72); max-width:560px; line-height:1.6; }
+    .hero-meta { display:flex; gap:24px; margin-top:20px; flex-wrap:wrap; }
+    .hero-meta-item { display:flex; align-items:center; gap:7px; font-size:13px; color:rgba(255,255,255,0.75); }
+    .hero-meta-item i { color:rgba(255,255,255,0.5); }
+    /* Pending approvals list */
+    .pending-item { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+    .pending-item:last-child { border-bottom:none; }
+    .pending-icon { width:42px; height:42px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .pending-info { flex:1; min-width:0; }
+    .pending-title { font-size:14px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pending-sub { font-size:12px; color:var(--text-muted); }
+    /* Quick stat row */
+    .quick-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .quick-stat { text-align:center; padding:16px; border-radius:var(--radius); background:var(--bg-primary); }
+    .quick-stat-val { font-size:22px; font-weight:900; color:var(--text-primary); }
+    .quick-stat-lab { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  </style>
+</head>
+<body>
+<div class="teacher-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><i class="fas fa-shield-alt"></i></div>
+      <span class="sidebar-brand-name">Edu<span>VN</span></span>
+      <span class="sidebar-role admin-role">Admin</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Quản trị viên</div>
+        <div class="sidebar-user-role">Super Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Tổng quan</span>
+      <a href="index.html" class="nav-item active"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Báo cáo & Thống kê</span></a>
+
+      <span class="nav-group-label">Quản lý</span>
+      <a href="users.html" class="nav-item"><i class="fas fa-users"></i><span>Người dùng</span></a>
+      <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Khóa học</span><span class="nav-badge" id="pendingCoursesBadge" style="display:none">0</span></a>
+      <a href="instructors.html" class="nav-item"><i class="fas fa-chalkboard-teacher"></i><span>Giảng viên</span></a>
+      <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Thanh toán</span><span class="nav-badge" id="pendingPayBadge" style="display:none">0</span></a>
+
+      <span class="nav-group-label">Hệ thống</span>
+      <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../teacher/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang giảng viên</span></a>
+      <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+    </div>
+  </aside>
+
+  <!-- TOP NAV -->
+  <header class="topnav">
+    <div>
+      <div class="topnav-title">Dashboard</div>
+      <div class="topnav-subtitle">Tổng quan hệ thống EduVN</div>
+    </div>
+    <div class="topnav-right">
+      <div style="position:relative">
+        <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+        <div class="noti-dropdown" id="notiDropdown">
+          <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+          <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+        </div>
+      </div>
+      <div class="dropdown">
+        <div class="user-pill" id="userPillBtn">
+          <div class="user-pill-avatar" id="topNavAvatar">A</div>
+          <span class="user-pill-name" id="topNavUserName">Admin</span>
+          <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+        </div>
+        <div class="dropdown-menu" id="userDropdown">
+          <div class="dropdown-item" onclick="location.href='../teacher/index.html'"><i class="fas fa-exchange-alt"></i>Trang giảng viên</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Hero -->
+    <div class="hero-welcome">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-shield-alt"></i> Quản trị viên hệ thống</div>
+        <div class="hero-greeting" id="heroGreeting">🌅 Chào buổi sáng,</div>
+        <div class="hero-name">Quản trị viên EduVN</div>
+        <div class="hero-desc">Giám sát toàn bộ hệ thống, duyệt khóa học, quản lý người dùng và theo dõi doanh thu từ một bảng điều khiển duy nhất.</div>
+        <div class="hero-meta">
+          <span class="hero-meta-item"><i class="fas fa-users"></i><span id="heroUsers">–</span> người dùng</span>
+          <span class="hero-meta-item"><i class="fas fa-book-open"></i><span id="heroCourses">–</span> khóa học</span>
+          <span class="hero-meta-item"><i class="fas fa-dollar-sign"></i><span id="heroRevenue">–</span> doanh thu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid 6 -->
+    <div class="stats-grid-6" id="statsGrid">
+      <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statUsers">–</div>
+          <div class="stat-label">Tổng người dùng</div>
+          <div class="stat-change up"><i class="fas fa-arrow-up"></i> Tất cả</div>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statTeachers">–</div>
+          <div class="stat-label">Giảng viên</div>
+          <div class="stat-change up"><i class="fas fa-arrow-up"></i> Active</div>
+        </div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon indigo"><i class="fas fa-book-open"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statCourses">–</div>
+          <div class="stat-label">Tổng khóa học</div>
+          <div class="stat-change up"><i class="fas fa-arrow-up"></i> Published</div>
+        </div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statPending">–</div>
+          <div class="stat-label">Chờ duyệt</div>
+          <div class="stat-change down"><i class="fas fa-exclamation"></i> Cần xử lý</div>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon teal"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statRevenue">–</div>
+          <div class="stat-label">Doanh thu (đ)</div>
+          <div class="stat-change up"><i class="fas fa-arrow-up"></i> Tổng</div>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon purple"><i class="fas fa-user-graduate"></i></div>
+        <div class="stat-content">
+          <div class="stat-value" id="statEnrollments">–</div>
+          <div class="stat-label">Lượt đăng ký</div>
+          <div class="stat-change up"><i class="fas fa-arrow-up"></i> Tổng</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- LEFT -->
+      <div class="dashboard-left">
+        <!-- Revenue Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fas fa-chart-bar"></i> Doanh thu theo tháng</div>
+            <a href="reports.html" class="btn btn-outline btn-sm">Xem chi tiết</a>
+          </div>
+          <div class="card-body">
+            <div id="revenueChart" style="padding-bottom:8px;">
+              <div class="skeleton" style="height:220px;border-radius:var(--radius)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="dashboard-right">
+        <!-- System Quick Stats -->
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="fas fa-tachometer-alt"></i> Tóm tắt hệ thống</div></div>
+          <div class="card-body">
+            <div class="quick-stats">
+              <div class="quick-stat">
+                <div class="quick-stat-val" id="qs-published">–</div>
+                <div class="quick-stat-lab">Published</div>
+              </div>
+              <div class="quick-stat">
+                <div class="quick-stat-val" id="qs-pending-c">–</div>
+                <div class="quick-stat-lab">Chờ duyệt</div>
+              </div>
+              <div class="quick-stat">
+                <div class="quick-stat-val" id="qs-draft">–</div>
+                <div class="quick-stat-lab">Draft</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fas fa-credit-card"></i> Thanh toán chờ duyệt</div>
+            <a href="payments.html" class="btn btn-outline btn-sm">Xem tất cả</a>
+          </div>
+          <div class="card-body" id="pendingPayList">
+            <div class="skeleton" style="height:56px;margin-bottom:10px;border-radius:var(--radius)"></div>
+            <div class="skeleton" style="height:56px;border-radius:var(--radius)"></div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="fas fa-history"></i> Hoạt động gần đây</div></div>
+          <div class="card-body" id="activityList">
+            <div class="skeleton" style="height:40px;margin-bottom:8px;border-radius:var(--radius)"></div>
+            <div class="skeleton" style="height:40px;border-radius:var(--radius)"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="fas fa-bolt"></i> Thao tác nhanh</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <a href="courses.html?status=PENDING" class="btn btn-primary" style="justify-content:center"><i class="fas fa-check-circle"></i> Duyệt khóa học</a>
+            <a href="users.html" class="btn btn-outline" style="justify-content:center"><i class="fas fa-users"></i> Quản lý người dùng</a>
+            <a href="payments.html" class="btn btn-outline" style="justify-content:center"><i class="fas fa-credit-card"></i> Quản lý thanh toán</a>
+            <a href="reports.html" class="btn btn-outline" style="justify-content:center"><i class="fas fa-chart-line"></i> Xem báo cáo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/common.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

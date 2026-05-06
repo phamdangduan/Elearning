@@ -43,6 +43,20 @@ public class PaymentRequestController {
             @Valid @RequestBody CreatePaymentRequest request
     ) { return ApiResponse.ok(paymentRequestService.createPaymentRequest(userId, request), SuccessCode.PAYMENT_REQUEST_CREATED);}
 
+    @PostMapping(value = "/upload-proof-image", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<com.example.Elearning.dto.response.FileUploadResponse> uploadProofImage(
+            @RequestPart("image") org.springframework.web.multipart.MultipartFile imageFile,
+            @RequestParam(required = false) String folder
+    ) {
+        if (imageFile.isEmpty()) {
+            throw new com.example.Elearning.exception.AppException(com.example.Elearning.exception.ErrorCode.FILE_EMPTY);
+        }
+        
+        com.example.Elearning.dto.response.FileUploadResponse response = 
+            paymentRequestService.uploadProofImage(imageFile, folder != null ? folder : "payment-proofs");
+        return ApiResponse.ok(response, SuccessCode.FILE_UPLOADED);
+    }
+
     @PutMapping("/{paymentRequestId}/upload-proof")
     public ApiResponse<PaymentRequestResponse> uploadPaymentProof(
             @RequestParam String userId,

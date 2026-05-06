@@ -30,17 +30,22 @@ public class InstructorStatsServiceImpl implements InstructorStatsService {
 
     @Override
     public InstructorStatsResponse getInstructorStats(String instructorId) {
+        log.info("Getting stats for instructor: {}", instructorId);
+        
         // 1. Tính tổng doanh thu
         BigDecimal totalRevenue = paymentRequestRepository
                 .calculateTotalRevenueByInstructor(instructorId);
+        log.info("Instructor {} - Total revenue: {}", instructorId, totalRevenue);
 
         // 2. Đếm tổng số học sinh (unique)
         Long totalStudents = enrollmentRepository
                 .countUniqueStudentsByInstructor(instructorId);
+        log.info("Instructor {} - Total students: {}", instructorId, totalStudents);
 
         // 3. Đếm tổng số khóa học
         Long totalCourses = courseRepository
                 .countCoursesByInstructor(instructorId);
+        log.info("Instructor {} - Total courses: {}", instructorId, totalCourses);
 
         // 4. Tính rating trung bình của tất cả khóa học
         Double avgRating = courseRepository
@@ -48,6 +53,7 @@ public class InstructorStatsServiceImpl implements InstructorStatsService {
         BigDecimal averageRating = avgRating != null
                 ? BigDecimal.valueOf(avgRating).setScale(2, RoundingMode.HALF_UP)
                 : null;
+        log.info("Instructor {} - Average rating: {}", instructorId, averageRating);
 
         // 5. Lấy thống kê chi tiết từng khóa học
         List<Course> courses = courseRepository.findAllByInstructorId(instructorId);
@@ -62,6 +68,7 @@ public class InstructorStatsServiceImpl implements InstructorStatsService {
                 .totalCourses(totalCourses.intValue())
                 .averageRating(averageRating)
                 .courseStats(courseStats)
+                .totalReviews(courses.stream().mapToInt(Course::getTotalReviews).sum())
                 .build();
     }
 

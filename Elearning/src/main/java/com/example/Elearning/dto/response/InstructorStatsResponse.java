@@ -17,6 +17,7 @@ public class InstructorStatsResponse {
     Integer totalStudents;             // Tổng số học sinh
     Integer totalCourses;              // Tổng số khóa học
     BigDecimal averageRating;          // Rating trung bình của tất cả khóa học
+    Integer totalReviews;              // Tổng số đánh giá
 
     // Thống kê chi tiết theo khóa học
     List<CourseStatsDetailResponse> courseStats;

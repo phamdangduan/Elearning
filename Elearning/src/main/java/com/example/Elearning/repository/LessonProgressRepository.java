@@ -12,7 +12,12 @@ import java.util.List;
 @Repository
 public interface LessonProgressRepository extends JpaRepository<LessonProgress,String> {
     boolean existsByUser_IdAndLesson_Id(String userId, String lessonId);
-    List<LessonProgress> findByUser_IdAndCourse_Id(String userId, String courseId);
+    
+    @Query("SELECT lp FROM LessonProgress lp " +
+           "LEFT JOIN FETCH lp.lesson " +
+           "WHERE lp.user.id = :userId AND lp.course.id = :courseId")
+    List<LessonProgress> findByUser_IdAndCourse_Id(@Param("userId") String userId, 
+                                                     @Param("courseId") String courseId);
 
     // Đếm tổng số bài học đã hoàn thành của student
     @Query("SELECT COUNT(lp) FROM LessonProgress lp WHERE lp.user.id = :studentId")

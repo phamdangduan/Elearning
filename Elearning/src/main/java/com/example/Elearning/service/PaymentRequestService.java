@@ -4,10 +4,12 @@ import com.example.Elearning.dto.request.ConfirmPaymentRequest;
 import com.example.Elearning.dto.request.CreatePaymentRequest;
 import com.example.Elearning.dto.request.RejectPaymentRequest;
 import com.example.Elearning.dto.request.UploadPaymentProofRequest;
+import com.example.Elearning.dto.response.FileUploadResponse;
 import com.example.Elearning.dto.response.PaymentInfoResponse;
 import com.example.Elearning.dto.response.PaymentRequestDetailResponse;
 import com.example.Elearning.dto.response.PaymentRequestResponse;
 import com.example.Elearning.enums.PaymentStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ public interface PaymentRequestService {
     List<PaymentRequestResponse> getAllPaymentRequests(PaymentStatus status);
 
     PaymentRequestResponse createPaymentRequest(String studentId, CreatePaymentRequest request);
+    FileUploadResponse uploadProofImage(MultipartFile file, String folder);
     PaymentRequestResponse uploadPaymentProof(String studentId, String paymentRequestId, UploadPaymentProofRequest request);
     List<PaymentRequestResponse> getMyPaymentRequests(String studentId);
     PaymentRequestDetailResponse getPaymentRequestDetail(String paymentRequestId);

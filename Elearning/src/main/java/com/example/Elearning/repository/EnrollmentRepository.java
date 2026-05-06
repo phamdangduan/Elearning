@@ -15,7 +15,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, String> 
     boolean existsByUser_IdAndCourse_Id(String userId, String courseId);
     Page<Enrollment> findByUser_Id(String userId, Pageable pageable);
     boolean existsByUserIdAndCourseId(String userId, String courseId);
-    Integer countByCourseId(String courseId);
+    Integer countByCourse_Id(String courseId);
 
 
     @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id = :courseId")

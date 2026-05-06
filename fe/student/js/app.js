@@ -12,6 +12,7 @@ const state = {
     profile: null,
     courses: [],
     categories: [],
+    enrolledCourseIds: new Set(), // Track enrolled courses
     page: 0,
     pageSize: 6,
     totalPages: 0,
@@ -56,9 +57,9 @@ function renderStars(rating) {
     const empty = 5 - full - half;
     return `
         <div class="rating-stars">
-            ${'<i class="fas fa-star"></i>'.repeat(full)}
-            ${half ? '<i class="fas fa-star-half-alt"></i>' : ''}
-            ${'<i class="far fa-star"></i>'.repeat(empty)}
+            ${'<i class="fas fa-star" style="color:#f59e0b"></i>'.repeat(full)}
+            ${half ? '<i class="fas fa-star-half-alt" style="color:#f59e0b"></i>' : ''}
+            ${'<i class="far fa-star" style="color:#f59e0b"></i>'.repeat(empty)}
         </div>
     `;
 }
@@ -78,12 +79,19 @@ function renderCourseCard(course, index) {
     const cats = course.categories?.slice(0, 2).map(c => `<span class="cat-tag">${c.name}</span>`).join('') || '';
     const rating = parseFloat(course.averageRating) || 0;
     const isFree = !course.price || Number(course.price) === 0;
+    const isEnrolled = state.enrolledCourseIds.has(course.id);
+    
+    // Debug log
+    if (index < 5) { // Only log first 5 courses
+        console.log(`[Course ${index}] ID: ${course.id}, Enrolled: ${isEnrolled}, Title: ${course.title}`);
+    }
 
     return `
-        <div class="course-card" data-id="${course.id}" onclick="openCourseModal('${course.id}')">
+        <div class="course-card ${isEnrolled ? 'enrolled' : ''}" data-id="${course.id}" onclick="openCourseModal('${course.id}')">
             <div class="course-thumb">
                 ${getThumb(course, index)}
                 ${isFree ? '<span class="course-badge free">Miễn phí</span>' : ''}
+                ${isEnrolled ? '<span class="course-badge enrolled">Đã mua</span>' : ''}
                 <div class="course-play-overlay">
                     <div class="play-btn-circle"><i class="fas fa-play"></i></div>
                 </div>
@@ -106,9 +114,14 @@ function renderCourseCard(course, index) {
                 </div>
                 <div class="course-footer">
                     ${formatPrice(course.price)}
-                    <a class="enroll-btn" href="detailcourse.html?courseId=${course.id}" onclick="event.stopPropagation()">
-                        ${isFree ? 'Đăng ký miễn phí' : 'Xem chi tiết'}
-                    </a>
+                    ${isEnrolled 
+                        ? `<a class="enroll-btn enrolled" href="learn.html?courseId=${course.id}" onclick="event.stopPropagation()">
+                            <i class="fas fa-play"></i> Vào học
+                           </a>`
+                        : `<a class="enroll-btn" href="detailcourse.html?courseId=${course.id}" onclick="event.stopPropagation()">
+                            ${isFree ? 'Đăng ký miễn phí' : 'Xem chi tiết'}
+                           </a>`
+                    }
                 </div>
             </div>
         </div>
@@ -308,6 +321,55 @@ async function loadUserProfile() {
 
     loadStudentStats();
     loadMyEnrollments();
+    loadEnrolledCourseIds(); // Load enrolled courses
+}
+
+/* ── Load Enrolled Course IDs ── */
+async function loadEnrolledCourseIds() {
+    if (!state.userId) {
+        console.log('[Enrolled Courses] No userId, skipping');
+        state.enrolledCourseIds = new Set();
+        return;
+    }
+    
+    try {
+        const data = await apiGet(`/enrollment/my-enrollment?userId=${state.userId}&page=0&size=1000`);
+        
+        if (!data?.result?.content) {
+            console.log('[Enrolled Courses] No enrollments found');
+            state.enrolledCourseIds = new Set();
+            return;
+        }
+        
+        // Store enrolled course IDs in a Set for fast lookup
+        const enrollments = data.result.content;
+        
+        // Filter out invalid enrollments
+        const validEnrollments = enrollments.filter(enr => {
+            if (!enr.courseId) {
+                console.warn('[Enrolled Courses] Invalid enrollment (no courseId):', enr);
+                return false;
+            }
+            return true;
+        });
+        
+        state.enrolledCourseIds = new Set(
+            validEnrollments.map(enr => enr.courseId)
+        );
+        
+        console.log('[Enrolled Courses]', state.enrolledCourseIds.size, 'courses');
+        console.log('[Enrolled Course IDs]', Array.from(state.enrolledCourseIds));
+        
+        // Re-render courses if already loaded
+        if (state.courses.length > 0) {
+            console.log('[Enrolled Courses] Re-rendering', state.courses.length, 'courses');
+            const grid = document.getElementById('coursesGrid');
+            grid.innerHTML = state.courses.map((c, i) => renderCourseCard(c, i)).join('');
+        }
+    } catch (error) {
+        console.error('[Enrolled Courses] Error loading:', error);
+        state.enrolledCourseIds = new Set();
+    }
 }
 
 /* ── Load Student Stats ── */
@@ -361,15 +423,17 @@ async function loadMyEnrollments() {
 
     grid.innerHTML = enrollments.map((enr, i) => {
         const course = enr.course || enr;
-        const progress = enr.progress || 0;
+        const progress = parseFloat(enr.progress) || 0;
         const completed = enr.completedLessons || 0;
         const total = enr.totalLessons || 0;
         const title = enr.courseTitle || course.title || 'Khóa học';
         const courseId = enr.courseId || course.id;
-        const thumb = enr.courseThumbnail || course.thumbnailUrl;
+        const thumb = enr.courseThumbnailUrl || course.thumbnailUrl;
+        const isCompleted = progress >= 100;
+        const targetUrl = isCompleted ? `review.html?courseId=${courseId}` : `learn.html?courseId=${courseId}`;
 
         return `
-            <div class="continue-card">
+            <div class="continue-card" onclick="window.location.href='${targetUrl}'" style="cursor:pointer">
                 <div class="continue-card-thumb">
                     ${thumb
                         ? `<img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.parentNode.innerHTML='<div class=\\'thumb-placeholder\\' style=\\'background:${thumbBgs2[i%5]};width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;\\'>${thumbEmojis2[i%5]}</div>'">`
@@ -383,11 +447,16 @@ async function loadMyEnrollments() {
                     <div class="continue-card-title">${title}</div>
                     <div class="continue-card-meta">
                         <span>${completed}/${total} bài học</span>
-                        <span style="color:var(--primary);font-weight:700">${Math.round(progress)}%</span>
+                        <span style="color:${isCompleted ? 'var(--success)' : 'var(--primary)'};font-weight:700">${Math.round(progress)}%</span>
                     </div>
-                    <a href="learn.html?courseId=${courseId}" class="continue-btn">
-                        <i class="fas fa-play"></i> Tiếp tục học
-                    </a>
+                    ${isCompleted 
+                        ? `<a href="review.html?courseId=${courseId}" class="continue-btn" style="background:var(--success)" onclick="event.stopPropagation()">
+                            <i class="fas fa-star"></i> Đánh giá
+                           </a>`
+                        : `<a href="learn.html?courseId=${courseId}" class="continue-btn" onclick="event.stopPropagation()">
+                            <i class="fas fa-play"></i> Tiếp tục học
+                           </a>`
+                    }
                 </div>
             </div>
         `;
@@ -531,10 +600,10 @@ async function handleEnroll(courseId) {
         });
         if (res.ok) {
             showToast('Đăng ký khóa học thành công!', 'success');
-            document.getElementById('courseModal').classList.remove('show');
-            document.body.style.overflow = '';
-            // Reload enrollments
+            closeCourseModalFn();
+            // Reload enrollments and enrolled course IDs
             await loadMyEnrollments();
+            await loadEnrolledCourseIds();
         } else {
             showToast('Đăng ký thất bại, vui lòng thử lại', 'error');
         }
@@ -644,24 +713,25 @@ function setupUserMenu() {
 
 /* ── Login Modal ── */
 function setupLoginModal() {
-    document.getElementById('closeLoginModal')?.addEventListener('click', () => {
-        document.getElementById('loginModal').classList.remove('show');
-        document.body.style.overflow = '';
+    const closeLoginModalBtn = document.getElementById('closeLoginModal');
+    
+    closeLoginModalBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeLoginModalFn();
     });
 
     document.getElementById('loginConfirmBtn')?.addEventListener('click', async () => {
         // Temporarily disabled - using hardcoded student-001
         showToast('Đang sử dụng student-001 (hardcoded)', 'info');
-        document.getElementById('loginModal').classList.remove('show');
-        document.body.style.overflow = '';
+        closeLoginModalFn();
         /*
         const userId = document.getElementById('loginInput').value.trim();
         if (!userId) { showToast('Vui lòng nhập User ID', 'warning'); return; }
 
         state.userId = userId;
         localStorage.setItem('userId', userId);
-        document.getElementById('loginModal').classList.remove('show');
-        document.body.style.overflow = '';
+        closeLoginModalFn();
         showToast('Đăng nhập thành công!', 'success');
         await loadUserProfile();
         await loadNotifications();
@@ -675,24 +745,55 @@ function setupLoginModal() {
 
 /* ── Course Modal Close ── */
 function setupCourseModal() {
-    document.getElementById('closeCourseModal')?.addEventListener('click', () => {
-        document.getElementById('courseModal').classList.remove('show');
-        document.body.style.overflow = '';
+    const courseModal = document.getElementById('courseModal');
+    const closeCourseModalBtn = document.getElementById('closeCourseModal');
+    const loginModal = document.getElementById('loginModal');
+    
+    // Close button click
+    closeCourseModalBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeCourseModalFn();
     });
 
-    document.getElementById('courseModal')?.addEventListener('click', e => {
-        if (e.target === document.getElementById('courseModal')) {
-            document.getElementById('courseModal').classList.remove('show');
-            document.body.style.overflow = '';
+    // Click outside modal (on overlay)
+    courseModal?.addEventListener('click', (e) => {
+        if (e.target === courseModal) {
+            closeCourseModalFn();
         }
     });
 
-    document.getElementById('loginModal')?.addEventListener('click', e => {
-        if (e.target === document.getElementById('loginModal')) {
-            document.getElementById('loginModal').classList.remove('show');
-            document.body.style.overflow = '';
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (courseModal?.classList.contains('show')) {
+                closeCourseModalFn();
+            }
+            if (loginModal?.classList.contains('show')) {
+                closeLoginModalFn();
+            }
         }
     });
+
+    // Login modal click outside
+    loginModal?.addEventListener('click', (e) => {
+        if (e.target === loginModal) {
+            closeLoginModalFn();
+        }
+    });
+}
+
+// Helper functions to close modals
+function closeCourseModalFn() {
+    const modal = document.getElementById('courseModal');
+    modal?.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function closeLoginModalFn() {
+    const modal = document.getElementById('loginModal');
+    modal?.classList.remove('show');
+    document.body.style.overflow = '';
 }
 
 /* ── Load More ── */

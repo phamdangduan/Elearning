@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Học viên - EduVN Teacher</title>
+    <meta name="description" content="Xem và quản lý danh sách học viên đang học các khóa học của bạn.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <style>
+        /* ── Summary Stats ── */
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .s-stat {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .s-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .s-stat-icon {
+            width: 48px; height: 48px;
+            border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .s-stat-icon.blue { background: var(--primary-xlight); color: var(--primary); }
+        .s-stat-icon.green { background: var(--teacher-green-light); color: var(--teacher-green); }
+        .s-stat-icon.orange { background: var(--teacher-orange-light); color: var(--teacher-orange); }
+        .s-stat-icon.purple { background: var(--teacher-purple-light); color: var(--teacher-purple); }
+        .s-stat-content { flex: 1; min-width: 0; }
+        .s-stat-val { font-size: 26px; font-weight: 900; color: var(--text-primary); line-height: 1; }
+        .s-stat-lab { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            background: white; padding: 16px 20px;
+            border-radius: var(--radius-lg); border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); margin-bottom: 24px;
+        }
+        .filter-search {
+            display: flex; align-items: center; gap: 8px;
+            border: 1.5px solid var(--border); border-radius: var(--radius-full);
+            padding: 9px 18px; flex: 1; min-width: 200px;
+            transition: var(--transition);
+        }
+        .filter-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .filter-search i { color: var(--text-muted); font-size: 13px; }
+        .filter-search input { border: none; background: none; outline: none; font-size: 14px; width: 100%; color: var(--text-primary); }
+        .filter-search input::placeholder { color: var(--text-muted); }
+
+        /* ── Course filter tabs ── */
+        .course-filter-wrap {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            margin-bottom: 24px; overflow: hidden;
+        }
+        .course-filter-header {
+            padding: 14px 20px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .course-filter-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .course-filter-list {
+            padding: 12px 16px; display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .course-chip {
+            padding: 6px 14px; border-radius: var(--radius-full);
+            font-size: 12px; font-weight: 600;
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary); background: white;
+            cursor: pointer; transition: var(--transition-fast);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .course-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-xlight); }
+        .course-chip.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+        .course-chip .chip-count {
+            background: rgba(255,255,255,0.25); color: inherit;
+            padding: 1px 6px; border-radius: 10px; font-size: 10px;
+        }
+        .course-chip:not(.active) .chip-count { background: var(--bg-primary); color: var(--text-muted); }
+
+        /* ── Table ── */
+        .students-card {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        .students-card-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .students-card-title {
+            font-size: 15px; font-weight: 800; color: var(--text-primary);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .students-card-title i { color: var(--primary); }
+
+        /* Student table */
+        .student-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .student-table thead th {
+            background: var(--bg-primary);
+            padding: 12px 18px;
+            text-align: left; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); border-bottom: 1px solid var(--border);
+            white-space: nowrap; cursor: pointer; user-select: none;
+        }
+        .student-table thead th:hover { color: var(--primary); }
+        .student-table thead th i { margin-left: 4px; font-size: 10px; }
+        .student-table tbody td {
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+            color: var(--text-secondary); vertical-align: middle;
+        }
+        .student-table tbody tr:last-child td { border-bottom: none; }
+        .student-table tbody tr:hover td { background: #f8faff; }
+
+        /* Student avatar cell */
+        .student-cell { display: flex; align-items: center; gap: 12px; }
+        .student-avatar-sm {
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 14px; font-weight: 700; overflow: hidden;
+        }
+        .student-avatar-sm img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .student-name-wrap { min-width: 0; }
+        .student-name { font-size: 14px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .student-email { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Progress bar */
+        .progress-wrap { display: flex; align-items: center; gap: 10px; min-width: 120px; }
+        .progress-bar {
+            flex: 1; height: 6px; border-radius: 3px;
+            background: var(--bg-primary); overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.6s ease;
+        }
+        .progress-fill.done { background: linear-gradient(90deg, var(--teacher-green), #34d399); }
+        .progress-fill.mid { background: linear-gradient(90deg, var(--teacher-orange), #fbbf24); }
+        .progress-pct { font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+
+        /* Rating stars */
+        .stars-wrap { display: flex; align-items: center; gap: 3px; }
+        .stars-wrap i { color: #f59e0b; font-size: 12px; }
+        .stars-wrap i.empty { color: #e2e8f0; }
+        .rating-text { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+
+        /* View toggle */
+        .view-toggle { display: flex; gap: 4px; }
+        .view-btn {
+            width: 34px; height: 34px; border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border); display: flex;
+            align-items: center; justify-content: center; font-size: 14px;
+            color: var(--text-muted); background: white; cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .view-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Card view */
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; padding: 20px; }
+        .student-card {
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 20px; transition: var(--transition); background: white;
+        }
+        .student-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-focus); }
+        .student-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .student-card-avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px; font-weight: 700; flex-shrink: 0; overflow: hidden;
+        }
+        .student-card-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .student-card-info { flex: 1; min-width: 0; }
+        .student-card-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+        .student-card-email { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .student-card-course {
+            font-size: 12px; font-weight: 600; color: var(--primary);
+            background: var(--primary-xlight); border-radius: var(--radius-sm);
+            padding: 4px 10px; margin-bottom: 12px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .student-card-stats {
+            display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+        }
+        .student-card-stat {
+            font-size: 11px; color: var(--text-muted);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .student-card-stat i { font-size: 10px; }
+        .student-card-footer {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+
+        /* Modal – student detail */
+        .detail-section { margin-bottom: 20px; }
+        .detail-section-title {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-muted);
+            margin-bottom: 10px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .detail-field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 3px; }
+        .detail-field span { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+
+        /* Course progress in modal */
+        .course-progress-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .course-progress-item:last-child { border-bottom: none; }
+        .course-progress-emoji { font-size: 22px; flex-shrink: 0; }
+        .course-progress-info { flex: 1; min-width: 0; }
+        .course-progress-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .course-progress-bar { height: 7px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
+        .course-progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .course-progress-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 10px; }
+
+        /* Top students banner */
+        .top-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #06b6d4 100%);
+            border-radius: var(--radius-xl); padding: 24px 28px;
+            margin-bottom: 24px; position: relative; overflow: hidden; color: white;
+        }
+        .top-banner::before {
+            content: ''; position: absolute;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            right: -50px; top: -60px;
+        }
+        .top-banner-content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .top-banner-left {}
+        .top-banner-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+        .top-banner-sub { font-size: 13px; color: rgba(255,255,255,0.7); }
+        .top-banner-avatars { display: flex; gap: -8px; }
+        .top-banner-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 2.5px solid rgba(255,255,255,0.4);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px; font-weight: 700;
+            margin-left: -10px; overflow: hidden;
+        }
+        .top-banner-avatar:first-child { margin-left: 0; }
+        .top-banner-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+        /* Empty state */
+        .students-empty {
+            text-align: center; padding: 64px 32px; color: var(--text-muted);
+        }
+        .students-empty .empty-icon { font-size: 56px; margin-bottom: 20px; opacity: 0.5; }
+        .students-empty h3 { font-size: 18px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+        .students-empty p { font-size: 14px; }
+
+        /* Enrollment date chip */
+        .enroll-date { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+        /* Action button in table */
+        .table-action-btn {
+            width: 30px; height: 30px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: var(--text-muted);
+            border: 1.5px solid var(--border); background: white;
+            cursor: pointer; transition: var(--transition-fast);
+        }
+        .table-action-btn:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-xlight); }
+
+        /* Completed badge */
+        .completed-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 700;
+            background: var(--teacher-green-light); color: var(--teacher-green);
+            padding: 3px 8px; border-radius: var(--radius-full);
+        }
+
+        @media (max-width: 900px) { .student-stats { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 600px) { .student-stats { grid-template-columns: 1fr 1fr; } .detail-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .student-stats { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+<div class="teacher-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <span class="sidebar-brand-name">Edu<span>VN</span></span>
+            <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+                <div class="sidebar-user-role">Giảng viên</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-group-label">Tổng quan</span>
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Thống kê</span></a>
+            <span class="nav-group-label">Khóa học</span>
+            <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Quản lý khóa học</span></a>
+            <a href="courses.html?action=create" class="nav-item"><i class="fas fa-plus-circle"></i><span>Tạo khóa học mới</span></a>
+            <span class="nav-group-label">Học viên</span>
+            <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Yêu cầu thanh toán</span><span class="nav-badge" id="pendingBadge" style="display:none">!</span></a>
+            <a href="students.html" class="nav-item active"><i class="fas fa-users"></i><span>Danh sách học viên</span></a>
+            <span class="nav-group-label">Cá nhân</span>
+            <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
+            <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+        </div>
+    </aside>
+
+    <!-- TOP NAV -->
+    <header class="topnav">
+        <div>
+            <div class="topnav-title">Danh sách Học viên</div>
+            <div class="topnav-subtitle">Xem tiến độ và thông tin học viên đang học</div>
+        </div>
+        <div class="topnav-right">
+            <div style="position:relative">
+                <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+                <div class="noti-dropdown" id="notiDropdown">
+                    <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+                    <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+                </div>
+            </div>
+            <div class="dropdown">
+                <div class="user-pill" id="userPillBtn">
+                    <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+                    <span class="user-pill-name" id="topNavUserName">...</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i>Hồ sơ cá nhân</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="page-title">👥 Danh sách Học viên</div>
+                <div class="page-subtitle">Tổng hợp tất cả học viên đang theo học tại các khóa học của bạn</div>
+            </div>
+            <div class="page-header-actions">
+                <button class="btn btn-outline" onclick="exportCSV()" id="btnExport">
+                    <i class="fas fa-download"></i> Xuất CSV
+                </button>
+                <button class="btn btn-outline" onclick="loadAllData()">
+                    <i class="fas fa-sync-alt"></i> Làm mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="student-stats" id="studentStats">
+            <div class="s-stat">
+                <div class="s-stat-icon blue"><i class="fas fa-users"></i></div>
+                <div class="s-stat-content">
+                    <div class="s-stat-val" id="stat-total">–</div>
+                    <div class="s-stat-lab">Tổng học viên</div>
+                </div>
+            </div>
+            <div class="s-stat">
+                <div class="s-stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="s-stat-content">
+                    <div class="s-stat-val" id="stat-completed">–</div>
+                    <div class="s-stat-lab">Hoàn thành khóa học</div>
+                </div>
+            </div>
+            <div class="s-stat">
+                <div class="s-stat-icon orange"><i class="fas fa-play-circle"></i></div>
+                <div class="s-stat-content">
+                    <div class="s-stat-val" id="stat-active">–</div>
+                    <div class="s-stat-lab">Đang học</div>
+                </div>
+            </div>
+            <div class="s-stat">
+                <div class="s-stat-icon purple"><i class="fas fa-star"></i></div>
+                <div class="s-stat-content">
+                    <div class="s-stat-val" id="stat-rated">–</div>
+                    <div class="s-stat-lab">Đã đánh giá</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course filter chips -->
+        <div class="course-filter-wrap">
+            <div class="course-filter-header">
+                <span class="course-filter-title"><i class="fas fa-filter" style="color:var(--primary)"></i> &nbsp;Lọc theo khóa học</span>
+                <span style="font-size:12px;color:var(--text-muted)" id="courseFilterCount">Đang tải...</span>
+            </div>
+            <div class="course-filter-list" id="courseChips">
+                <div class="skeleton" style="width:100px;height:30px;border-radius:20px"></div>
+                <div class="skeleton" style="width:130px;height:30px;border-radius:20px"></div>
+                <div class="skeleton" style="width:110px;height:30px;border-radius:20px"></div>
+            </div>
+        </div>
+
+        <!-- Filter + Search bar -->
+        <div class="filter-bar">
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm tên hoặc email học viên...">
+            </div>
+            <select class="form-select" id="progressFilter" style="max-width:160px;padding:9px 14px">
+                <option value="">Tất cả tiến trình</option>
+                <option value="0">Chưa bắt đầu (0%)</option>
+                <option value="low">Đang học (1–50%)</option>
+                <option value="mid">Gần xong (51–99%)</option>
+                <option value="done">Hoàn thành (100%)</option>
+            </select>
+            <select class="form-select" id="sortFilter" style="max-width:160px;padding:9px 14px">
+                <option value="enroll_desc">Mới nhất</option>
+                <option value="name_asc">Tên A→Z</option>
+                <option value="progress_desc">Tiến độ cao</option>
+                <option value="progress_asc">Tiến độ thấp</option>
+            </select>
+        </div>
+
+        <!-- Students Table/Grid -->
+        <div class="students-card">
+            <div class="students-card-header">
+                <div class="students-card-title">
+                    <i class="fas fa-user-graduate"></i>
+                    Học viên
+                    <span class="badge badge-info" id="displayCount" style="font-size:12px"></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <div class="view-toggle">
+                        <button class="view-btn active" id="viewTableBtn" title="Bảng" onclick="switchView('table')"><i class="fas fa-table"></i></button>
+                        <button class="view-btn" id="viewGridBtn" title="Lưới" onclick="switchView('grid')"><i class="fas fa-th-large"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table view -->
+            <div id="tableView">
+                <div class="table-wrap">
+                    <table class="student-table" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortBy('name')"><i class="fas fa-user"></i> Học viên <i class="fas fa-sort" id="sort-name"></i></th>
+                                <th>Khóa học</th>
+                                <th onclick="sortBy('progress')">Tiến độ <i class="fas fa-sort" id="sort-progress"></i></th>
+                                <th onclick="sortBy('enroll')">Ngày tham gia <i class="fas fa-sort" id="sort-enroll"></i></th>
+                                <th>Đánh giá</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <tr><td colspan="7">
+                                <div style="display:flex;flex-direction:column;gap:12px;padding:16px 0">
+                                    <div class="skeleton" style="height:52px;border-radius:var(--radius-sm)"></div>
+                                    <div class="skeleton" style="height:52px;border-radius:var(--radius-sm)"></div>
+                                    <div class="skeleton" style="height:52px;border-radius:var(--radius-sm)"></div>
+                                </div>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Grid view (hidden by default) -->
+            <div id="gridView" style="display:none">
+                <div class="student-grid" id="studentGrid">
+                    <div class="skeleton" style="height:200px;border-radius:var(--radius)"></div>
+                    <div class="skeleton" style="height:200px;border-radius:var(--radius)"></div>
+                    <div class="skeleton" style="height:200px;border-radius:var(--radius)"></div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px">
+                <div id="tableCount" style="font-size:13px;color:var(--text-muted)"></div>
+                <div class="pagination" id="paginationWrap"></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ══ STUDENT DETAIL MODAL ══ -->
+<div class="modal-overlay" id="studentModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 id="studentModalTitle"><i class="fas fa-user-graduate"></i> Chi tiết học viên</h3>
+            <button class="modal-close" onclick="closeModal('studentModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="studentModalBody">
+            <div class="skeleton" style="height:80px;border-radius:var(--radius);margin-bottom:16px"></div>
+            <div class="skeleton" style="height:120px;border-radius:var(--radius)"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ SEND MESSAGE MODAL ══ -->
+<div class="modal-overlay" id="messageModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-envelope"></i> Gửi tin nhắn</h3>
+            <button class="modal-close" onclick="closeModal('messageModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Gửi đến</label>
+                <input type="text" class="form-input" id="msgTo" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tiêu đề <span class="req">*</span></label>
+                <input type="text" class="form-input" id="msgSubject" placeholder="VD: Thông báo về khóa học...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nội dung <span class="req">*</span></label>
+                <textarea class="form-textarea" id="msgContent" rows="5" placeholder="Nhập nội dung tin nhắn..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('messageModal')">Hủy</button>
+            <button class="btn btn-primary" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Gửi</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/common.js"></script>
+<script>
+/* ─────────── State ─────────── */
+let allEnrollments = [];   // flat list of {student, course, progress, ...}
+let allCourses = [];
+let filteredList = [];
+let currentPage = 0;
+const PAGE_SIZE = 15;
+let viewMode = 'table';
+let selectedCourseId = '';
+let currentSortKey = 'enroll';
+let currentSortDir = 'desc';
+let msgTargetStudent = null;
+
+const COURSE_EMOJIS = {
+    java:'☕', spring:'🌿', devops:'🐳', docker:'🐋',
+    python:'🐍', react:'⚛️', angular:'🅰️', node:'🟢',
+    ai:'🤖', ml:'📊', css:'🎨', database:'🗄️', default:'📚'
+};
+function getCourseEmoji(title='') {
+    const t = title.toLowerCase();
+    for (const [k,v] of Object.entries(COURSE_EMOJIS)) if(t.includes(k)) return v;
+    return COURSE_EMOJIS.default;
+}
+
+/* ─────────── Load ─────────── */
+async function loadAllData() {
+    showSkeletons();
+
+    // 1. Load courses
+    const cData = await apiGet(`/course/teacher?userId=${TEACHER_ID}&page=0&size=100&sort=createdAt,desc`);
+    allCourses = cData?.result?.content || [];
+    if (!allCourses.length) {
+        const d2 = await apiGet(`/course/search?instructorId=${TEACHER_ID}&page=0&size=100`);
+        allCourses = d2?.result?.content || [];
+    }
+
+    // 2. Load all enrollments (students) for this instructor
+    allEnrollments = [];
+    const enrollData = await apiGet(`/enrollment/instructor-students?instructorId=${TEACHER_ID}&page=0&size=1000`);
+    const enrollments = enrollData?.result?.content || [];
+    
+    console.log('Loaded enrollments:', enrollments.length);
+    
+    // 3. Transform to our format
+    enrollments.forEach(e => {
+        allEnrollments.push({
+            studentId: e.userId,
+            studentName: e.instructorName || 'Học viên', // Backend uses instructorName field for student name
+            studentEmail: '', // Not available in API, would need separate call
+            studentAvatar: null, // Not available in API
+            courseId: e.courseId,
+            courseTitle: e.courseTitle,
+            courseThumbnail: e.courseThumbnailUrl,
+            progress: e.progress || 0,
+            completedLessons: e.completedLessons || 0,
+            totalLessons: e.totalLessons || 0,
+            enrolledAt: e.enrollmentDate,
+            rating: null, // Not available in this API
+            comment: '',
+            isCompleted: (e.progress || 0) >= 100,
+        });
+    });
+
+    console.log('Transformed enrollments:', allEnrollments.length);
+
+    // 4. Build UI
+    buildCourseChips();
+    updateStats();
+    applyFilter();
+}
+
+// Remove old function - no longer needed
+// async function loadCourseStudents(course) { ... }
+
+/* ─────────── Course Chips ─────────── */
+function buildCourseChips() {
+    const wrap = document.getElementById('courseChips');
+    const countEl = document.getElementById('courseFilterCount');
+    if (!allCourses.length) { wrap.innerHTML = '<span style="font-size:13px;color:var(--text-muted)">Chưa có khóa học nào.</span>'; return; }
+
+    const totalStudents = allEnrollments.length;
+    countEl.textContent = `${allCourses.length} khóa học · ${totalStudents} lượt học`;
+
+    let html = `<div class="course-chip active" data-course="" onclick="filterByCourse('')">
+        <i class="fas fa-globe-asia"></i> Tất cả
+        <span class="chip-count">${totalStudents}</span>
+    </div>`;
+
+    allCourses.forEach(c => {
+        const count = allEnrollments.filter(e => e.courseId === c.id).length;
+        const emoji = getCourseEmoji(c.title);
+        const shortTitle = c.title?.length > 28 ? c.title.substring(0,25)+'...' : c.title;
+        html += `<div class="course-chip" data-course="${c.id}" onclick="filterByCourse('${c.id}')">
+            ${emoji} ${shortTitle}
+            <span class="chip-count">${count}</span>
+        </div>`;
+    });
+
+    wrap.innerHTML = html;
+}
+
+function filterByCourse(courseId) {
+    selectedCourseId = courseId;
+    document.querySelectorAll('.course-chip').forEach(ch => {
+        ch.classList.toggle('active', ch.dataset.course === courseId);
+    });
+    currentPage = 0;
+    applyFilter();
+}
+
+/* ─────────── Stats ─────────── */
+function updateStats() {
+    document.getElementById('stat-total').textContent = allEnrollments.length;
+    document.getElementById('stat-completed').textContent = allEnrollments.filter(e => e.isCompleted).length;
+    document.getElementById('stat-active').textContent = allEnrollments.filter(e => !e.isCompleted && e.progress > 0).length;
+    document.getElementById('stat-rated').textContent = allEnrollments.filter(e => e.rating).length;
+}
+
+/* ─────────── Filter ─────────── */
+function applyFilter() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const prog = document.getElementById('progressFilter').value;
+    const sortVal = document.getElementById('sortFilter').value;
+
+    let list = allEnrollments;
+
+    // Course filter
+    if (selectedCourseId) list = list.filter(e => e.courseId === selectedCourseId);
+
+    // Search
+    if (q) list = list.filter(e =>
+        e.studentName?.toLowerCase().includes(q) ||
+        e.studentEmail?.toLowerCase().includes(q)
+    );
+
+    // Progress filter
+    if (prog === '0') list = list.filter(e => e.progress === 0);
+    else if (prog === 'low') list = list.filter(e => e.progress > 0 && e.progress <= 50);
+    else if (prog === 'mid') list = list.filter(e => e.progress > 50 && e.progress < 100);
+    else if (prog === 'done') list = list.filter(e => e.progress >= 100);
+
+    // Sort
+    if (sortVal === 'name_asc') list.sort((a,b) => (a.studentName||'').localeCompare(b.studentName||''));
+    else if (sortVal === 'progress_desc') list.sort((a,b) => (b.progress||0)-(a.progress||0));
+    else if (sortVal === 'progress_asc') list.sort((a,b) => (a.progress||0)-(b.progress||0));
+    else list.sort((a,b) => new Date(b.enrolledAt||0) - new Date(a.enrolledAt||0));
+
+    filteredList = list;
+    currentPage = 0;
+    render();
+}
+
+/* ─────────── Render ─────────── */
+function render() {
+    const start = currentPage * PAGE_SIZE;
+    const page = filteredList.slice(start, start + PAGE_SIZE);
+    const total = filteredList.length;
+
+    document.getElementById('displayCount').textContent = total;
+    document.getElementById('tableCount').textContent =
+        total ? `Hiển thị ${start+1}–${Math.min(start+page.length, total)} trong ${total} học viên` : '';
+
+    if (viewMode === 'table') renderTable(page);
+    else renderGrid(page);
+    renderPagination(total);
+}
+
+function renderTable(list) {
+    const tbody = document.getElementById('studentTableBody');
+    if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="students-empty"><div class="empty-icon">🔍</div><h3>Không tìm thấy học viên</h3><p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p></div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = list.map(e => studentRowHTML(e)).join('');
+}
+
+function renderGrid(list) {
+    const grid = document.getElementById('studentGrid');
+    if (!list.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1"><div class="students-empty"><div class="empty-icon">🔍</div><h3>Không tìm thấy học viên</h3><p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p></div></div>`;
+        return;
+    }
+    grid.innerHTML = list.map(e => studentCardHTML(e)).join('');
+}
+
+function studentRowHTML(e) {
+    const initials = (e.studentName||'S').charAt(0).toUpperCase();
+    const avatarHtml = e.studentAvatar
+        ? `<img src="${e.studentAvatar}" alt="${e.studentName}" onerror="this.style.display='none'; this.parentNode.textContent='${initials}'">`
+        : initials;
+    const prog = Math.min(100, Math.round(e.progress || 0));
+    const progClass = prog >= 100 ? 'done' : prog >= 50 ? 'mid' : '';
+    const enrollDate = e.enrolledAt ? formatDate(e.enrolledAt) : '–';
+    const emoji = getCourseEmoji(e.courseTitle);
+    const courseShort = e.courseTitle?.length > 30 ? e.courseTitle.substring(0,27)+'...' : e.courseTitle;
+
+    let starsHtml = '';
+    if (e.rating) {
+        for (let i=1;i<=5;i++) starsHtml += `<i class="fas fa-star${i > Math.round(e.rating) ? ' empty':''}"></i>`;
+        starsHtml += `<span class="rating-text">${parseFloat(e.rating).toFixed(1)}</span>`;
+    } else starsHtml = '<span style="font-size:12px;color:var(--text-muted)">Chưa đánh giá</span>';
+
+    const statusBadge = prog >= 100
+        ? `<span class="completed-badge"><i class="fas fa-check-circle"></i> Hoàn thành</span>`
+        : prog > 0
+            ? `<span class="badge badge-info"><i class="fas fa-play"></i> Đang học</span>`
+            : `<span class="badge badge-muted"><i class="fas fa-clock"></i> Chưa bắt đầu</span>`;
+
+    return `<tr>
+        <td>
+            <div class="student-cell">
+                <div class="student-avatar-sm">${avatarHtml}</div>
+                <div class="student-name-wrap">
+                    <div class="student-name">${e.studentName}</div>
+                    <div class="student-email">${e.studentEmail || '–'}</div>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-primary)">
+                <span>${emoji}</span>
+                <span style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${e.courseTitle}">${courseShort}</span>
+            </div>
+        </td>
+        <td>
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill ${progClass}" style="width:${prog}%"></div></div>
+                <span class="progress-pct">${prog}%</span>
+            </div>
+        </td>
+        <td><span class="enroll-date"><i class="fas fa-calendar-alt" style="color:var(--text-muted);margin-right:5px"></i>${enrollDate}</span></td>
+        <td><div class="stars-wrap">${starsHtml}</div></td>
+        <td>${statusBadge}</td>
+        <td>
+            <div style="display:flex;gap:6px">
+                <button class="table-action-btn" title="Xem chi tiết" onclick="openStudentDetail('${e.studentId}','${e.courseId}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="table-action-btn" title="Gửi tin nhắn" onclick="openMessage('${e.studentId}','${e.studentName}','${e.studentEmail}')">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+        </td>
+    </tr>`;
+}
+
+function studentCardHTML(e) {
+    const initials = (e.studentName||'S').charAt(0).toUpperCase();
+    const avatarHtml = e.studentAvatar
+        ? `<img src="${e.studentAvatar}" alt="${e.studentName}" onerror="this.style.display='none'; this.parentNode.textContent='${initials}'">`
+        : initials;
+    const prog = Math.min(100, Math.round(e.progress || 0));
+    const progClass = prog >= 100 ? 'done' : prog >= 50 ? 'mid' : '';
+    const emoji = getCourseEmoji(e.courseTitle);
+
+    let ratingHtml = '';
+    if (e.rating) {
+        let stars = '';
+        for (let i=1;i<=5;i++) stars += `<i class="fas fa-star${i>Math.round(e.rating)?' empty':''}" style="font-size:11px;color:${i<=Math.round(e.rating)?'#f59e0b':'#e2e8f0'}"></i>`;
+        ratingHtml = `<span style="display:inline-flex;align-items:center;gap:2px">${stars} <span style="font-size:11px;color:var(--text-muted);margin-left:2px">${parseFloat(e.rating).toFixed(1)}</span></span>`;
+    } else {
+        ratingHtml = `<span style="font-size:11px;color:var(--text-muted)">Chưa đánh giá</span>`;
+    }
+
+    return `<div class="student-card">
+        <div class="student-card-top">
+            <div class="student-card-avatar">${avatarHtml}</div>
+            <div class="student-card-info">
+                <div class="student-card-name">${e.studentName}</div>
+                <div class="student-card-email">${e.studentEmail || '–'}</div>
+            </div>
+        </div>
+        <div class="student-card-course">${emoji} ${e.courseTitle}</div>
+        <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+                <span style="color:var(--text-muted)">Tiến độ</span>
+                <span style="font-weight:700;color:var(--text-primary)">${prog}%</span>
+            </div>
+            <div class="course-progress-bar"><div class="course-progress-fill ${progClass}" style="width:${prog}%"></div></div>
+        </div>
+        <div class="student-card-stats">
+            <span class="student-card-stat"><i class="fas fa-calendar-alt"></i>${e.enrolledAt ? formatDate(e.enrolledAt) : '–'}</span>
+            <span class="student-card-stat"><i class="fas fa-book"></i>${e.completedLessons}/${e.totalLessons} bài</span>
+        </div>
+        <div class="student-card-footer">
+            ${ratingHtml}
+            <div style="display:flex;gap:6px">
+                <button class="table-action-btn" onclick="openStudentDetail('${e.studentId}','${e.courseId}')" title="Chi tiết"><i class="fas fa-eye"></i></button>
+                <button class="table-action-btn" onclick="openMessage('${e.studentId}','${e.studentName}','${e.studentEmail}')" title="Nhắn tin"><i class="fas fa-envelope"></i></button>
+            </div>
+        </div>
+    </div>`;
+}
+
+/* ─────────── Pagination ─────────── */
+function renderPagination(total) {
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const wrap = document.getElementById('paginationWrap');
+    if (totalPages <= 1) { wrap.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===0?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+    for (let i=0; i<totalPages; i++) {
+        if (totalPages > 7 && i > 1 && i < totalPages-2 && Math.abs(i-currentPage) > 1) {
+            if (i===2 || i===totalPages-3) html += `<span class="page-btn" style="pointer-events:none">…</span>`;
+            continue;
+        }
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="changePage(${i})">${i+1}</button>`;
+    }
+    html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages-1?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+    wrap.innerHTML = html;
+}
+function changePage(p) {
+    const total = Math.ceil(filteredList.length / PAGE_SIZE);
+    if (p < 0 || p >= total) return;
+    currentPage = p;
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ─────────── View toggle ─────────── */
+function switchView(mode) {
+    viewMode = mode;
+    document.getElementById('tableView').style.display = mode === 'table' ? 'block' : 'none';
+    document.getElementById('gridView').style.display = mode === 'grid' ? 'block' : 'none';
+    document.getElementById('viewTableBtn').classList.toggle('active', mode === 'table');
+    document.getElementById('viewGridBtn').classList.toggle('active', mode === 'grid');
+    render();
+}
+
+/* ─────────── Sort ─────────── */
+function sortBy(key) {
+    if (currentSortKey === key) currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+    else { currentSortKey = key; currentSortDir = 'asc'; }
+
+    // Update icon
+    ['name','progress','enroll'].forEach(k => {
+        const el = document.getElementById('sort-'+k);
+        if (el) el.className = k === key ? `fas fa-sort-${currentSortDir === 'asc' ? 'up' : 'down'}` : 'fas fa-sort';
+    });
+
+    // Apply sort
+    const dir = currentSortDir === 'asc' ? 1 : -1;
+    if (key === 'name') filteredList.sort((a,b) => dir * (a.studentName||'').localeCompare(b.studentName||''));
+    else if (key === 'progress') filteredList.sort((a,b) => dir * ((a.progress||0)-(b.progress||0)));
+    else if (key === 'enroll') filteredList.sort((a,b) => dir * (new Date(a.enrolledAt||0)-new Date(b.enrolledAt||0)));
+
+    render();
+}
+
+/* ─────────── Student Detail Modal ─────────── */
+async function openStudentDetail(studentId, courseId) {
+    openModal('studentModal');
+    document.getElementById('studentModalBody').innerHTML = `
+        <div class="skeleton" style="height:80px;border-radius:var(--radius);margin-bottom:16px"></div>
+        <div class="skeleton" style="height:120px;border-radius:var(--radius)"></div>`;
+
+    // Find all enrollments for this student
+    const enrollments = allEnrollments.filter(e => e.studentId === studentId);
+    const primary = enrollments.find(e => e.courseId === courseId) || enrollments[0];
+    if (!primary) { document.getElementById('studentModalBody').innerHTML = '<p style="color:var(--text-muted)">Không tìm thấy thông tin học viên.</p>'; return; }
+
+    const prog = Math.min(100, Math.round(primary.progress || 0));
+    const initials = (primary.studentName||'S').charAt(0).toUpperCase();
+    const avatarHtml = primary.studentAvatar
+        ? `<img src="${primary.studentAvatar}" alt="${primary.studentName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : initials;
+
+    let starsHtml = '';
+    if (primary.rating) {
+        for (let i=1;i<=5;i++) starsHtml += `<i class="fas fa-star" style="color:${i<=Math.round(primary.rating)?'#f59e0b':'#e2e8f0'}"></i>`;
+        starsHtml += ` <strong>${parseFloat(primary.rating).toFixed(1)}/5</strong>`;
+    }
+
+    const courseProgressList = enrollments.map(e => {
+        const p = Math.min(100, Math.round(e.progress||0));
+        const pClass = p>=100?'done':p>=50?'mid':'';
+        return `<div class="course-progress-item">
+            <span class="course-progress-emoji">${getCourseEmoji(e.courseTitle)}</span>
+            <div class="course-progress-info">
+                <div class="course-progress-title">${e.courseTitle}</div>
+                <div class="course-progress-bar"><div class="course-progress-fill ${pClass}" style="width:${p}%"></div></div>
+                <div class="course-progress-meta">
+                    <span><i class="fas fa-check-circle" style="color:var(--teacher-green)"></i> ${e.completedLessons}/${e.totalLessons} bài</span>
+                    <span><i class="fas fa-chart-line" style="color:var(--primary)"></i> ${p}%</span>
+                    ${e.isCompleted ? '<span style="color:var(--teacher-green);font-weight:700"><i class="fas fa-trophy"></i> Hoàn thành</span>' : ''}
+                </div>
+            </div>
+            <span style="font-size:15px;font-weight:900;color:var(--primary)">${p}%</span>
+        </div>`;
+    }).join('');
+
+    document.getElementById('studentModalTitle').innerHTML = `<i class="fas fa-user-graduate"></i> ${primary.studentName}`;
+    document.getElementById('studentModalBody').innerHTML = `
+        <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--bg-primary);border-radius:var(--radius-lg);margin-bottom:20px">
+            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:800;flex-shrink:0;overflow:hidden">${avatarHtml}</div>
+            <div>
+                <div style="font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px">${primary.studentName}</div>
+                <div style="font-size:13px;color:var(--text-muted)">${primary.studentEmail || '–'}</div>
+                <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
+                    ${primary.isCompleted ? '<span class="completed-badge"><i class="fas fa-trophy"></i> Đã hoàn thành</span>' : '<span class="badge badge-info"><i class="fas fa-play"></i> Đang học</span>'}
+                    <span class="badge badge-muted"><i class="fas fa-book-open"></i> ${enrollments.length} khóa học</span>
+                </div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="closeModal('studentModal');openMessage('${primary.studentId}','${primary.studentName}','${primary.studentEmail}')">
+                <i class="fas fa-envelope"></i> Nhắn tin
+            </button>
+        </div>
+
+        <div class="detail-section">
+            <div class="detail-section-title">Thông tin chi tiết</div>
+            <div class="detail-grid">
+                <div class="detail-field"><label>Ngày tham gia</label><span>${primary.enrolledAt ? formatDateTime(primary.enrolledAt) : '–'}</span></div>
+                <div class="detail-field"><label>Tiến trình (khóa này)</label><span>${prog}%</span></div>
+                <div class="detail-field"><label>Số khóa đang học</label><span>${enrollments.filter(e=>!e.isCompleted).length}</span></div>
+                <div class="detail-field"><label>Số khóa hoàn thành</label><span>${enrollments.filter(e=>e.isCompleted).length}</span></div>
+                <div class="detail-field"><label>Đánh giá</label>
+                    <span>${primary.rating ? `<span style="display:inline-flex;align-items:center;gap:4px">${starsHtml}</span>` : 'Chưa đánh giá'}</span>
+                </div>
+                ${primary.comment ? `<div class="detail-field" style="grid-column:1/-1"><label>Nhận xét</label><span style="font-style:italic">"${primary.comment}"</span></div>` : ''}
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="detail-section-title">Tiến trình học (${enrollments.length} khóa)</div>
+            ${courseProgressList || '<p style="color:var(--text-muted);font-size:13px">Chưa có dữ liệu tiến trình.</p>'}
+        </div>`;
+}
+
+/* ─────────── Message Modal ─────────── */
+function openMessage(studentId, name, email) {
+    msgTargetStudent = { studentId, name, email };
+    document.getElementById('msgTo').value = `${name} (${email || studentId})`;
+    document.getElementById('msgSubject').value = '';
+    document.getElementById('msgContent').value = '';
+    openModal('messageModal');
+}
+
+async function sendMessage() {
+    const subject = document.getElementById('msgSubject').value.trim();
+    const content = document.getElementById('msgContent').value.trim();
+    if (!subject) { showToast('Vui lòng nhập tiêu đề tin nhắn', 'warning'); return; }
+    if (!content) { showToast('Vui lòng nhập nội dung tin nhắn', 'warning'); return; }
+
+    // Placeholder: API call would go here
+    // await apiPost('/messages', { toUserId: msgTargetStudent.studentId, subject, content });
+
+    showToast(`✅ Đã gửi tin nhắn đến ${msgTargetStudent?.name}`, 'success');
+    closeModal('messageModal');
+}
+
+/* ─────────── Export CSV ─────────── */
+function exportCSV() {
+    if (!filteredList.length) { showToast('Không có dữ liệu để xuất', 'warning'); return; }
+    const header = ['Họ tên','Email','Khóa học','Tiến độ (%)','Ngày tham gia','Đánh giá','Trạng thái'];
+    const rows = filteredList.map(e => [
+        e.studentName,
+        e.studentEmail,
+        e.courseTitle,
+        Math.round(e.progress||0),
+        e.enrolledAt ? formatDate(e.enrolledAt) : '',
+        e.rating || '',
+        e.isCompleted ? 'Hoàn thành' : e.progress > 0 ? 'Đang học' : 'Chưa bắt đầu'
+    ]);
+
+    const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `hoc-vien-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('📥 Đã xuất file CSV thành công!', 'success');
+}
+
+/* ─────────── Skeleton ─────────── */
+function showSkeletons() {
+    document.getElementById('studentTableBody').innerHTML = `<tr><td colspan="7">
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px 0">
+            ${[1,2,3,4,5].map(()=>`<div class=\"skeleton\" style=\"height:52px;border-radius:var(--radius-sm)\"></div>`).join('')}
+        </div></td></tr>`;
+    document.getElementById('studentGrid').innerHTML =
+        [1,2,3,4,5,6].map(()=>`<div class="skeleton" style="height:200px;border-radius:var(--radius)"></div>`).join('');
+}
+
+/* ─────────── Modal helpers ─────────── */
+function openModal(id) { document.getElementById(id)?.classList.add('show'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('show'); }
+
+/* ─────────── Event listeners ─────────── */
+document.getElementById('searchInput')?.addEventListener('input', debounce(applyFilter, 350));
+document.getElementById('progressFilter')?.addEventListener('change', applyFilter);
+document.getElementById('sortFilter')?.addEventListener('change', applyFilter);
+
+/* ─────────── Init ─────────── */
+document.addEventListener('DOMContentLoaded', loadAllData);
+</script>
+</body>
+</html>

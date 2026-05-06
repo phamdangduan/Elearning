@@ -76,10 +76,24 @@ public class LessonProgressServiceImpl implements LessonProgressService {
 
     @Override
     public ProgressResponse getCourseProgress(String courseId, String userId) {
+        log.info("Getting progress for userId={}, courseId={}", userId, courseId);
+        
         List<LessonProgress> lessonProgresses = lessonProgressRepository
                 .findByUser_IdAndCourse_Id(userId, courseId);
+        
+        log.info("Found {} lesson progress records", lessonProgresses.size());
+        
         List<String> completedLessonIds = lessonProgresses.stream()
-                .map(progress -> progress.getLesson().getId()).toList();
+                .filter(progress -> progress.getLesson() != null)
+                .map(progress -> {
+                    String lessonId = progress.getLesson().getId();
+                    log.info("Completed lesson: {}", lessonId);
+                    return lessonId;
+                })
+                .toList();
+        
+        log.info("Total completed lesson IDs: {}", completedLessonIds.size());
+        
         return ProgressResponse.builder()
                 .completedLessonIds(completedLessonIds)
                 .build();

@@ -22,4 +22,6 @@ public class MyEnrollmentResponse {
     String courseThumbnailUrl;
     String instructorName;
     Double progress;
+    Integer completedLessons;  // Number of completed lessons
+    Integer totalLessons;      // Total lessons in course
 }

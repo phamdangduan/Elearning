@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ Giảng viên - EduVN Teacher</title>
+    <meta name="description" content="Quản lý hồ sơ cá nhân của giảng viên EduVN.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <style>
+        .profile-layout { display:grid; grid-template-columns:320px 1fr; gap:28px; align-items:start; }
+        .profile-card {
+            background:white; border-radius:var(--radius-xl);
+            border:1px solid var(--border); box-shadow:var(--shadow-sm);
+            overflow:hidden; position:sticky; top:calc(var(--nav-height)+20px);
+        }
+        .profile-card-banner {
+            height:100px;
+            background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 50%,#06b6d4 100%);
+            position:relative;
+        }
+        .profile-card-avatar-wrap {
+            position:absolute; bottom:-36px; left:50%; transform:translateX(-50%);
+        }
+        .profile-card-avatar {
+            width:72px; height:72px; border-radius:50%;
+            background:linear-gradient(135deg,var(--primary),var(--accent));
+            border:4px solid white; box-shadow:var(--shadow);
+            display:flex; align-items:center; justify-content:center;
+            color:white; font-size:28px; font-weight:900;
+            overflow:hidden;
+        }
+        .profile-card-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+        .profile-card-body { padding:52px 24px 24px; text-align:center; }
+        .profile-card-name { font-size:20px; font-weight:800; color:var(--text-primary); margin-bottom:4px; }
+        .profile-card-role { font-size:13px; color:var(--primary); font-weight:600; margin-bottom:8px; }
+        .profile-card-bio { font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px; }
+        .profile-stat-row { display:flex; justify-content:space-around; padding:16px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin:0 -4px; }
+        .profile-stat-item { text-align:center; }
+        .profile-stat-val { font-size:20px; font-weight:900; color:var(--text-primary); }
+        .profile-stat-lab { font-size:11px; color:var(--text-muted); }
+        .profile-badges { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:16px; }
+        .profile-badge { display:inline-flex; align-items:center; gap:5px; background:var(--bg-primary); border:1px solid var(--border); border-radius:var(--radius-full); padding:4px 10px; font-size:11px; color:var(--text-secondary); }
+
+        /* Edit panel */
+        .edit-section { margin-bottom:28px; }
+        .edit-section-title {
+            font-size:15px; font-weight:800; color:var(--text-primary);
+            margin-bottom:16px; padding-bottom:12px;
+            border-bottom:2px solid var(--border);
+            display:flex; align-items:center; gap:8px;
+        }
+        .edit-section-title i { color:var(--primary); }
+        .security-item {
+            display:flex; align-items:center; gap:16px;
+            padding:16px 0; border-bottom:1px solid var(--border);
+        }
+        .security-item:last-child { border-bottom:none; }
+        .security-icon { width:44px; height:44px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+        .security-info { flex:1; }
+        .security-info strong { font-size:14px; color:var(--text-primary); display:block; }
+        .security-info small { font-size:12px; color:var(--text-muted); }
+        .avatar-edit-btn {
+            position:absolute; bottom:0; right:0;
+            width:24px; height:24px; border-radius:50%;
+            background:var(--primary); color:white;
+            display:flex; align-items:center; justify-content:center;
+            font-size:10px; border:2px solid white; cursor:pointer;
+        }
+
+        /* ── QR Tab switcher (độc lập với .tab-btn chính) ── */
+        .qr-tabs { display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:16px; }
+        .qr-tab-btn {
+            padding:9px 18px; font-size:13px; font-weight:600;
+            color:var(--text-muted); border-bottom:2px solid transparent;
+            margin-bottom:-2px; transition:var(--transition-fast);
+            border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+            cursor:pointer;
+        }
+        .qr-tab-btn:hover { color:var(--primary); background:var(--primary-xlight); }
+        .qr-tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); }
+        .qr-tab-content { display:none; }
+        .qr-tab-content.active { display:block; }
+
+        /* QR Drop zone */
+        .qr-drop-zone {
+            border:2px dashed var(--border); border-radius:var(--radius-lg);
+            padding:32px 24px; text-align:center;
+            background:var(--bg-primary); cursor:pointer;
+            transition:var(--transition); position:relative;
+        }
+        .qr-drop-zone:hover, .qr-drop-zone.drag-over {
+            border-color:var(--primary);
+            background:var(--primary-xlight);
+        }
+        .qr-drop-zone.has-file { border-color:var(--teacher-green); background:var(--teacher-green-light); }
+        .qr-upload-icon-ring {
+            width:64px; height:64px; border-radius:50%;
+            background:white; border:2px solid var(--border);
+            display:flex; align-items:center; justify-content:center;
+            margin:0 auto 14px; font-size:26px; color:var(--primary);
+            transition:var(--transition-fast);
+        }
+        .qr-drop-zone:hover .qr-upload-icon-ring { border-color:var(--primary); background:var(--primary-xlight); }
+        .qr-drop-zone.has-file .qr-upload-icon-ring { border-color:var(--teacher-green); color:var(--teacher-green); }
+
+        /* Progress bar */
+        .qr-prog-wrap { margin-top:14px; display:none; }
+        .qr-prog-bar-track {
+            height:7px; background:var(--border); border-radius:var(--radius-full);
+            overflow:hidden; margin-bottom:6px;
+        }
+        .qr-prog-bar-fill {
+            height:100%; border-radius:var(--radius-full);
+            background:linear-gradient(90deg,var(--primary),var(--accent));
+            width:0%; transition:width 0.3s ease;
+        }
+        .qr-prog-bar-fill.done { background:linear-gradient(90deg,var(--teacher-green),#34d399); }
+
+        /* Current QR preview */
+        .qr-current-box {
+            margin-top:16px; padding:16px;
+            background:var(--bg-primary); border-radius:var(--radius-lg);
+            border:1px solid var(--border);
+            display:flex; align-items:center; gap:16px;
+        }
+        .qr-current-img {
+            width:90px; height:90px; border-radius:var(--radius);
+            object-fit:contain; border:1px solid var(--border);
+            background:white; flex-shrink:0;
+        }
+        .qr-current-placeholder {
+            width:90px; height:90px; border-radius:var(--radius);
+            border:2px dashed var(--border); background:white;
+            display:flex; align-items:center; justify-content:center;
+            font-size:28px; color:var(--text-muted); flex-shrink:0;
+        }
+        .qr-current-info { flex:1; min-width:0; }
+        .qr-current-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+        .qr-current-url { font-size:12px; color:var(--primary); word-break:break-all; margin-bottom:8px; }
+
+        @media(max-width:900px){.profile-layout{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+<div class="teacher-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <span class="sidebar-brand-name">Edu<span>VN</span></span>
+            <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+                <div class="sidebar-user-role">Giảng viên</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-group-label">Tổng quan</span>
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Thống kê</span></a>
+            <span class="nav-group-label">Khóa học</span>
+            <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Quản lý khóa học</span></a>
+            <a href="courses.html?action=create" class="nav-item"><i class="fas fa-plus-circle"></i><span>Tạo khóa học mới</span></a>
+            <span class="nav-group-label">Học viên</span>
+            <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Yêu cầu thanh toán</span></a>
+            <a href="students.html" class="nav-item"><i class="fas fa-users"></i><span>Danh sách học viên</span></a>
+            <span class="nav-group-label">Cá nhân</span>
+            <a href="profile.html" class="nav-item active"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
+            <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+        </div>
+    </aside>
+
+    <!-- TOP NAV -->
+    <header class="topnav">
+        <div>
+            <div class="topnav-title">Hồ sơ cá nhân</div>
+            <div class="topnav-subtitle">Quản lý thông tin giảng viên</div>
+        </div>
+        <div class="topnav-right">
+            <div style="position:relative">
+                <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i></button>
+                <div class="noti-dropdown" id="notiDropdown">
+                    <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+                    <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+                </div>
+            </div>
+            <div class="dropdown">
+                <div class="user-pill" id="userPillBtn">
+                    <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+                    <span class="user-pill-name" id="topNavUserName">...</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i>Hồ sơ cá nhân</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="page-title">👤 Hồ sơ Giảng viên</div>
+                <div class="page-subtitle">Xem và cập nhật thông tin cá nhân</div>
+            </div>
+            <div class="page-header-actions">
+                <button class="btn btn-primary" id="saveInfoBtn" onclick="saveProfile()">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-layout">
+            <!-- LEFT: Profile Card -->
+            <div>
+                <div class="profile-card">
+                    <div class="profile-card-banner">
+                        <div class="profile-card-avatar-wrap">
+                            <div class="profile-card-avatar" id="profileCardAvatar">GV</div>
+                        </div>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="profile-card-name" id="profileCardName">Đang tải...</div>
+                        <div class="profile-card-role">Giảng viên EduVN</div>
+                        <div class="profile-card-bio" id="profileCardBio">–</div>
+                        <div class="profile-stat-row">
+                            <div class="profile-stat-item">
+                                <div class="profile-stat-val" id="profileStatCourses">–</div>
+                                <div class="profile-stat-lab">Khóa học</div>
+                            </div>
+                            <div class="profile-stat-item">
+                                <div class="profile-stat-val" id="profileStatStudents">–</div>
+                                <div class="profile-stat-lab">Học viên</div>
+                            </div>
+                            <div class="profile-stat-item">
+                                <div class="profile-stat-val" id="profileStatRating">–</div>
+                                <div class="profile-stat-lab">Rating</div>
+                            </div>
+                        </div>
+                        <div class="profile-badges">
+                            <span class="profile-badge"><i class="fas fa-check-circle" style="color:var(--teacher-green)"></i> Giảng viên xác thực</span>
+                            <span class="profile-badge"><i class="fas fa-star" style="color:#f59e0b"></i> Top Instructor</span>
+                            <span class="profile-badge"><i class="fas fa-award" style="color:var(--primary)"></i> Java Expert</span>
+                        </div>
+                        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+                            <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">ID: <span id="profileUserId">–</span></div>
+                            <div style="font-size:12px;color:var(--text-muted)">Tham gia: <span id="profileJoined">–</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Edit Forms -->
+            <div>
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="info">Thông tin cá nhân</button>
+                    <button class="tab-btn" data-tab="security">Bảo mật</button>
+                    <button class="tab-btn" data-tab="about">Giới thiệu</button>
+                </div>
+
+                <!-- Tab: Info -->
+                <div class="tab-content active" id="tab-info">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-user"></i> Thông tin cơ bản</div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Họ <span class="req">*</span></label>
+                                        <input type="text" class="form-input" id="fieldLastName" placeholder="Nguyen Van">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tên <span class="req">*</span></label>
+                                        <input type="text" class="form-input" id="fieldFirstName" placeholder="An">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Username</label>
+                                        <input type="text" class="form-input" id="fieldUsername" placeholder="username" disabled style="opacity:0.6">
+                                        <div class="form-hint">Không thể thay đổi username</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-input" id="fieldEmail" disabled style="opacity:0.6">
+                                        <div class="form-hint">Liên hệ admin để đổi email</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="tel" class="form-input" id="fieldPhone" placeholder="0912345678">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Giới tính</label>
+                                        <select class="form-select" id="fieldGender">
+                                            <option value="MALE">Nam</option>
+                                            <option value="FEMALE">Nữ</option>
+                                            <option value="OTHER">Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input type="date" class="form-input" id="fieldDob">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Địa chỉ</label>
+                                        <input type="text" class="form-input" id="fieldAddress" placeholder="VD: Hà Nội, Việt Nam">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-image"></i> Ảnh đại diện</div>
+                                <div class="form-group">
+                                    <label class="form-label">URL ảnh đại diện</label>
+                                    <input type="text" class="form-input" id="fieldAvatar" placeholder="https://...">
+                                    <div class="form-hint">Nhập URL ảnh của bạn (JPG, PNG, GIF). Khuyến nghị 200×200px.</div>
+                                </div>
+                                <div style="margin-top:8px;display:flex;align-items:center;gap:14px">
+                                    <div id="avatarPreview" style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;overflow:hidden;flex-shrink:0">GV</div>
+                                    <button class="btn btn-outline btn-sm" onclick="previewAvatar()"><i class="fas fa-eye"></i> Xem trước</button>
+                                </div>
+                            </div>
+
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-qrcode"></i> Mã QR thanh toán</div>
+                                <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Mã QR này sẽ được học viên dùng để chuyển khoản khi đăng ký khóa học của bạn.</p>
+
+                                <!-- QR Tab switcher (dùng class riêng, không conflict với tab chính) -->
+                                <div class="qr-tabs">
+                                    <button class="qr-tab-btn active" data-qrtab="url"><i class="fas fa-link"></i> Nhập URL</button>
+                                    <button class="qr-tab-btn" data-qrtab="upload"><i class="fas fa-cloud-upload-alt"></i> Upload ảnh</button>
+                                </div>
+
+                                <!-- QR Tab: URL -->
+                                <div class="qr-tab-content active" id="qrtab-url">
+                                    <div class="form-group">
+                                        <label class="form-label">URL ảnh mã QR</label>
+                                        <input type="text" class="form-input" id="fieldQrUrl" placeholder="https://example.com/qr.png">
+                                        <div class="form-hint">Nhập đường dẫn trực tiếp tới ảnh mã QR (JPG, PNG). Ảnh sẽ hiển thị với học viên khi thanh toán.</div>
+                                    </div>
+                                    <button class="btn btn-primary" id="saveQrUrlBtn" onclick="saveQrUrl()">
+                                        <i class="fas fa-save"></i> Lưu mã QR
+                                    </button>
+                                </div>
+
+                                <!-- QR Tab: Upload -->
+                                <div class="qr-tab-content" id="qrtab-upload">
+                                    <div class="form-group">
+                                        <label class="form-label">Chọn hoặc kéo thả ảnh QR</label>
+                                        <!-- Drop zone -->
+                                        <div class="qr-drop-zone" id="qrDropZone">
+                                            <input type="file" id="qrFileInput" accept="image/*" style="display:none">
+                                            <div id="qrDropIdle">
+                                                <div class="qr-upload-icon-ring"><i class="fas fa-qrcode"></i></div>
+                                                <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px">Kéo thả ảnh QR vào đây</div>
+                                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">hoặc click để chọn file</div>
+                                                <span style="display:inline-block;padding:7px 18px;background:var(--primary);color:white;border-radius:var(--radius-full);font-size:12px;font-weight:700"><i class="fas fa-folder-open"></i> Chọn ảnh</span>
+                                                <div style="font-size:11px;color:var(--text-muted);margin-top:10px">JPG, PNG, GIF · Tối đa 5MB</div>
+                                            </div>
+                                            <!-- Preview after select -->
+                                            <div id="qrDropPreview" style="display:none">
+                                                <div class="qr-upload-icon-ring" id="qrDropIconRing"><i class="fas fa-check"></i></div>
+                                                <div id="qrDropFileName" style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:6px"></div>
+                                                <img id="qrDropImg" style="max-height:140px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:12px">
+                                                <div><button type="button" onclick="resetQrUpload()" style="padding:6px 14px;background:var(--teacher-red);color:white;border-radius:var(--radius-sm);font-size:12px;font-weight:600"><i class="fas fa-times"></i> Xóa</button></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Progress bar -->
+                                        <div class="qr-prog-wrap" id="qrProgWrap">
+                                            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:5px">
+                                                <span id="qrProgLabel">Đang upload...</span>
+                                                <span id="qrProgressText">0%</span>
+                                            </div>
+                                            <div class="qr-prog-bar-track">
+                                                <div class="qr-prog-bar-fill" id="qrProgressBar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload button -->
+                                    <button class="btn btn-primary" id="uploadQrBtn" onclick="doUploadQr()" disabled>
+                                        <i class="fas fa-cloud-upload-alt"></i> Upload và lưu mã QR
+                                    </button>
+                                    <div class="form-hint" style="margin-top:8px">Ảnh sẽ được upload lên Cloudinary và tự động lưu vào hồ sơ của bạn.</div>
+                                </div>
+
+                                <!-- Current QR preview -->
+                                <div class="qr-current-box" id="currentQrDisplay">
+                                    <div class="qr-current-placeholder" id="qrPlaceholder"><i class="fas fa-qrcode"></i></div>
+                                    <img class="qr-current-img" id="qrCurrentImg" style="display:none">
+                                    <div class="qr-current-info">
+                                        <div class="qr-current-label">Mã QR hiện tại</div>
+                                        <div class="qr-current-url" id="qrCurrentUrl" style="display:none"></div>
+                                        <div id="qrCurrentEmpty" style="font-size:13px;color:var(--text-muted)">Chưa có mã QR. Hãy upload hoặc nhập URL để thiết lập.</div>
+                                        <div id="qrCurrentActions" style="display:none">
+                                            <button class="btn btn-outline btn-sm" onclick="openQrFullscreen()" style="margin-right:6px">
+                                                <i class="fas fa-expand"></i> Xem to
+                                            </button>
+                                            <button class="btn btn-outline btn-sm" style="color:var(--teacher-red)" onclick="deleteQr()">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Security -->
+                <div class="tab-content" id="tab-security">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-lock"></i> Đổi mật khẩu</div>
+                                <div class="form-group">
+                                    <label class="form-label">Mật khẩu hiện tại</label>
+                                    <input type="password" class="form-input" id="currentPwd" placeholder="••••••••">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Mật khẩu mới</label>
+                                        <input type="password" class="form-input" id="newPwd" placeholder="••••••••">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nhập lại mật khẩu mới</label>
+                                        <input type="password" class="form-input" id="confirmPwd" placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="changePassword()">
+                                    <i class="fas fa-key"></i> Đổi mật khẩu
+                                </button>
+                            </div>
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-shield-alt"></i> Bảo mật tài khoản</div>
+                                <div class="security-item">
+                                    <div class="security-icon" style="background:var(--teacher-green-light);color:var(--teacher-green)"><i class="fas fa-envelope"></i></div>
+                                    <div class="security-info">
+                                        <strong>Xác thực email</strong>
+                                        <small>Email của bạn đã được xác thực</small>
+                                    </div>
+                                    <span class="badge badge-success">✅ Đã xác thực</span>
+                                </div>
+                                <div class="security-item">
+                                    <div class="security-icon" style="background:var(--primary-xlight);color:var(--primary)"><i class="fas fa-mobile-alt"></i></div>
+                                    <div class="security-info">
+                                        <strong>Xác thực hai bước (2FA)</strong>
+                                        <small>Tăng cường bảo mật tài khoản</small>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm">Bật 2FA</button>
+                                </div>
+                                <div class="security-item">
+                                    <div class="security-icon" style="background:var(--teacher-yellow-light);color:var(--teacher-yellow)"><i class="fas fa-history"></i></div>
+                                    <div class="security-info">
+                                        <strong>Lịch sử đăng nhập</strong>
+                                        <small>Xem các thiết bị đã đăng nhập</small>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm">Xem lịch sử</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: About -->
+                <div class="tab-content" id="tab-about">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="edit-section">
+                                <div class="edit-section-title"><i class="fas fa-globe"></i> Giới thiệu bản thân</div>
+                                <div class="form-group">
+                                    <label class="form-label">Tiểu sử ngắn</label>
+                                    <textarea class="form-textarea" id="fieldBio" rows="4" placeholder="Giới thiệu về kinh nghiệm, chuyên môn và phong cách giảng dạy của bạn..."></textarea>
+                                    <div class="form-hint">Hiển thị công khai trên trang hồ sơ giảng viên của bạn.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ngôn ngữ</label>
+                                    <select class="form-select" id="fieldLocale">
+                                        <option value="vi_VN">🇻🇳 Tiếng Việt</option>
+                                        <option value="en_US">🇺🇸 English</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-save"></i> Lưu thay đổi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/common.js"></script>
+<script>
+let profileData = null;
+let bankAccountData = null;
+let uploadedQrUrl = null;
+
+async function loadProfile() {
+    const data = await apiGet(`/profile/me?userId=${TEACHER_ID}`);
+    if (!data?.result) { showToast('Không thể tải hồ sơ', 'error'); return; }
+    profileData = data.result;
+    fillForm(profileData);
+
+    // Stats
+    const stats = await apiGet(`/instructor/stats?instructorId=${TEACHER_ID}`);
+    if (stats?.result) {
+        document.getElementById('profileStatCourses').textContent = stats.result.totalCourses || 0;
+        document.getElementById('profileStatStudents').textContent = stats.result.totalStudents || 0;
+        document.getElementById('profileStatRating').textContent = stats.result.averageRating ? parseFloat(stats.result.averageRating).toFixed(1) : 'N/A';
+    }
+
+    // Load bank account
+    await loadBankAccount();
+}
+
+async function loadBankAccount() {
+    console.log('Loading bank account for teacher:', TEACHER_ID);
+    const data = await apiGet(`/bank-account/my-account?userId=${TEACHER_ID}`);
+    console.log('Bank account response:', data);
+    
+    if (data?.result && data.result.length > 0) {
+        // Find primary account first, or use first account as fallback
+        bankAccountData = data.result.find(acc => acc.isPrimary) || data.result[0];
+        
+        console.log('Selected bank account:', bankAccountData);
+        console.log('QR Code URL:', bankAccountData.qrCodeUrl);
+        
+        displayCurrentQr(bankAccountData.qrCodeUrl);
+        
+        if (bankAccountData.qrCodeUrl) {
+            document.getElementById('fieldQrUrl').value = bankAccountData.qrCodeUrl;
+        }
+        
+        // Also populate bank info fields if they exist
+        if (bankAccountData.bankName) {
+            const bankNameField = document.getElementById('fieldBankName');
+            if (bankNameField) bankNameField.value = bankAccountData.bankName;
+        }
+        if (bankAccountData.accountNumber) {
+            const accNumField = document.getElementById('fieldAccountNumber');
+            if (accNumField) accNumField.value = bankAccountData.accountNumber;
+        }
+        if (bankAccountData.accountName) {
+            const accNameField = document.getElementById('fieldAccountName');
+            if (accNameField) accNameField.value = bankAccountData.accountName;
+        }
+    } else {
+        console.log('No bank account found');
+    }
+}
+
+function displayCurrentQr(qrUrl) {
+    const img = document.getElementById('qrCurrentImg');
+    const placeholder = document.getElementById('qrPlaceholder');
+    const urlEl = document.getElementById('qrCurrentUrl');
+    const emptyEl = document.getElementById('qrCurrentEmpty');
+    const actionsEl = document.getElementById('qrCurrentActions');
+    
+    if (qrUrl) {
+        // Show image
+        img.src = qrUrl;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        
+        // Show URL and actions
+        urlEl.textContent = qrUrl;
+        urlEl.style.display = 'block';
+        emptyEl.style.display = 'none';
+        actionsEl.style.display = 'block';
+    } else {
+        // Show placeholder
+        img.style.display = 'none';
+        placeholder.style.display = 'flex';
+        
+        // Hide URL and actions
+        urlEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        actionsEl.style.display = 'none';
+    }
+}
+
+function fillForm(p) {
+    const name = p.fullName || ((p.lastName||'') + ' ' + (p.firstName||'')).trim() || 'Giảng viên';
+    document.getElementById('profileCardName').textContent = name;
+    document.getElementById('profileCardBio').textContent = p.bio || 'Chưa có tiểu sử';
+    document.getElementById('profileJoined').textContent = formatDate(p.createdAt);
+    document.getElementById('profileUserId').textContent = p.id || TEACHER_ID;
+
+    // Form fields
+    document.getElementById('fieldFirstName').value = p.firstName || '';
+    document.getElementById('fieldLastName').value = p.lastName || '';
+    document.getElementById('fieldUsername').value = p.userName || '';
+    document.getElementById('fieldEmail').value = p.email || '';
+    document.getElementById('fieldPhone').value = p.phone || '';
+    document.getElementById('fieldDob').value = p.dob || '';
+    document.getElementById('fieldAddress').value = p.address || '';
+    document.getElementById('fieldBio').value = p.bio || '';
+    document.getElementById('fieldLocale').value = p.locale || 'vi_VN';
+    document.getElementById('fieldGender').value = p.gender || 'MALE';
+    if (p.avatar) document.getElementById('fieldAvatar').value = p.avatar;
+
+    // Avatar
+    if (p.avatar) {
+        const html = `<img src="${p.avatar}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+        document.getElementById('profileCardAvatar').innerHTML = html;
+        document.getElementById('avatarPreview').innerHTML = html;
+    } else {
+        const init = name[0].toUpperCase();
+        document.getElementById('profileCardAvatar').textContent = init;
+        document.getElementById('avatarPreview').textContent = init;
+    }
+}
+
+function previewAvatar() {
+    const url = document.getElementById('fieldAvatar').value.trim();
+    const el = document.getElementById('avatarPreview');
+    if (url) {
+        el.innerHTML = `<img src="${url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentNode.textContent='❌'">`;
+    } else {
+        showToast('Vui lòng nhập URL ảnh trước', 'warning');
+    }
+}
+
+async function saveProfile() {
+    const firstName = document.getElementById('fieldFirstName').value.trim();
+    const lastName = document.getElementById('fieldLastName').value.trim();
+    if (!firstName || !lastName) { showToast('Vui lòng điền họ tên', 'warning'); return; }
+
+    const btn = document.getElementById('saveInfoBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+
+    const body = {
+        firstName,
+        lastName,
+        phone: document.getElementById('fieldPhone').value.trim() || null,
+        dob: document.getElementById('fieldDob').value || null,
+        address: document.getElementById('fieldAddress').value.trim() || null,
+        gender: document.getElementById('fieldGender').value,
+        bio: document.getElementById('fieldBio').value.trim() || null,
+        locale: document.getElementById('fieldLocale').value,
+        avatar: document.getElementById('fieldAvatar').value.trim() || null
+    };
+
+    const res = await apiPut(`/profile/update?userId=${TEACHER_ID}`, body);
+    
+    // Save QR code if changed
+    if (bankAccountData && (uploadedQrUrl || document.getElementById('fieldQrUrl').value.trim())) {
+        const qrUrl = uploadedQrUrl || document.getElementById('fieldQrUrl').value.trim();
+        const qrBody = { qrCodeUrl: qrUrl };
+        await apiPut(`/bank-account/${bankAccountData.id}/update?userId=${TEACHER_ID}`, qrBody);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save"></i> Lưu thay đổi';
+
+    if (res?.result || res?.status) {
+        showToast('✅ Cập nhật hồ sơ thành công!', 'success');
+        await loadProfile();
+    } else {
+        showToast('Không thể cập nhật hồ sơ: ' + (res?.message || 'Lỗi'), 'error');
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   QR CODE UPLOAD — hoàn chỉnh
+═══════════════════════════════════════════════ */
+
+let pendingQrFile = null; // file đã chọn nhưng chưa upload
+
+// ── QR Tab switcher (class riêng, không conflict) ──
+document.querySelectorAll('.qr-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.qr-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.qr-tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('qrtab-' + btn.dataset.qrtab)?.classList.add('active');
+    });
+});
+
+// ── Drop zone ──
+const qrDropZone = document.getElementById('qrDropZone');
+const qrFileInput = document.getElementById('qrFileInput');
+
+qrDropZone.addEventListener('click', (e) => {
+    // Nếu click nút Xóa bên trong, không mở file dialog
+    if (e.target.closest('button')) return;
+    qrFileInput.click();
+});
+
+qrDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    qrDropZone.classList.add('drag-over');
+});
+qrDropZone.addEventListener('dragleave', () => qrDropZone.classList.remove('drag-over'));
+qrDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    qrDropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) handleQrFileSelect(e.dataTransfer.files[0]);
+});
+qrFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleQrFileSelect(e.target.files[0]);
+});
+
+function handleQrFileSelect(file) {
+    if (!file.type.startsWith('image/')) { showToast('Vui lòng chọn file ảnh (JPG, PNG, GIF)', 'warning'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('File quá lớn (tối đa 5MB)', 'warning'); return; }
+
+    pendingQrFile = file;
+
+    // Hiển thị preview trong drop zone
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        document.getElementById('qrDropImg').src = ev.target.result;
+        document.getElementById('qrDropFileName').textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+        document.getElementById('qrDropIdle').style.display = 'none';
+        document.getElementById('qrDropPreview').style.display = 'block';
+        qrDropZone.classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+
+    // Bật nút upload
+    document.getElementById('uploadQrBtn').disabled = false;
+    // Ẩn progress
+    document.getElementById('qrProgWrap').style.display = 'none';
+}
+
+function resetQrUpload() {
+    pendingQrFile = null;
+    qrFileInput.value = '';
+    document.getElementById('qrDropImg').src = '';
+    document.getElementById('qrDropIdle').style.display = 'block';
+    document.getElementById('qrDropPreview').style.display = 'none';
+    qrDropZone.classList.remove('has-file');
+    document.getElementById('uploadQrBtn').disabled = true;
+    document.getElementById('qrProgWrap').style.display = 'none';
+}
+
+// ── Upload to Cloudinary via backend ──
+function uploadQrToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                document.getElementById('qrProgressBar').style.width = pct + '%';
+                document.getElementById('qrProgressText').textContent = pct + '%';
+                document.getElementById('qrProgLabel').textContent = pct < 100 ? 'Đang upload...' : 'Đang xử lý...';
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            console.log('Upload response status:', xhr.status);
+            console.log('Upload response text:', xhr.responseText);
+            
+            if (xhr.status === 200 || xhr.status === 201) {
+                try {
+                    const resp = JSON.parse(xhr.responseText);
+                    console.log('Parsed response:', resp);
+                    
+                    const url = resp.result?.url || resp.result?.qrCodeUrl || resp.url;
+                    console.log('Extracted URL:', url);
+                    
+                    if (url) {
+                        resolve(url);
+                    } else {
+                        console.error('No URL in response:', resp);
+                        reject(new Error('Server không trả về URL ảnh'));
+                    }
+                } catch (err) {
+                    console.error('Parse error:', err);
+                    reject(new Error('Phản hồi không hợp lệ từ server'));
+                }
+            } else {
+                console.error('Upload failed with status:', xhr.status);
+                reject(new Error(`Upload thất bại (HTTP ${xhr.status})`));
+            }
+        });
+        xhr.addEventListener('error', () => {
+            console.error('Network error during upload');
+            reject(new Error('Lỗi kết nối mạng'));
+        });
+        xhr.addEventListener('abort', () => {
+            console.error('Upload aborted');
+            reject(new Error('Upload bị hủy'));
+        });
+
+        const uploadUrl = `${API_BASE}/bank-account/upload-qr?userId=${TEACHER_ID}`;
+        console.log('Uploading to:', uploadUrl);
+        
+        xhr.open('POST', uploadUrl);
+        const token = localStorage.getItem('token');
+        if (token) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            console.log('Authorization header added');
+        } else {
+            console.warn('No token found in localStorage');
+        }
+        xhr.send(formData);
+    });
+}
+
+// ── Nút "Upload và lưu" ──
+async function doUploadQr() {
+    if (!pendingQrFile) { showToast('Vui lòng chọn ảnh trước', 'warning'); return; }
+
+    const btn = document.getElementById('uploadQrBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang upload...';
+
+    // Hiện progress
+    const progWrap = document.getElementById('qrProgWrap');
+    progWrap.style.display = 'block';
+    document.getElementById('qrProgressBar').style.width = '0%';
+    document.getElementById('qrProgressBar').classList.remove('done');
+    document.getElementById('qrProgressText').textContent = '0%';
+    document.getElementById('qrProgLabel').textContent = 'Đang upload...';
+
+    try {
+        const url = await uploadQrToCloudinary(pendingQrFile);
+        uploadedQrUrl = url;
+
+        // Hoàn thành progress
+        document.getElementById('qrProgressBar').style.width = '100%';
+        document.getElementById('qrProgressBar').classList.add('done');
+        document.getElementById('qrProgressText').textContent = '100%';
+        document.getElementById('qrProgLabel').textContent = '✅ Upload thành công!';
+
+        // Lưu vào bank-account
+        await persistQrUrl(url);
+
+        showToast('✅ Upload và lưu mã QR thành công!', 'success');
+        displayCurrentQr(url);
+        resetQrUpload();
+    } catch (err) {
+        console.error('Upload QR error:', err);
+        showToast('Upload thất bại: ' + err.message, 'error');
+        progWrap.style.display = 'none';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload và lưu mã QR';
+    }
+}
+
+// ── Nút "Lưu QR từ URL" ──
+async function saveQrUrl() {
+    const url = document.getElementById('fieldQrUrl').value.trim();
+    if (!url) { showToast('Vui lòng nhập URL mã QR', 'warning'); return; }
+    if (!url.startsWith('http')) { showToast('URL không hợp lệ', 'warning'); return; }
+
+    const btn = document.getElementById('saveQrUrlBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+
+    try {
+        uploadedQrUrl = url;
+        await persistQrUrl(url);
+
+        showToast('✅ Đã lưu mã QR thành công!', 'success');
+        displayCurrentQr(url);
+    } catch (err) {
+        console.error('Save QR error:', err);
+        showToast('Lưu thất bại: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Lưu mã QR';
+    }
+}
+
+// ── Lưu URL vào bank-account (create hoặc update) ──
+async function persistQrUrl(url) {
+    try {
+        if (bankAccountData?.id) {
+            // Cập nhật account đã có - gửi kèm thông tin hiện tại
+            const body = {
+                bankName: bankAccountData.bankName || 'Bank',
+                accountNumber: bankAccountData.accountNumber || '0000000000',
+                accountName: bankAccountData.accountName || 'Account Name',
+                qrCodeUrl: url,
+                isPrimary: bankAccountData.isPrimary !== false // Keep current primary status
+            };
+            
+            console.log('Updating bank account with:', body);
+            const res = await apiPut(`/bank-account/${bankAccountData.id}/update?userId=${TEACHER_ID}`, body);
+            
+            if (res?.result) {
+                bankAccountData = res.result;
+                console.log('QR updated successfully:', bankAccountData);
+            }
+        } else {
+            // Tạo mới bank account - chỉ với QR code
+            const body = { 
+                qrCodeUrl: url,
+                isPrimary: true 
+            };
+            
+            console.log('Creating bank account with:', body);
+            const res = await apiPost(`/bank-account/create?userId=${TEACHER_ID}`, body);
+            
+            if (res?.result) {
+                bankAccountData = res.result;
+                console.log('Bank account created with QR:', bankAccountData);
+            }
+        }
+    } catch (err) {
+        console.error('Error persisting QR:', err);
+        throw err;
+    }
+}
+
+// ── Hiển thị QR hiện tại ──
+function displayCurrentQr(url) {
+    const img = document.getElementById('qrCurrentImg');
+    const placeholder = document.getElementById('qrPlaceholder');
+    const urlEl = document.getElementById('qrCurrentUrl');
+    const emptyEl = document.getElementById('qrCurrentEmpty');
+    const actionsEl = document.getElementById('qrCurrentActions');
+
+    if (url) {
+        img.src = url;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+        urlEl.textContent = url;
+        urlEl.style.display = 'block';
+        emptyEl.style.display = 'none';
+        actionsEl.style.display = 'flex';
+    } else {
+        img.src = '';
+        img.style.display = 'none';
+        placeholder.style.display = 'flex';
+        urlEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        actionsEl.style.display = 'none';
+    }
+}
+
+// ── Xem toàn màn hình ──
+function openQrFullscreen() {
+    const url = document.getElementById('qrCurrentImg').src;
+    if (!url) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+    overlay.innerHTML = `<img src="${url}" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.5)">`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+}
+
+// ── Xóa QR ──
+async function deleteQr() {
+    if (!confirm('Bạn có chắc muốn xóa mã QR hiện tại?')) return;
+    uploadedQrUrl = null;
+    document.getElementById('fieldQrUrl').value = '';
+    await persistQrUrl('');
+    displayCurrentQr(null);
+    showToast('Đã xóa mã QR', 'info');
+}
+
+function changePassword() {
+    const cur = document.getElementById('currentPwd').value;
+    const nw = document.getElementById('newPwd').value;
+    const cf = document.getElementById('confirmPwd').value;
+    if (!cur || !nw || !cf) { showToast('Vui lòng điền đầy đủ thông tin', 'warning'); return; }
+    if (nw !== cf) { showToast('Mật khẩu mới không khớp', 'error'); return; }
+    if (nw.length < 6) { showToast('Mật khẩu phải ít nhất 6 ký tự', 'warning'); return; }
+    showToast('Tính năng đang phát triển', 'info');
+}
+
+// ── Tabs chính (chỉ áp dụng cho [data-tab], không ảnh hưởng .qr-tab-btn) ──
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content[id^="tab-"]').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab)?.classList.add('active');
+    });
+});
+
+document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+</body>
+</html>

@@ -28,6 +28,7 @@ public class CourseDetailResponse {
     BigDecimal averageRating;
     Integer totalReviews;
     Integer totalEnrollments;
+    Integer totalStudents;  // Alias for totalEnrollments for frontend compatibility
     Integer totalLessons;
     Integer totalDurationSeconds;
     LocalDateTime createdAt;

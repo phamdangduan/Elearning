@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu cầu Thanh toán - EduVN Teacher</title>
+    <meta name="description" content="Quản lý và xác nhận các yêu cầu thanh toán từ học viên.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <style>
+        .payment-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px; }
+        .p-stat {
+            background:white;border-radius:var(--radius-lg);padding:20px;
+            border:1px solid var(--border);text-align:center;
+            box-shadow:var(--shadow-sm);transition:var(--transition);
+        }
+        .p-stat:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+        .p-stat-val{font-size:32px;font-weight:900;margin-bottom:4px;}
+        .p-stat-lab{font-size:12px;color:var(--text-muted);font-weight:500;}
+        .p-stat.pending .p-stat-val{color:var(--teacher-orange);}
+        .p-stat.confirmed .p-stat-val{color:var(--teacher-green);}
+        .p-stat.cancelled .p-stat-val{color:var(--teacher-red);}
+        .p-stat.revenue .p-stat-val{color:var(--primary);font-size:22px;}
+
+        /* Filters */
+        .filter-tabs { display:flex;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius-full);padding:4px;margin-bottom:20px;width:fit-content;flex-wrap:wrap; }
+        .filter-tab {
+            padding:8px 18px;border-radius:var(--radius-full);font-size:13px;font-weight:600;
+            color:var(--text-muted);transition:var(--transition-fast);cursor:pointer;
+        }
+        .filter-tab.active{background:var(--primary);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+        .filter-tab:hover:not(.active){background:var(--bg-primary);}
+
+        /* Payment card */
+        .payment-card {
+            background:white;border-radius:var(--radius-lg);
+            border:1px solid var(--border);
+            box-shadow:var(--shadow-sm);overflow:hidden;
+            transition:var(--transition);margin-bottom:16px;
+        }
+        .payment-card:hover{box-shadow:var(--shadow);}
+        .payment-card.urgent{border-left:4px solid var(--teacher-orange);}
+        .payment-card.confirmed-card{border-left:4px solid var(--teacher-green);}
+        .payment-card.cancelled-card{border-left:4px solid #94a3b8;}
+        .pc-header{
+            display:flex;align-items:center;gap:14px;
+            padding:16px 20px;border-bottom:1px solid var(--border);
+            flex-wrap:wrap;
+        }
+        .pc-student-ava{
+            width:44px;height:44px;border-radius:50%;
+            background:linear-gradient(135deg,var(--primary),var(--accent));
+            display:flex;align-items:center;justify-content:center;
+            color:white;font-size:17px;font-weight:700;flex-shrink:0;
+        }
+        .pc-student-info{flex:1;min-width:0;}
+        .pc-student-name{font-size:15px;font-weight:800;color:var(--text-primary);}
+        .pc-student-meta{font-size:12px;color:var(--text-muted);}
+        .pc-status-area{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        .pc-amount{font-size:18px;font-weight:900;color:var(--primary);}
+        .pc-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .pc-field{}
+        .pc-field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);display:block;margin-bottom:4px;}
+        .pc-field span{font-size:13px;color:var(--text-primary);font-weight:500;}
+        .pc-field a{color:var(--primary);font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+        .pc-field a:hover{text-decoration:underline;}
+        .pc-note{grid-column:1/-1;background:var(--bg-primary);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text-secondary);}
+        .pc-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;}
+
+        /* Bill image */
+        .bill-preview{width:100%;max-height:300px;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);}
+
+        /* Countdown */
+        .countdown{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--teacher-orange);}
+        .countdown.expired{color:var(--teacher-red);}
+
+        @media(max-width:900px){.payment-stats{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:600px){.pc-body{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+<div class="teacher-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <span class="sidebar-brand-name">Edu<span>VN</span></span>
+            <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+                <div class="sidebar-user-role">Giảng viên</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-group-label">Tổng quan</span>
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Thống kê</span></a>
+            <span class="nav-group-label">Khóa học</span>
+            <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Quản lý khóa học</span></a>
+            <a href="courses.html?action=create" class="nav-item"><i class="fas fa-plus-circle"></i><span>Tạo khóa học mới</span></a>
+            <span class="nav-group-label">Học viên</span>
+            <a href="payments.html" class="nav-item active"><i class="fas fa-credit-card"></i><span>Yêu cầu thanh toán</span></a>
+            <a href="students.html" class="nav-item"><i class="fas fa-users"></i><span>Danh sách học viên</span></a>
+            <span class="nav-group-label">Cá nhân</span>
+            <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
+            <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+        </div>
+    </aside>
+
+    <!-- TOP NAV -->
+    <header class="topnav">
+        <div>
+            <div class="topnav-title">Yêu cầu Thanh toán</div>
+            <div class="topnav-subtitle">Duyệt và xác nhận các yêu cầu từ học viên</div>
+        </div>
+        <div class="topnav-right">
+            <div style="position:relative">
+                <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+                <div class="noti-dropdown" id="notiDropdown">
+                    <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+                    <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+                </div>
+            </div>
+            <div class="dropdown">
+                <div class="user-pill" id="userPillBtn">
+                    <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+                    <span class="user-pill-name" id="topNavUserName">...</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i>Hồ sơ cá nhân</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="page-title">💳 Yêu cầu Thanh toán</div>
+                <div class="page-subtitle">Xem và duyệt tất cả yêu cầu đăng ký từ học viên</div>
+            </div>
+            <div class="page-header-actions">
+                <button class="btn btn-outline" onclick="loadPayments()">
+                    <i class="fas fa-sync-alt"></i> Làm mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="payment-stats" id="paymentStats">
+            <div class="p-stat pending"><div class="p-stat-val" id="ps-pending">–</div><div class="p-stat-lab">⏳ Chờ duyệt</div></div>
+            <div class="p-stat confirmed"><div class="p-stat-val" id="ps-confirmed">–</div><div class="p-stat-lab">✅ Đã xác nhận</div></div>
+            <div class="p-stat cancelled"><div class="p-stat-val" id="ps-cancelled">–</div><div class="p-stat-lab">❌ Hủy/Hết hạn</div></div>
+            <div class="p-stat revenue"><div class="p-stat-val" id="ps-revenue">–</div><div class="p-stat-lab">💰 Doanh thu xác nhận</div></div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="filter-tabs" id="filterTabs">
+            <div class="filter-tab active" data-status="">Tất cả</div>
+            <div class="filter-tab" data-status="PROOF_UPLOADED">📋 Chờ duyệt</div>
+            <div class="filter-tab" data-status="PENDING_PROOF">⏳ Chờ bill</div>
+            <div class="filter-tab" data-status="CONFIRMED">✅ Đã duyệt</div>
+            <div class="filter-tab" data-status="CANCELLED">🚫 Đã hủy</div>
+            <div class="filter-tab" data-status="EXPIRED">⌛ Hết hạn</div>
+        </div>
+
+        <!-- Payment list -->
+        <div id="paymentList">
+            <div class="skeleton" style="height:140px;border-radius:var(--radius-lg);margin-bottom:16px"></div>
+            <div class="skeleton" style="height:140px;border-radius:var(--radius-lg);margin-bottom:16px"></div>
+            <div class="skeleton" style="height:140px;border-radius:var(--radius-lg)"></div>
+        </div>
+    </main>
+</div>
+
+<!-- ══ CONFIRM PAYMENT MODAL ══ -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-check-circle" style="color:var(--teacher-green)"></i> Xác nhận thanh toán</h3>
+            <button class="modal-close" onclick="closeModal('confirmModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom:16px">
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Học viên: <strong id="confirm-student"></strong></p>
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Khóa học: <strong id="confirm-course"></strong></p>
+                <p style="font-size:14px;color:var(--text-secondary)">Số tiền: <strong style="color:var(--primary)" id="confirm-amount"></strong></p>
+            </div>
+            <div id="confirm-bill-wrap" style="margin-bottom:16px;display:none">
+                <label class="form-label">Ảnh bill chuyển khoản</label>
+                <img id="confirm-bill-img" class="bill-preview" src="" alt="Bill">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ghi chú của bạn (tùy chọn)</label>
+                <textarea class="form-textarea" id="confirmNote" rows="2" placeholder="VD: Đã nhận tiền, xác nhận..."></textarea>
+            </div>
+            <div style="background:var(--teacher-green-light);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:#065f46">
+                <i class="fas fa-info-circle"></i> Sau khi xác nhận, học viên sẽ được tự động enroll vào khóa học.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('confirmModal')">Hủy</button>
+            <button class="btn btn-success" id="doConfirmBtn"><i class="fas fa-check"></i> Xác nhận nhận tiền</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ REJECT MODAL ══ -->
+<div class="modal-overlay" id="rejectModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-times-circle" style="color:var(--teacher-red)"></i> Từ chối yêu cầu</h3>
+            <button class="modal-close" onclick="closeModal('rejectModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">Bạn đang từ chối yêu cầu từ <strong id="reject-student"></strong> cho khóa <strong id="reject-course"></strong>.</p>
+            <div class="form-group">
+                <label class="form-label">Lý do từ chối <span class="req">*</span></label>
+                <textarea class="form-textarea" id="rejectReason" rows="3" placeholder="VD: Bill không hợp lệ, số tiền không đúng..."></textarea>
+            </div>
+            <div style="background:var(--teacher-red-light);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:#92400e">
+                <i class="fas fa-exclamation-triangle"></i> Học viên sẽ nhận được thông báo về lý do từ chối.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('rejectModal')">Hủy</button>
+            <button class="btn btn-danger" id="doRejectBtn"><i class="fas fa-times"></i> Từ chối</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ BILL IMAGE MODAL ══ -->
+<div class="modal-overlay" id="billModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-image"></i> Ảnh bill chuyển khoản</h3>
+            <button class="modal-close" onclick="closeModal('billModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="text-align:center">
+            <img id="billImgFull" class="bill-preview" src="" alt="Bill" style="max-height:500px">
+            <p id="billImgNote" style="font-size:12px;color:var(--text-muted);margin-top:10px"></p>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/common.js"></script>
+<script>
+let allPayments = [];
+let activeStatus = '';
+let pendingActionId = null;
+
+/* ── Load ── */
+async function loadPayments() {
+    document.getElementById('paymentList').innerHTML = `
+        <div class="skeleton" style="height:140px;border-radius:var(--radius-lg);margin-bottom:16px"></div>
+        <div class="skeleton" style="height:140px;border-radius:var(--radius-lg);margin-bottom:16px"></div>
+        <div class="skeleton" style="height:140px;border-radius:var(--radius-lg)"></div>`;
+
+    const data = await apiGet(`/instructor/payment-requests?userId=${TEACHER_ID}`);
+    allPayments = data?.result || [];
+    updateStats();
+    renderPayments();
+}
+
+function updateStats() {
+    const pending = allPayments.filter(p => p.status === 'PENDING_PROOF' || p.status === 'PROOF_UPLOADED');
+    const confirmed = allPayments.filter(p => p.status === 'CONFIRMED');
+    const cancelled = allPayments.filter(p => p.status === 'CANCELLED' || p.status === 'EXPIRED' || p.status === 'REJECTED');
+    const revenue = confirmed.reduce((s, p) => s + (p.amount || 0), 0);
+
+    document.getElementById('ps-pending').textContent = pending.length;
+    document.getElementById('ps-confirmed').textContent = confirmed.length;
+    document.getElementById('ps-cancelled').textContent = cancelled.length;
+    document.getElementById('ps-revenue').textContent = (revenue / 1000000).toFixed(1) + 'M đ';
+}
+
+function renderPayments() {
+    const filtered = activeStatus
+        ? allPayments.filter(p => p.status === activeStatus)
+        : allPayments;
+
+    if (!filtered.length) {
+        document.getElementById('paymentList').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>Không có yêu cầu nào</h3>
+                <p>Hiện tại không có yêu cầu thanh toán ${activeStatus ? 'với trạng thái này' : ''}.</p>
+            </div>`;
+        return;
+    }
+
+    const html = filtered.map(p => paymentCardHTML(p)).join('');
+    document.getElementById('paymentList').innerHTML = html;
+}
+
+function paymentCardHTML(p) {
+    const statusInfo = PAYMENT_STATUS[p.status] || { cls:'badge-muted', txt:p.status };
+    let cardClass = '';
+    if (p.status === 'PROOF_UPLOADED') cardClass = 'urgent';
+    else if (p.status === 'CONFIRMED') cardClass = 'confirmed-card';
+    else if (p.status === 'CANCELLED' || p.status === 'EXPIRED') cardClass = 'cancelled-card';
+
+    const initials = (p.studentName || 'S').toUpperCase().charAt(0);
+    const created = formatDate(p.createdAt);
+    const expired = formatDate(p.expiredAt);
+    const confirmed = p.confirmedAt ? formatDateTime(p.confirmedAt) : '–';
+
+    const canConfirm = p.status === 'PROOF_UPLOADED' || p.status === 'PENDING_PROOF' || p.status === 'PENDING';
+    const canReject  = p.status === 'PROOF_UPLOADED' || p.status === 'PENDING_PROOF' || p.status === 'PENDING';
+
+    return `<div class="payment-card ${cardClass}">
+        <div class="pc-header">
+            <div class="pc-student-ava">${initials}</div>
+            <div class="pc-student-info">
+                <div class="pc-student-name">${p.studentName || 'Học viên'}</div>
+                <div class="pc-student-meta">ID: ${p.studentId} · Tạo lúc ${created}</div>
+            </div>
+            <div class="pc-status-area">
+                <div class="pc-amount">${(p.amount||0).toLocaleString('vi-VN')}đ</div>
+                <span class="badge ${statusInfo.cls}">${statusInfo.txt}</span>
+            </div>
+        </div>
+        <div class="pc-body">
+            <div class="pc-field">
+                <label>Khóa học</label>
+                <span>${p.courseTitle || p.courseId}</span>
+            </div>
+            <div class="pc-field">
+                <label>Mã giao dịch</label>
+                <span style="font-family:monospace;font-size:12px">${p.transferNote || p.referenceCode || '–'}</span>
+            </div>
+            <div class="pc-field">
+                <label>Hạn thanh toán</label>
+                <span>${expired}</span>
+            </div>
+            <div class="pc-field">
+                <label>Xác nhận lúc</label>
+                <span>${confirmed}</span>
+            </div>
+            ${p.paymentProofUrl ? `
+            <div class="pc-field">
+                <label>Bill chuyển khoản</label>
+                <a onclick="viewBill('${p.paymentProofUrl}','${p.transferNote||''}')">
+                    <i class="fas fa-image"></i> Xem ảnh bill
+                </a>
+            </div>` : ''}
+            ${p.studentNote ? `<div class="pc-note"><i class="fas fa-comment" style="color:var(--primary)"></i> <strong>Ghi chú HV:</strong> ${p.studentNote}</div>` : ''}
+            ${p.instructorNote ? `<div class="pc-note" style="background:var(--teacher-green-light)"><i class="fas fa-check" style="color:var(--teacher-green)"></i> <strong>Ghi chú GV:</strong> ${p.instructorNote}</div>` : ''}
+        </div>
+        ${canConfirm || canReject ? `
+        <div class="pc-footer">
+            ${canConfirm ? `<button class="btn btn-success" onclick="openConfirmModal('${p.id}')">
+                <i class="fas fa-check-circle"></i> Xác nhận nhận tiền
+            </button>` : ''}
+            ${canReject ? `<button class="btn btn-danger btn-sm" onclick="openRejectModal('${p.id}')">
+                <i class="fas fa-times"></i> Từ chối
+            </button>` : ''}
+        </div>` : ''}
+    </div>`;
+}
+
+/* ── View bill ── */
+function viewBill(url, note) {
+    document.getElementById('billImgFull').src = url;
+    document.getElementById('billImgNote').textContent = note;
+    openModal('billModal');
+}
+
+/* ── Confirm modal ── */
+function openConfirmModal(paymentId) {
+    const p = allPayments.find(x => x.id === paymentId);
+    if (!p) return;
+    pendingActionId = paymentId;
+    document.getElementById('confirm-student').textContent = p.studentName;
+    document.getElementById('confirm-course').textContent = p.courseTitle;
+    document.getElementById('confirm-amount').textContent = (p.amount||0).toLocaleString('vi-VN') + 'đ';
+    document.getElementById('confirmNote').value = '';
+
+    const billWrap = document.getElementById('confirm-bill-wrap');
+    if (p.paymentProofUrl) {
+        billWrap.style.display = 'block';
+        document.getElementById('confirm-bill-img').src = p.paymentProofUrl;
+    } else { billWrap.style.display = 'none'; }
+
+    openModal('confirmModal');
+}
+
+document.getElementById('doConfirmBtn')?.addEventListener('click', async () => {
+    if (!pendingActionId) return;
+    const note = document.getElementById('confirmNote').value.trim();
+    const btn = document.getElementById('doConfirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+    const res = await fetch(`${API_BASE}/instructor/payment-requests/${pendingActionId}/confirm?userId=${TEACHER_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instructorNote: note || 'Đã xác nhận nhận tiền' })
+    });
+    const data = await res.json();
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận nhận tiền';
+
+    if (data?.result || data?.status) {
+        showToast('✅ Xác nhận thành công! Học viên đã được enroll.', 'success');
+        closeModal('confirmModal');
+        await loadPayments();
+    } else {
+        showToast('Có lỗi xảy ra: ' + (data?.message || 'Unknown'), 'error');
+    }
+});
+
+/* ── Reject modal ── */
+function openRejectModal(paymentId) {
+    const p = allPayments.find(x => x.id === paymentId);
+    if (!p) return;
+    pendingActionId = paymentId;
+    document.getElementById('reject-student').textContent = p.studentName;
+    document.getElementById('reject-course').textContent = p.courseTitle;
+    document.getElementById('rejectReason').value = '';
+    openModal('rejectModal');
+}
+
+document.getElementById('doRejectBtn')?.addEventListener('click', async () => {
+    const reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) { showToast('Vui lòng nhập lý do từ chối', 'warning'); return; }
+
+    const btn = document.getElementById('doRejectBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+    const res = await fetch(`${API_BASE}/instructor/payment-requests/${pendingActionId}/reject?userId=${TEACHER_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+    });
+    const data = await res.json();
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-times"></i> Từ chối';
+
+    if (data?.result || data?.status) {
+        showToast('Đã từ chối yêu cầu', 'warning');
+        closeModal('rejectModal');
+        await loadPayments();
+    } else {
+        showToast('Có lỗi xảy ra', 'error');
+    }
+});
+
+/* ── Filter tabs ── */
+document.getElementById('filterTabs')?.addEventListener('click', e => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeStatus = tab.dataset.status;
+    renderPayments();
+});
+
+/* ── Modal helpers ── */
+function openModal(id) { document.getElementById(id)?.classList.add('show'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('show'); }
+
+document.addEventListener('DOMContentLoaded', loadPayments);
+</script>
+</body>
+</html>

@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đánh Giá Khóa Học - EduVN</title>
+    <meta
+      name="description"
+      content="Chia sẻ trải nghiệm học tập của bạn. Đánh giá khóa học và giúp cộng đồng EduVN phát triển."
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      /* ══════════════════════════════════════════
+         CSS VARIABLES — EduVN Design System
+      ══════════════════════════════════════════ */
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --primary-light: #3b82f6;
+        --primary-xlight: #dbeafe;
+        --accent: #06b6d4;
+        --accent-light: #cffafe;
+        --secondary: #1e293b;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --bg-primary: #f8faff;
+        --bg-card: #ffffff;
+        --bg-dark: #0f172a;
+        --border: #e2e8f0;
+        --border-focus: #93c5fd;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --orange: #f97316;
+        --purple: #8b5cf6;
+
+        --radius-sm: 8px;
+        --radius: 12px;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+        --radius-full: 9999px;
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+        --shadow: 0 4px 16px rgba(37, 99, 235, 0.1);
+        --shadow-md: 0 8px 32px rgba(37, 99, 235, 0.15);
+        --shadow-lg: 0 20px 60px rgba(37, 99, 235, 0.2);
+        --shadow-float: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-fast: all 0.15s ease;
+
+        --nav-height: 72px;
+        --font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+      }
+      body {
+        font-family: var(--font);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+        transition: var(--transition-fast);
+      }
+      ul {
+        list-style: none;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: var(--font);
+      }
+
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* ══════════════════════════════════════════
+         NAVBAR
+      ══════════════════════════════════════════ */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--nav-height);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        z-index: 1000;
+        transition: var(--transition);
+      }
+      .navbar.scrolled {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 4px 24px rgba(37, 99, 235, 0.1);
+      }
+      .nav-container {
+        max-width: 1340px;
+        margin: 0 auto;
+        padding: 0 24px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      .logo-text {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+      .logo-accent {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        gap: 4px;
+        flex: 1;
+      }
+      .nav-link {
+        padding: 8px 16px;
+        border-radius: var(--radius-full);
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        transition: var(--transition-fast);
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--primary);
+        background: var(--primary-xlight);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
+      .nav-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg-primary);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-full);
+        padding: 8px 16px;
+        transition: var(--transition);
+      }
+      .nav-search:focus-within {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+      .nav-search i {
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+      .nav-search input {
+        border: none;
+        background: none;
+        outline: none;
+        font-size: 14px;
+        color: var(--text-primary);
+        width: 200px;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: var(--text-secondary);
+        background: var(--bg-primary);
+        border: 1.5px solid var(--border);
+        transition: var(--transition);
+        position: relative;
+      }
+      .icon-btn:hover {
+        color: var(--primary);
+        background: var(--primary-xlight);
+        border-color: var(--border-focus);
+      }
+      .noti-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 18px;
+        height: 18px;
+        background: var(--danger);
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+      }
+      .user-avatar-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 12px;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1.5px solid var(--border);
+        background: var(--bg-primary);
+      }
+      .user-avatar-wrapper:hover {
+        background: var(--primary-xlight);
+        border-color: var(--border-focus);
+      }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+      }
+      .user-name-nav {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      /* ══════════════════════════════════════════
+         PAGE HERO BANNER
+      ══════════════════════════════════════════ */
+      .review-hero {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e3a8a 40%,
+          #1e40af 70%,
+          #1d4ed8 100%
+        );
+        padding-top: calc(var(--nav-height) + 56px);
+        padding-bottom: 56px;
+        position: relative;
+        overflow: hidden;
+      }
+      .review-hero-bg {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .review-hero-bg .shape {
+        position: absolute;
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+      }
+      .review-hero-bg .shape-1 {
+        width: 550px;
+        height: 550px;
+        background: radial-gradient(
+          circle,
+          rgba(6, 182, 212, 0.15) 0%,
+          transparent 70%
+        );
+        top: -180px;
+        right: -80px;
+      }
+      .review-hero-bg .shape-2 {
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(
+          circle,
+          rgba(139, 92, 246, 0.12) 0%,
+          transparent 70%
+        );
+        bottom: -100px;
+        left: -60px;
+        animation-delay: 3s;
+      }
+      .hero-grid-overlay {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px
+          );
+        background-size: 60px 60px;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-20px) scale(1.04); }
+      }
+
+      .review-hero-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Breadcrumb */
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 28px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .breadcrumb a {
+        color: rgba(255, 255, 255, 0.65);
+        transition: var(--transition-fast);
+      }
+      .breadcrumb a:hover { color: #60a5fa; }
+      .breadcrumb i { font-size: 10px; }
+      .breadcrumb span.current { color: rgba(255, 255, 255, 0.9); }
+
+      /* Hero content */
+      .hero-content-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 48px;
+      }
+      .hero-left { flex: 1; min-width: 0; }
+
+      .page-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-full);
+        padding: 6px 16px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #93c5fd;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 18px;
+      }
+      .page-title {
+        font-size: clamp(28px, 3.5vw, 44px);
+        font-weight: 900;
+        line-height: 1.15;
+        color: white;
+        letter-spacing: -0.5px;
+        margin-bottom: 14px;
+      }
+      .page-title span {
+        background: linear-gradient(90deg, #60a5fa, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .page-desc {
+        font-size: 16px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.7);
+        max-width: 560px;
+      }
+
+      /* Course info card in hero */
+      .hero-course-card {
+        flex-shrink: 0;
+        width: 340px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        transition: var(--transition);
+      }
+      .hero-course-card:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.28);
+        transform: translateY(-4px);
+      }
+      .hcc-thumb {
+        width: 100%;
+        height: 130px;
+        border-radius: var(--radius);
+        background: linear-gradient(135deg, #1e3a8a, #2563eb, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 52px;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hcc-thumb::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.3));
+      }
+      .hcc-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+      .hcc-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .hcc-instructor {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 14px;
+      }
+      .hcc-instructor-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #60a5fa, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .hcc-progress-bar-wrap {
+        background: rgba(255,255,255,0.15);
+        border-radius: var(--radius-full);
+        height: 6px;
+        margin-bottom: 6px;
+        overflow: hidden;
+      }
+      .hcc-progress-bar-fill {
+        height: 100%;
+        border-radius: var(--radius-full);
+        background: linear-gradient(90deg, #60a5fa, #06b6d4);
+        width: 100%;
+        animation: progressLoad 1.2s ease-out forwards;
+      }
+      @keyframes progressLoad {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      .hcc-progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: rgba(255,255,255,0.55);
+      }
+      .hcc-progress-label strong { color: #60a5fa; font-size: 12px; }
+
+      /* ══════════════════════════════════════════
+         MAIN REVIEW BODY
+      ══════════════════════════════════════════ */
+      .review-body {
+        padding: 56px 0 80px;
+      }
+      .review-layout {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 40px;
+        align-items: start;
+      }
+
+      /* ── SECTION BLOCK ── */
+      .section-block {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        margin-bottom: 24px;
+        transition: var(--transition);
+      }
+      .section-block:hover { box-shadow: var(--shadow); }
+      .block-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--bg-primary);
+      }
+      .block-title-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+      }
+      .block-title-icon.blue {
+        background: var(--primary-xlight);
+        color: var(--primary);
+      }
+      .block-title-icon.gold {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .block-title-icon.green {
+        background: #d1fae5;
+        color: var(--success);
+      }
+      .block-title-icon.purple {
+        background: #ede9fe;
+        color: var(--purple);
+      }
+
+      /* ══════════════════════════════════════════
+         STAR RATING SELECTOR
+      ══════════════════════════════════════════ */
+      .overall-rating-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 32px 0 24px;
+      }
+      .rating-prompt {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .star-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .star-btn {
+        font-size: 44px;
+        color: #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        line-height: 1;
+        padding: 4px;
+        border-radius: var(--radius-sm);
+      }
+      .star-btn:hover,
+      .star-btn.hovered,
+      .star-btn.selected {
+        color: #f59e0b;
+        transform: scale(1.2);
+        filter: drop-shadow(0 4px 8px rgba(245, 158, 11, 0.4));
+      }
+      .star-btn.selected {
+        animation: starPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes starPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.4); }
+        100% { transform: scale(1.2); }
+      }
+      .rating-label-text {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--warning);
+        min-height: 24px;
+        transition: var(--transition-fast);
+        letter-spacing: 0.2px;
+      }
+
+      /* ══════════════════════════════════════════
+         DETAILED CRITERIA RATINGS
+      ══════════════════════════════════════════ */
+      .criteria-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .criteria-item {
+        display: grid;
+        grid-template-columns: 180px 1fr auto;
+        align-items: center;
+        gap: 20px;
+        padding: 16px 20px;
+        background: var(--bg-primary);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        transition: var(--transition);
+      }
+      .criteria-item:hover {
+        border-color: var(--border-focus);
+        background: white;
+        box-shadow: var(--shadow-sm);
+      }
+      .criteria-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .criteria-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .criteria-icon.blue { background: var(--primary-xlight); color: var(--primary); }
+      .criteria-icon.green { background: #d1fae5; color: var(--success); }
+      .criteria-icon.orange { background: #fff7ed; color: var(--orange); }
+      .criteria-icon.purple { background: #ede9fe; color: var(--purple); }
+      .criteria-icon.cyan { background: #cffafe; color: var(--accent); }
+
+      .mini-stars {
+        display: flex;
+        gap: 4px;
+      }
+      .mini-star {
+        font-size: 24px;
+        color: #e2e8f0;
+        cursor: pointer;
+        transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .mini-star:hover,
+      .mini-star.hovered,
+      .mini-star.selected {
+        color: #f59e0b;
+        transform: scale(1.15);
+      }
+      .criteria-score {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--warning);
+        min-width: 32px;
+        text-align: right;
+        transition: var(--transition-fast);
+      }
+      .criteria-score.empty { color: var(--text-muted); }
+
+      /* ══════════════════════════════════════════
+         REVIEW FORM
+      ══════════════════════════════════════════ */
+      .form-group {
+        margin-bottom: 24px;
+      }
+      .form-group:last-child { margin-bottom: 0; }
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+      .form-label i {
+        color: var(--primary);
+        font-size: 13px;
+        width: 16px;
+        text-align: center;
+      }
+      .optional-badge {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        margin-left: auto;
+      }
+      .form-input,
+      .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-family: var(--font);
+        color: var(--text-primary);
+        background: white;
+        outline: none;
+        transition: var(--transition);
+        resize: none;
+      }
+      .form-input:focus,
+      .form-textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        background: white;
+      }
+      .form-input::placeholder,
+      .form-textarea::placeholder { color: var(--text-muted); }
+      .char-counter {
+        display: flex;
+        justify-content: flex-end;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 6px;
+      }
+      .char-counter span { color: var(--primary); font-weight: 600; }
+
+      /* Tags / Highlights */
+      .highlight-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 4px;
+      }
+      .highlight-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-full);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        user-select: none;
+      }
+      .highlight-tag:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-xlight);
+      }
+      .highlight-tag.selected {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-xlight);
+        font-weight: 600;
+      }
+      .highlight-tag.selected i { color: var(--primary); }
+
+      /* Upload area */
+      .upload-area {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius);
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+      .upload-area:hover {
+        border-color: var(--primary);
+        background: var(--primary-xlight);
+      }
+      .upload-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--primary-xlight);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--primary);
+        margin: 0 auto 12px;
+      }
+      .upload-area:hover .upload-icon {
+        background: rgba(37, 99, 235, 0.2);
+      }
+      .upload-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+      .upload-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .upload-sub span { color: var(--primary); font-weight: 500; }
+      input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      /* ══════════════════════════════════════════
+         ANONYMOUS TOGGLE
+      ══════════════════════════════════════════ */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        background: var(--bg-primary);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+      .toggle-info h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+      }
+      .toggle-info p {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .toggle-switch {
+        position: relative;
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+      }
+      .toggle-switch input { display: none; }
+      .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #cbd5e1;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .toggle-slider::before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        left: 3px;
+        top: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: var(--transition);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      }
+      .toggle-switch input:checked + .toggle-slider {
+        background: var(--primary);
+      }
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(22px);
+      }
+
+      /* ══════════════════════════════════════════
+         SUBMIT BUTTON
+      ══════════════════════════════════════════ */
+      .btn-submit-review {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-radius: var(--radius);
+        font-size: 16px;
+        font-weight: 700;
+        transition: var(--transition);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+        letter-spacing: 0.3px;
+        margin-top: 28px;
+      }
+      .btn-submit-review:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(37, 99, 235, 0.45);
+      }
+      .btn-submit-review:active { transform: translateY(0); }
+
+      .btn-cancel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: var(--transition);
+        margin-top: 12px;
+      }
+      .btn-cancel:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #fef2f2;
+      }
+
+      /* ══════════════════════════════════════════
+         SIDEBAR — RIGHT COLUMN
+      ══════════════════════════════════════════ */
+      .sidebar-sticky {
+        position: sticky;
+        top: calc(var(--nav-height) + 24px);
+      }
+
+      /* Review summary card */
+      .review-summary-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        margin-bottom: 20px;
+        transition: var(--transition);
+      }
+      .review-summary-card:hover { box-shadow: var(--shadow); }
+      .summary-card-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .summary-card-title i { color: var(--warning); }
+
+      /* Big score display */
+      .big-score {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: linear-gradient(135deg, #fef3c7, #fffbeb);
+        border: 1px solid #fde68a;
+        border-radius: var(--radius);
+      }
+      .big-score-number {
+        font-size: 52px;
+        font-weight: 900;
+        color: var(--warning);
+        line-height: 1;
+      }
+      .big-score-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .big-score-stars {
+        display: flex;
+        gap: 2px;
+      }
+      .big-score-stars i {
+        font-size: 18px;
+        color: #f59e0b;
+      }
+      .big-score-label {
+        font-size: 12px;
+        color: #92400e;
+        font-weight: 500;
+      }
+
+      /* Rating distribution bars */
+      .rating-dist {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .dist-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dist-star {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        width: 40px;
+        flex-shrink: 0;
+      }
+      .dist-star i { color: #f59e0b; font-size: 11px; }
+      .dist-bar-bg {
+        flex: 1;
+        height: 8px;
+        background: var(--bg-primary);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+      }
+      .dist-bar-fill {
+        height: 100%;
+        border-radius: var(--radius-full);
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        transition: width 0.8s ease;
+      }
+      .dist-pct {
+        font-size: 12px;
+        color: var(--text-muted);
+        width: 32px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      /* Tips card */
+      .tips-card {
+        background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+        border: 1px solid #bfdbfe;
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      .tips-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 16px;
+      }
+      .tips-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .tip-item {
+        display: flex;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+      .tip-item i {
+        color: var(--success);
+        font-size: 14px;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+
+      /* Community reviews preview */
+      .community-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: var(--transition);
+      }
+      .community-card:hover { box-shadow: var(--shadow); }
+      .community-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .community-card-header h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .community-card-header h4 i { color: var(--purple); }
+      .see-all-link {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      .see-all-link:hover { text-decoration: underline; }
+
+      .review-list {
+        padding: 16px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .review-item {
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--bg-primary);
+      }
+      .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+      .reviewer-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .reviewer-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+      }
+      .reviewer-avatar.blue { background: linear-gradient(135deg, #2563eb, #06b6d4); }
+      .reviewer-avatar.green { background: linear-gradient(135deg, #10b981, #06b6d4); }
+      .reviewer-avatar.purple { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+      .reviewer-info { flex: 1; min-width: 0; }
+      .reviewer-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .reviewer-date {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .review-stars {
+        display: flex;
+        gap: 2px;
+      }
+      .review-stars i { color: #f59e0b; font-size: 11px; }
+      .review-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* ══════════════════════════════════════════
+         FOOTER
+      ══════════════════════════════════════════ */
+      .footer {
+        background: var(--bg-dark);
+        color: rgba(255,255,255,0.7);
+        padding: 60px 0 0;
+      }
+      .footer-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        padding-bottom: 48px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .footer-brand .nav-logo { margin-bottom: 16px; }
+      .footer-desc {
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 24px;
+        color: rgba(255,255,255,0.55);
+      }
+      .footer-socials { display: flex; gap: 12px; }
+      .social-link {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        color: rgba(255,255,255,0.6);
+        transition: var(--transition);
+      }
+      .social-link:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+      }
+      .footer-col h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 20px;
+      }
+      .footer-col ul { display: flex; flex-direction: column; gap: 12px; }
+      .footer-col a {
+        font-size: 14px;
+        color: rgba(255,255,255,0.55);
+        transition: var(--transition-fast);
+      }
+      .footer-col a:hover { color: white; padding-left: 4px; }
+      .footer-bottom {
+        padding: 24px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+      }
+
+      /* ══════════════════════════════════════════
+         SCROLL TO TOP
+      ══════════════════════════════════════════ */
+      .scroll-top {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        width: 46px;
+        height: 46px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+        transition: var(--transition);
+        z-index: 500;
+      }
+      .scroll-top.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .scroll-top:hover { transform: translateY(-4px); }
+
+      /* ══════════════════════════════════════════
+         RESPONSIVE
+      ══════════════════════════════════════════ */
+      @media (max-width: 1024px) {
+        .review-layout { grid-template-columns: 1fr; }
+        .sidebar-sticky { position: static; }
+        .hero-content-row { flex-direction: column; }
+        .hero-course-card { width: 100%; max-width: 420px; }
+        .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      }
+      @media (max-width: 768px) {
+        .nav-links,
+        .nav-search { display: none; }
+        .criteria-item {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .section-block { padding: 20px; }
+        .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+        .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+        .review-hero { padding-bottom: 40px; }
+      }
+      @media (max-width: 500px) {
+        .star-btn { font-size: 36px; }
+        .big-score-number { font-size: 40px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <!-- Logo -->
+        <a href="index.html" class="nav-logo">
+          <div class="logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+        </a>
+
+        <!-- Nav Links -->
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+          <li><a href="courses.html" class="nav-link">Khóa học</a></li>
+          <li><a href="my-learning.html" class="nav-link active">Học của tôi</a></li>
+          <li><a href="instructors.html" class="nav-link">Giáo viên</a></li>
+        </ul>
+
+        <!-- Nav Right -->
+        <div class="nav-right">
+          <div class="nav-search" id="navSearch">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm kiếm khóa học..." id="navSearchInput" />
+          </div>
+
+          <div class="nav-notification">
+            <button class="icon-btn" id="notiBell">
+              <i class="fas fa-bell"></i>
+              <span class="noti-badge">3</span>
+            </button>
+          </div>
+
+          <div class="user-avatar-wrapper" id="userAvatarBtn">
+            <div class="user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <span class="user-name-nav" id="userNameNav">Học viên</span>
+            <i class="fas fa-chevron-down" style="font-size:11px;color:var(--text-muted)"></i>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== HERO BANNER ===================== -->
+    <section class="review-hero">
+      <div class="review-hero-bg">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="hero-grid-overlay"></div>
+      </div>
+
+      <div class="review-hero-inner">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" aria-label="breadcrumb">
+          <a href="index.html"><i class="fas fa-home"></i></a>
+          <i class="fas fa-chevron-right"></i>
+          <a href="my-learning.html">Học của tôi</a>
+          <i class="fas fa-chevron-right"></i>
+          <a href="detailcourse.html">Chi tiết khóa học</a>
+          <i class="fas fa-chevron-right"></i>
+          <span class="current">Đánh giá</span>
+        </nav>
+
+        <div class="hero-content-row">
+          <!-- Left -->
+          <div class="hero-left">
+            <div class="page-label">
+              <i class="fas fa-star"></i>
+              Chia sẻ trải nghiệm học tập
+            </div>
+            <h1 class="page-title">
+              Đánh Giá <span>Khóa Học</span>
+            </h1>
+            <p class="page-desc">
+              Nhận xét của bạn là nguồn động lực quý giá giúp giảng viên cải thiện
+              và hỗ trợ hàng nghìn học viên đưa ra quyết định đăng ký đúng đắn.
+            </p>
+          </div>
+
+          <!-- Course info card -->
+          <div class="hero-course-card">
+            <div class="hcc-thumb">🚀</div>
+            <div class="hcc-label">Khóa học đang đánh giá</div>
+            <div class="hcc-title">JavaScript Nâng Cao — Từ Cơ Bản Đến Chuyên Sâu</div>
+            <div class="hcc-instructor">
+              <div class="hcc-instructor-avatar">N</div>
+              <span>Nguyễn Văn A • Giảng viên chính</span>
+            </div>
+            <div class="hcc-progress-bar-wrap">
+              <div class="hcc-progress-bar-fill"></div>
+            </div>
+            <div class="hcc-progress-label">
+              <span>Tiến độ hoàn thành</span>
+              <strong>100%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MAIN REVIEW BODY ===================== -->
+    <main class="review-body">
+      <div class="review-layout">
+
+        <!-- ── LEFT: REVIEW FORM ── -->
+        <div class="review-main">
+
+          <!-- 1. Overall Star Rating -->
+          <div class="section-block">
+            <div class="block-title">
+              <div class="block-title-icon gold">
+                <i class="fas fa-star"></i>
+              </div>
+              Đánh giá tổng thể
+            </div>
+
+            <div class="overall-rating-section">
+              <p class="rating-prompt">Bạn đánh giá khóa học này như thế nào?</p>
+              <div class="star-selector" id="overallStars" role="radiogroup" aria-label="Đánh giá tổng thể">
+                <button class="star-btn" data-value="1" aria-label="1 sao" id="star1">★</button>
+                <button class="star-btn" data-value="2" aria-label="2 sao" id="star2">★</button>
+                <button class="star-btn" data-value="3" aria-label="3 sao" id="star3">★</button>
+                <button class="star-btn" data-value="4" aria-label="4 sao" id="star4">★</button>
+                <button class="star-btn" data-value="5" aria-label="5 sao" id="star5">★</button>
+              </div>
+              <div class="rating-label-text" id="ratingLabelText">Chọn số sao để đánh giá</div>
+            </div>
+          </div>
+
+          <!-- 2. Written Review -->
+          <div class="section-block">
+            <div class="block-title">
+              <div class="block-title-icon blue">
+                <i class="fas fa-pen-alt"></i>
+              </div>
+              Nhận xét bằng văn bản
+            </div>
+
+            <!-- Review title -->
+            <div class="form-group">
+              <label class="form-label" for="reviewTitle">
+                <i class="fas fa-heading"></i>
+                Tiêu đề đánh giá
+                <span class="optional-badge">Tùy chọn</span>
+              </label>
+              <input
+                type="text"
+                id="reviewTitle"
+                class="form-input"
+                placeholder="VD: Khóa học tuyệt vời, đáng tiền từng đồng!"
+                maxlength="100"
+              />
+            </div>
+
+            <!-- Review main content -->
+            <div class="form-group">
+              <label class="form-label" for="reviewContent">
+                <i class="fas fa-comment-alt"></i>
+                Nội dung đánh giá
+              </label>
+              <textarea
+                id="reviewContent"
+                class="form-textarea"
+                rows="6"
+                placeholder="Chia sẻ trải nghiệm học tập của bạn: bạn học được gì, điều gì bạn thích nhất, và điều gì có thể cải thiện... (tối thiểu 50 ký tự)"
+                maxlength="2000"
+              ></textarea>
+              <div class="char-counter">
+                <span id="charCount">0</span> / 2000 ký tự
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Privacy & Settings -->
+          <div class="section-block">
+            <div class="block-title">
+              <div class="block-title-icon blue">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              Cài đặt hiển thị
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <!-- Anonymous -->
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <h4><i class="fas fa-user-secret" style="color:var(--purple);margin-right:6px"></i>Đánh giá ẩn danh</h4>
+                  <p>Tên của bạn sẽ không hiển thị khi duyệt công khai</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleAnonymous" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <!-- Recommend -->
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <h4><i class="fas fa-thumbs-up" style="color:var(--success);margin-right:6px"></i>Giới thiệu khóa học</h4>
+                  <p>Tôi sẽ giới thiệu khóa học này cho bạn bè/đồng nghiệp</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleRecommend" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <!-- Notify -->
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <h4><i class="fas fa-bell" style="color:var(--warning);margin-right:6px"></i>Nhận thông báo phản hồi</h4>
+                  <p>Nhận email khi giảng viên trả lời đánh giá của bạn</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleNotify" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button class="btn-submit-review" id="submitReviewBtn" type="button">
+            <i class="fas fa-paper-plane"></i>
+            Gửi đánh giá ngay
+          </button>
+          <a href="detailcourse.html" class="btn-cancel" id="cancelBtn">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại khóa học
+          </a>
+
+        </div><!-- /.review-main -->
+
+        <!-- ── RIGHT: SIDEBAR ── -->
+        <aside class="sidebar-sticky">
+
+          <!-- Rating summary card -->
+          <div class="review-summary-card">
+            <div class="summary-card-title">
+              <i class="fas fa-chart-bar"></i>
+              Đánh giá hiện tại
+            </div>
+            <div class="big-score">
+              <div class="big-score-number">4.8</div>
+              <div class="big-score-detail">
+                <div class="big-score-stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="big-score-label">Dựa trên 1,248 đánh giá</div>
+              </div>
+            </div>
+
+            <!-- Rating distribution -->
+            <div class="rating-dist">
+              <div class="dist-row">
+                <div class="dist-star"><i class="fas fa-star"></i>5</div>
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:72%"></div>
+                </div>
+                <div class="dist-pct">72%</div>
+              </div>
+              <div class="dist-row">
+                <div class="dist-star"><i class="fas fa-star"></i>4</div>
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:18%"></div>
+                </div>
+                <div class="dist-pct">18%</div>
+              </div>
+              <div class="dist-row">
+                <div class="dist-star"><i class="fas fa-star"></i>3</div>
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:6%"></div>
+                </div>
+                <div class="dist-pct">6%</div>
+              </div>
+              <div class="dist-row">
+                <div class="dist-star"><i class="fas fa-star"></i>2</div>
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:3%"></div>
+                </div>
+                <div class="dist-pct">3%</div>
+              </div>
+              <div class="dist-row">
+                <div class="dist-star"><i class="fas fa-star"></i>1</div>
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:1%"></div>
+                </div>
+                <div class="dist-pct">1%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips card -->
+          <div class="tips-card">
+            <div class="tips-card-title">
+              <i class="fas fa-lightbulb"></i>
+              Mẹo viết đánh giá hay
+            </div>
+            <div class="tips-list">
+              <div class="tip-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Nêu cụ thể những gì bạn đã học được và ứng dụng ra sao</span>
+              </div>
+              <div class="tip-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Đề cập đến trình độ ban đầu để người học tham khảo</span>
+              </div>
+              <div class="tip-item">
+                <i class="fas fa-check-circle"></i>
+                <span>So sánh với các tài nguyên khác nếu bạn đã học qua</span>
+              </div>
+              <div class="tip-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Giữ phong cách trung thực và tôn trọng giảng viên</span>
+              </div>
+              <div class="tip-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Ảnh/video minh chứng sẽ làm đánh giá đáng tin cậy hơn</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Community reviews preview -->
+          <div class="community-card">
+            <div class="community-card-header">
+              <h4><i class="fas fa-comments"></i> Đánh giá cộng đồng</h4>
+              <a href="detailcourse.html#reviews" class="see-all-link">Xem tất cả</a>
+            </div>
+            <div class="review-list">
+              <!-- Review 1 -->
+              <div class="review-item">
+                <div class="reviewer-row">
+                  <div class="reviewer-avatar blue">TH</div>
+                  <div class="reviewer-info">
+                    <div class="reviewer-name">Trần Hữu Khoa</div>
+                    <div class="reviewer-date">2 tuần trước</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Khóa học cực kỳ chi tiết và thực tế. Giảng viên giải thích rõ ràng
+                  từng khái niệm khó của JavaScript. Sau khóa học mình đã tự làm được
+                  dự án cá nhân đầu tiên!
+                </p>
+              </div>
+
+              <!-- Review 2 -->
+              <div class="review-item">
+                <div class="reviewer-row">
+                  <div class="reviewer-avatar green">NL</div>
+                  <div class="reviewer-info">
+                    <div class="reviewer-name">Nguyễn Lan Anh</div>
+                    <div class="reviewer-date">1 tháng trước</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Nội dung phong phú, bài tập thực hành rất hữu ích. Mình thích phần
+                  async/await được giải thích qua ví dụ thực tế. Chỉ mong video
+                  có phụ đề tốt hơn một chút.
+                </p>
+              </div>
+
+              <!-- Review 3 -->
+              <div class="review-item">
+                <div class="reviewer-row">
+                  <div class="reviewer-avatar purple">PD</div>
+                  <div class="reviewer-info">
+                    <div class="reviewer-name">Phạm Đức Minh</div>
+                    <div class="reviewer-date">3 tháng trước</div>
+                  </div>
+                  <div class="review-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+                <p class="review-text">
+                  Đây là khóa học JS hay nhất mình từng học. Codebase thực tế, giảng
+                  viên phản hồi nhanh trong phần Q&A. Xứng đáng 5 sao!
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </aside><!-- /.sidebar-sticky -->
+
+      </div><!-- /.review-layout -->
+    </main>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="index.html" class="nav-logo" style="color:white;">
+              <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+              <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+            </a>
+            <p class="footer-desc">
+              Nền tảng học trực tuyến hàng đầu Việt Nam, kết nối học viên với giáo
+              viên chất lượng cao.
+            </p>
+            <div class="footer-socials">
+              <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+              <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Khám phá</h4>
+            <ul>
+              <li><a href="courses.html">Tất cả khóa học</a></li>
+              <li><a href="categories.html">Danh mục</a></li>
+              <li><a href="instructors.html">Giáo viên</a></li>
+              <li><a href="#">Blog</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Tài khoản</h4>
+            <ul>
+              <li><a href="profile.html">Hồ sơ</a></li>
+              <li><a href="my-learning.html">Học của tôi</a></li>
+              <li><a href="payments.html">Thanh toán</a></li>
+              <li><a href="settings.html">Cài đặt</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Hỗ trợ</h4>
+            <ul>
+              <li><a href="#">Trung tâm trợ giúp</a></li>
+              <li><a href="#">Liên hệ</a></li>
+              <li><a href="#">Điều khoản</a></li>
+              <li><a href="#">Bảo mật</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© 2024 EduVN. Tất cả quyền được bảo lưu.</p>
+          <p>Made with <i class="fas fa-heart" style="color:#ef4444"></i> in Vietnam</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTopBtn" aria-label="Cuộn lên đầu trang">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Review JavaScript -->
+    <script src="js/review.js"></script>
+  </body>
+</html>

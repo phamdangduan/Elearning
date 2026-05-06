@@ -14,6 +14,7 @@ import com.example.Elearning.mapper.CourseMapper;
 import com.example.Elearning.repository.CourseRepository;
 import com.example.Elearning.repository.EnrollmentRepository;
 import com.example.Elearning.repository.ReviewRepository;
+import com.example.Elearning.repository.UserRepository;
 import com.example.Elearning.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -37,6 +38,7 @@ public class CourseServiceImpl implements CourseService {
     EnrollmentRepository enrollmentRepository;
     ReviewRepository reviewRepository;
     CourseMapper courseMapper;
+    com.example.Elearning.repository.UserRepository userRepository;
 
     @Override
     public PageResponse<CourseResponse> getCourseWithStatusByUserId(String userId, Pageable pageable) {
@@ -106,8 +108,9 @@ public class CourseServiceImpl implements CourseService {
 
         CourseDetailResponse response = courseMapper.toCourseDetailResponse(course);
 
-        Integer totalEnrollments = enrollmentRepository.countByCourseId(courseId);
+        Integer totalEnrollments = enrollmentRepository.countByCourse_Id(courseId);
         response.setTotalEnrollments(totalEnrollments);
+        response.setTotalStudents(totalEnrollments);  // Set alias for frontend
 
         Integer totalReviews = reviewRepository.countByCourseId(courseId);
         Double averageRating = reviewRepository.calculateAverageRating(courseId);
@@ -156,8 +159,9 @@ public class CourseServiceImpl implements CourseService {
         // Nếu đã đăng ký, cho phép xem dù instructor bị khóa
         CourseDetailResponse response = courseMapper.toCourseDetailResponse(course);
 
-        Integer totalEnrollments = enrollmentRepository.countByCourseId(courseId);
+        Integer totalEnrollments = enrollmentRepository.countByCourse_Id(courseId);
         response.setTotalEnrollments(totalEnrollments);
+        response.setTotalStudents(totalEnrollments);  // Set alias for frontend
 
         Integer totalReviews = reviewRepository.countByCourseId(courseId);
         Double averageRating = reviewRepository.calculateAverageRating(courseId);
@@ -193,17 +197,42 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CreatedCourseResponse createCourse(String userId, CreatedCourseRequest createdCourseRequest) {
+        log.info("Creating course for userId: {}", userId);
+        log.info("Request: title={}, description={}, price={}, categoryIds={}, thumbnailUrl={}", 
+                createdCourseRequest.getTitle(), 
+                createdCourseRequest.getDescription(), 
+                createdCourseRequest.getPrice(), 
+                createdCourseRequest.getCategoryIds(),
+                createdCourseRequest.getThumbnailUrl());
+        
         var course = courseMapper.toEntity(createdCourseRequest);
         
-        // Set user (teacher) for course
-        com.example.Elearning.entity.User user = new com.example.Elearning.entity.User();
-        user.setId(userId);
+        // Fetch user from database to ensure it exists and is managed by Hibernate
+        com.example.Elearning.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found: {}", userId);
+                    return new AppException(ErrorCode.USER_NOT_FOUND);
+                });
+        
+        log.info("Found user: {} ({})", user.getUserName(), user.getId());
         course.setUser(user);
         
         // Generate UUID for course
         course.setId(java.util.UUID.randomUUID().toString());
         
+        // Set default status if not set
+        if (course.getStatus() == null) {
+            course.setStatus(CourseStatus.DRAFT);
+        }
+        
+        // Set timestamps
+        course.setCreatedAt(LocalDateTime.now());
+        course.setUpdatedAt(LocalDateTime.now());
+        
         courseRepository.save(course);
+        log.info("Created course {} for user {} with thumbnail: {}", 
+                course.getId(), userId, course.getThumbnailUrl());
+        
         return courseMapper.toResponseCreated(course);
     }
 

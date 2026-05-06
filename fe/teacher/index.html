@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - EduVN Teacher</title>
+    <meta
+      name="description"
+      content="Trang quản lý giảng viên EduVN - Tổng quan doanh thu, học viên và khóa học."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/teacher.css" />
+    <style>
+      /* ── Dashboard Specific ── */
+      .hero-welcome {
+        background: linear-gradient(
+          135deg,
+          #1e3a8a 0%,
+          #1e40af 40%,
+          #06b6d4 100%
+        );
+        border-radius: var(--radius-xl);
+        padding: 32px 36px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+      }
+      .hero-welcome::before {
+        content: "";
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        right: -60px;
+        top: -80px;
+      }
+      .hero-welcome::after {
+        content: "";
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        right: 80px;
+        bottom: -80px;
+      }
+      .hero-welcome-content {
+        position: relative;
+        z-index: 1;
+      }
+      .hero-greeting {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .hero-name {
+        font-size: clamp(22px, 3vw, 32px);
+        font-weight: 900;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+      }
+      .hero-desc {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.72);
+        max-width: 560px;
+        line-height: 1.6;
+      }
+      .hero-meta {
+        display: flex;
+        gap: 24px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .hero-meta-item i {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-full);
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 12px;
+      }
+      .hero-badge i {
+        color: #fbbf24;
+      }
+
+      /* Dashboard grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+      }
+      .dashboard-left {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .dashboard-right {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      /* Revenue chart */
+      .revenue-chart-wrap {
+        padding: 0 4px 32px;
+      }
+      .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .chart-legend {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+      }
+
+      /* Course mini card */
+      .course-mini-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .course-mini-card:last-child {
+        border-bottom: none;
+      }
+      .course-mini-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .course-mini-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+      }
+      .course-mini-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .course-mini-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .course-mini-revenue {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--teacher-green);
+        white-space: nowrap;
+      }
+
+      /* Payment request item */
+      .payment-req-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .payment-req-item:last-child {
+        border-bottom: none;
+      }
+      .payment-req-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .payment-req-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .payment-req-student {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .payment-req-course {
+        font-size: 12px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .payment-req-right {
+        text-align: right;
+      }
+      .payment-req-amount {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--primary);
+      }
+      .payment-req-date {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* Quick stats row */
+      .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .quick-stat {
+        text-align: center;
+        padding: 16px;
+        border-radius: var(--radius);
+        background: var(--bg-primary);
+      }
+      .quick-stat-val {
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--text-primary);
+      }
+      .quick-stat-lab {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      /* Activity log */
+      .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+      .activity-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--primary);
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .activity-dot.green {
+        background: var(--teacher-green);
+      }
+      .activity-dot.orange {
+        background: var(--teacher-orange);
+      }
+      .activity-dot.red {
+        background: var(--teacher-red);
+      }
+      .activity-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+      .activity-text strong {
+        color: var(--text-primary);
+      }
+      .activity-time {
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      @media (max-width: 1100px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="teacher-layout">
+      <!-- ══ SIDEBAR ══ -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+          <span class="sidebar-brand-name">Edu<span>VN</span></span>
+          <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+            <div class="sidebar-user-role">Giảng viên</div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <span class="nav-group-label">Tổng quan</span>
+          <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Thống kê</span>
+          </a>
+
+          <span class="nav-group-label">Khóa học</span>
+          <a href="courses.html" class="nav-item">
+            <i class="fas fa-book-open"></i>
+            <span>Quản lý khóa học</span>
+          </a>
+          <a href="courses.html?action=create" class="nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>Tạo khóa học mới</span>
+          </a>
+
+          <span class="nav-group-label">Học viên</span>
+          <a href="payments.html" class="nav-item">
+            <i class="fas fa-credit-card"></i>
+            <span>Yêu cầu thanh toán</span>
+            <span class="nav-badge" id="pendingBadge">...</span>
+          </a>
+          <a href="students.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Danh sách học viên</span>
+          </a>
+
+          <span class="nav-group-label">Cá nhân</span>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Hồ sơ giảng viên</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="../student/index.html" class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Trang học viên</span>
+          </a>
+          <div class="nav-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Đăng xuất</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ══ TOP NAV ══ -->
+      <header class="topnav">
+        <div>
+          <div class="topnav-title">Dashboard</div>
+          <div class="topnav-subtitle">
+            Chào mừng trở lại,
+            <span
+              id="topNavName"
+              style="color: var(--primary); font-weight: 700"
+              >...</span
+            >
+          </div>
+        </div>
+        <div class="topnav-right">
+          <!-- Notification -->
+          <div style="position: relative">
+            <button class="icon-btn" id="notiBell">
+              <i class="fas fa-bell"></i>
+              <span class="badge-dot" id="notiBadge" style="display: none"
+                >0</span
+              >
+            </button>
+            <div class="noti-dropdown" id="notiDropdown">
+              <div class="noti-header-bar">
+                <h4>Thông báo</h4>
+                <button class="noti-mark-btn" id="markAllRead">
+                  Đọc tất cả
+                </button>
+              </div>
+              <div class="noti-list" id="notiList">
+                <div class="noti-empty-msg">Chưa có thông báo</div>
+              </div>
+            </div>
+          </div>
+          <!-- User -->
+          <div class="dropdown">
+            <div class="user-pill" id="userPillBtn">
+              <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+              <span class="user-pill-name" id="topNavUserName">...</span>
+              <i
+                class="fas fa-chevron-down"
+                style="font-size: 10px; color: var(--text-muted)"
+              ></i>
+            </div>
+            <div class="dropdown-menu" id="userDropdown">
+              <div
+                class="dropdown-item"
+                onclick="window.location.href = 'profile.html'"
+              >
+                <i class="fas fa-user-circle"></i>Hồ sơ cá nhân
+              </div>
+              <div
+                class="dropdown-item"
+                onclick="window.location.href = '../student/index.html'"
+              >
+                <i class="fas fa-exchange-alt"></i>Trang học viên
+              </div>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-item danger" id="dropdownLogout">
+                <i class="fas fa-sign-out-alt"></i>Đăng xuất
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ══ MAIN CONTENT ══ -->
+      <main class="main-content">
+        <!-- Welcome Hero -->
+        <div class="hero-welcome">
+          <div class="hero-welcome-content">
+            <div class="hero-badge">
+              <i class="fas fa-star"></i> Giảng viên tiêu biểu
+            </div>
+            <div class="hero-greeting">🌅 Chào buổi tối,</div>
+            <div class="hero-name" id="heroName">Đang tải...</div>
+            <div class="hero-desc">
+              Quản lý khóa học, theo dõi thu nhập và hỗ trợ học viên của bạn từ
+              một dashboard duy nhất.
+            </div>
+            <div class="hero-meta">
+              <span class="hero-meta-item"
+                ><i class="fas fa-book-open"></i
+                ><span id="heroTotalCourses">–</span> khóa học</span
+              >
+              <span class="hero-meta-item"
+                ><i class="fas fa-users"></i
+                ><span id="heroTotalStudents">–</span> học viên</span
+              >
+              <span class="hero-meta-item"
+                ><i class="fas fa-star"></i
+                ><span id="heroAvgRating">–</span> đánh giá</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-book-open"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="statCourses">–</div>
+              <div class="stat-label">Khóa học</div>
+              <div class="stat-change up">
+                <i class="fas fa-arrow-up"></i> Active
+              </div>
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="statStudents">–</div>
+              <div class="stat-label">Học viên</div>
+              <div class="stat-change up">
+                <i class="fas fa-arrow-up"></i> Tổng cộng
+              </div>
+            </div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon orange">
+              <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="statRevenue">–</div>
+              <div class="stat-label">Doanh thu (đ)</div>
+              <div class="stat-change up">
+                <i class="fas fa-arrow-up"></i> Tổng
+              </div>
+            </div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon purple"><i class="fas fa-star"></i></div>
+            <div class="stat-content">
+              <div class="stat-value" id="statRating">–</div>
+              <div class="stat-label">Rating TB</div>
+              <div class="stat-change up">
+                <i class="fas fa-arrow-up"></i> Trên 5.0
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- LEFT -->
+          <div class="dashboard-left">
+            <!-- Revenue by Course -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-chart-bar"></i> Doanh thu theo khóa học
+                </div>
+                <a href="analytics.html" class="btn btn-outline btn-sm"
+                  >Xem chi tiết</a
+                >
+              </div>
+              <div class="card-body">
+                <div class="revenue-chart-wrap" id="revenueChart">
+                  <!-- Dynamic bars -->
+                </div>
+              </div>
+            </div>
+
+            <!-- My Courses -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-book-open"></i> Khóa học của tôi
+                </div>
+                <a href="courses.html" class="btn btn-outline btn-sm"
+                  >Xem tất cả</a
+                >
+              </div>
+              <div class="card-body" id="myCoursesList">
+                <div
+                  class="skeleton"
+                  style="
+                    height: 60px;
+                    margin-bottom: 12px;
+                    border-radius: var(--radius);
+                  "
+                ></div>
+                <div
+                  class="skeleton"
+                  style="height: 60px; border-radius: var(--radius)"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT -->
+          <div class="dashboard-right">
+            <!-- Quick Stats -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-tachometer-alt"></i> Tóm tắt nhanh
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="quick-stats">
+                  <div class="quick-stat">
+                    <div class="quick-stat-val" id="qs-confirmed">–</div>
+                    <div class="quick-stat-lab">Đã xác nhận</div>
+                  </div>
+                  <div class="quick-stat">
+                    <div class="quick-stat-val" id="qs-pending">–</div>
+                    <div class="quick-stat-lab">Chờ duyệt</div>
+                  </div>
+                  <div class="quick-stat">
+                    <div class="quick-stat-val" id="qs-rejected">–</div>
+                    <div class="quick-stat-lab">Từ chối/HH</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-clock"></i> Yêu cầu thanh toán
+                </div>
+                <a href="payments.html" class="btn btn-outline btn-sm"
+                  >Xem tất cả</a
+                >
+              </div>
+              <div class="card-body" id="paymentReqList">
+                <div
+                  class="skeleton"
+                  style="
+                    height: 56px;
+                    margin-bottom: 10px;
+                    border-radius: var(--radius);
+                  "
+                ></div>
+                <div
+                  class="skeleton"
+                  style="height: 56px; border-radius: var(--radius)"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-history"></i> Hoạt động gần đây
+                </div>
+              </div>
+              <div class="card-body" id="activityList">
+                <div
+                  class="skeleton"
+                  style="
+                    height: 40px;
+                    margin-bottom: 8px;
+                    border-radius: var(--radius);
+                  "
+                ></div>
+                <div
+                  class="skeleton"
+                  style="height: 40px; border-radius: var(--radius)"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="fas fa-bolt"></i> Thao tác nhanh
+                </div>
+              </div>
+              <div
+                class="card-body"
+                style="display: flex; flex-direction: column; gap: 10px"
+              >
+                <a
+                  href="courses.html?action=create"
+                  class="btn btn-primary"
+                  style="justify-content: center"
+                >
+                  <i class="fas fa-plus"></i> Tạo khóa học mới
+                </a>
+                <a
+                  href="payments.html"
+                  class="btn btn-outline"
+                  style="justify-content: center"
+                >
+                  <i class="fas fa-credit-card"></i> Duyệt thanh toán
+                </a>
+                <a
+                  href="profile.html"
+                  class="btn btn-outline"
+                  style="justify-content: center"
+                >
+                  <i class="fas fa-user-edit"></i> Chỉnh sửa hồ sơ
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/common.js"></script>
+    <script>
+      /* Dashboard JS */
+      // TEACHER_ID is already defined in common.js from localStorage
+      const API = API_BASE || "http://localhost:8080";
+
+      async function get(path) {
+        try {
+          const token = localStorage.getItem('token');
+          const headers = {};
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+          
+          const r = await fetch(API + path, { headers });
+          if (!r.ok) throw new Error(r.status);
+          return await r.json();
+        } catch (e) {
+          console.error(path, e);
+          return null;
+        }
+      }
+
+      async function loadDashboard() {
+        // Load profile
+        const profileData = await get(`/profile/me?userId=${TEACHER_ID}`);
+        if (profileData?.result) {
+          const p = profileData.result;
+          const name = p.fullName || p.firstName || "Giảng viên";
+          document.getElementById("heroName").textContent = name;
+          document.getElementById("sidebarName").textContent = name;
+          document.getElementById("topNavName").textContent = name
+            .split(" ")
+            .pop();
+          document.getElementById("topNavUserName").textContent = name
+            .split(" ")
+            .pop();
+
+          const avatar = p.avatar;
+          if (avatar) {
+            const avatarHtml = `<img src="${avatar}" alt="${name}">`;
+            document.getElementById("sidebarAvatar").innerHTML = avatarHtml;
+            document.getElementById("topNavAvatar").innerHTML = avatarHtml;
+          } else {
+            const initial = name[0].toUpperCase();
+            document.getElementById("sidebarAvatar").textContent = initial;
+            document.getElementById("topNavAvatar").textContent = initial;
+          }
+
+          // Greeting by time
+          const h = new Date().getHours();
+          const greeting =
+            h < 12
+              ? "🌅 Chào buổi sáng,"
+              : h < 18
+                ? "☀️ Chào buổi chiều,"
+                : "🌙 Chào buổi tối,";
+          document.querySelector(".hero-greeting").textContent = greeting;
+        }
+
+        // Load stats
+        const statsData = await get(
+          `/instructor/stats?instructorId=${TEACHER_ID}`,
+        );
+        if (statsData?.result) {
+          const s = statsData.result;
+          document.getElementById("statCourses").textContent =
+            s.totalCourses || 0;
+          document.getElementById("statStudents").textContent =
+            s.totalStudents || 0;
+          document.getElementById("statRevenue").textContent = formatMoney(
+            s.totalRevenue || 0,
+          );
+          document.getElementById("statRating").textContent = s.averageRating
+            ? parseFloat(s.averageRating).toFixed(1)
+            : "N/A";
+          document.getElementById("heroTotalCourses").textContent =
+            s.totalCourses || 0;
+          document.getElementById("heroTotalStudents").textContent =
+            s.totalStudents || 0;
+          document.getElementById("heroAvgRating").textContent = s.averageRating
+            ? parseFloat(s.averageRating).toFixed(1)
+            : "N/A";
+
+          // Revenue chart
+          if (s.courseStats?.length) {
+            renderRevenueChart(s.courseStats);
+            renderCoursesList(s.courseStats);
+          }
+        }
+
+        // Load payment requests
+        const payData = await get(
+          `/instructor/payment-requests?userId=${TEACHER_ID}`,
+        );
+        if (payData?.result) {
+          const reqs = payData.result;
+          const pending = reqs.filter(
+            (r) =>
+              r.status === "PENDING_PROOF" || r.status === "PROOF_UPLOADED",
+          );
+          const confirmed = reqs.filter((r) => r.status === "CONFIRMED");
+          const rejected = reqs.filter(
+            (r) =>
+              r.status === "CANCELLED" ||
+              r.status === "EXPIRED" ||
+              r.status === "REJECTED",
+          );
+
+          document.getElementById("qs-confirmed").textContent =
+            confirmed.length;
+          document.getElementById("qs-pending").textContent = pending.length;
+          document.getElementById("qs-rejected").textContent = rejected.length;
+
+          // Pending badge
+          if (pending.length > 0) {
+            const badge = document.getElementById("pendingBadge");
+            badge.textContent = pending.length;
+          }
+
+          renderPaymentList(reqs.slice(0, 4));
+          renderActivity(reqs);
+        } else {
+          document.getElementById("qs-confirmed").textContent = "0";
+          document.getElementById("qs-pending").textContent = "0";
+          document.getElementById("qs-rejected").textContent = "0";
+          document.getElementById("paymentReqList").innerHTML =
+            '<div class="empty-state" style="padding:24px"><div class="empty-icon">📭</div><p>Chưa có yêu cầu nào</p></div>';
+        }
+      }
+
+      function formatMoney(n) {
+        if (n >= 1000000) return (n / 1000000).toFixed(1) + "tr";
+        if (n >= 1000) return (n / 1000).toFixed(0) + "k";
+        return n.toLocaleString("vi-VN");
+      }
+
+      function renderRevenueChart(courseStats) {
+        const maxRev = Math.max(...courseStats.map((c) => c.revenue || 0), 1);
+        const html =
+          `<div class="chart-wrap">` +
+          courseStats
+            .map((c) => {
+              const pct = Math.max(((c.revenue || 0) / maxRev) * 100, 2);
+              const shortTitle =
+                c.courseTitle?.length > 15
+                  ? c.courseTitle.slice(0, 13) + "…"
+                  : c.courseTitle;
+              return `<div class="chart-bar" style="height:${pct}%" 
+                data-label="${shortTitle}" 
+                data-value="${(c.revenue || 0).toLocaleString("vi-VN")}đ"></div>`;
+            })
+            .join("") +
+          `</div>`;
+        document.getElementById("revenueChart").innerHTML = html;
+      }
+
+      function renderCoursesList(courseStats) {
+        const thumbEmojis = {
+          java: "☕",
+          devops: "🐳",
+          docker: "🐋",
+          spring: "🌿",
+          python: "🐍",
+        };
+        const html = courseStats
+          .map((c) => {
+            const emoji =
+              Object.entries(thumbEmojis).find(([k]) =>
+                c.courseTitle?.toLowerCase().includes(k),
+              )?.[1] || "📚";
+            return `<div class="course-mini-card">
+            <div class="course-thumb-sm">${c.courseThumbnail ? `<img src="${c.courseThumbnail}" alt="" onerror="this.parentNode.textContent='${emoji}'">` : emoji}</div>
+            <div class="course-mini-info">
+                <div class="course-mini-title">${c.courseTitle}</div>
+                <div class="course-mini-meta">
+                    <span><i class="fas fa-users"></i> ${c.totalEnrollments || 0} học viên</span>
+                    <span><i class="fas fa-star" style="color:#f59e0b"></i> ${c.averageRating ? parseFloat(c.averageRating).toFixed(1) : "Chưa có"}</span>
+                    <span class="badge ${c.courseStatus === "PUBLISHED" ? "badge-success" : "badge-warning"}">${c.courseStatus === "PUBLISHED" ? "Published" : "Draft"}</span>
+                </div>
+            </div>
+            <div class="course-mini-revenue">${(c.coursePrice || 0).toLocaleString("vi-VN")}đ</div>
+        </div>`;
+          })
+          .join("");
+        document.getElementById("myCoursesList").innerHTML =
+          html ||
+          '<div class="empty-state" style="padding:20px"><p>Chưa có khóa học</p></div>';
+      }
+
+      function renderPaymentList(reqs) {
+        if (!reqs.length) {
+          document.getElementById("paymentReqList").innerHTML =
+            '<div class="empty-state" style="padding:20px"><div class="empty-icon">✅</div><p>Không có yêu cầu nào</p></div>';
+          return;
+        }
+        const statusMap = {
+          CONFIRMED: { cls: "badge-success", txt: "Đã duyệt" },
+          CANCELLED: { cls: "badge-muted", txt: "Đã hủy" },
+          EXPIRED: { cls: "badge-danger", txt: "Hết hạn" },
+          PENDING_PROOF: { cls: "badge-warning", txt: "Chờ bill" },
+          PROOF_UPLOADED: { cls: "badge-orange", txt: "Chờ duyệt" },
+          REJECTED: { cls: "badge-danger", txt: "Từ chối" },
+        };
+        const html = reqs
+          .map((r) => {
+            const s = statusMap[r.status] || {
+              cls: "badge-muted",
+              txt: r.status,
+            };
+            const initials = (r.studentName || "S")[0].toUpperCase();
+            const dateStr = r.createdAt
+              ? new Date(r.createdAt).toLocaleDateString("vi-VN")
+              : "";
+            return `<div class="payment-req-item">
+            <div class="payment-req-avatar">${initials}</div>
+            <div class="payment-req-info">
+                <div class="payment-req-student">${r.studentName || "Học viên"}</div>
+                <div class="payment-req-course">${r.courseTitle || ""}</div>
+            </div>
+            <div class="payment-req-right">
+                <div class="payment-req-amount">${(r.amount || 0).toLocaleString("vi-VN")}đ</div>
+                <span class="badge ${s.cls}" style="font-size:10px">${s.txt}</span>
+                <div class="payment-req-date">${dateStr}</div>
+            </div>
+        </div>`;
+          })
+          .join("");
+        document.getElementById("paymentReqList").innerHTML = html;
+      }
+
+      function renderActivity(reqs) {
+        const dots = {
+          CONFIRMED: "green",
+          CANCELLED: "red",
+          EXPIRED: "red",
+          PROOF_UPLOADED: "orange",
+          PENDING_PROOF: "orange",
+        };
+        const html = reqs
+          .slice(0, 5)
+          .map((r) => {
+            const dot = dots[r.status] || "";
+            const msg =
+              r.status === "CONFIRMED"
+                ? `<strong>${r.studentName}</strong> đã được xác nhận thanh toán khóa <strong>${r.courseTitle?.slice(0, 30)}</strong>`
+                : r.status === "PROOF_UPLOADED"
+                  ? `<strong>${r.studentName}</strong> đã upload bill chờ duyệt — <strong>${r.courseTitle?.slice(0, 30)}</strong>`
+                  : r.status === "CANCELLED"
+                    ? `<strong>${r.studentName}</strong> hủy đơn — <strong>${r.courseTitle?.slice(0, 30)}</strong>`
+                    : `Yêu cầu từ <strong>${r.studentName}</strong> — <strong>${r.courseTitle?.slice(0, 30)}</strong>`;
+            const d = r.createdAt
+              ? new Date(r.createdAt).toLocaleDateString("vi-VN")
+              : "";
+            return `<div class="activity-item">
+            <div class="activity-dot ${dot}"></div>
+            <div class="activity-text">${msg}</div>
+            <div class="activity-time">${d}</div>
+        </div>`;
+          })
+          .join("");
+        document.getElementById("activityList").innerHTML =
+          html ||
+          '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Chưa có hoạt động</div>';
+      }
+
+      // Counter animation
+      function animateCount(el, target, isFloat = false) {
+        const duration = 800;
+        const start = performance.now();
+        function update(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const cur = target * ease;
+          el.textContent = isFloat
+            ? cur.toFixed(1)
+            : Math.floor(cur).toLocaleString("vi-VN");
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await loadDashboard();
+        // Animate numbers
+        setTimeout(() => {
+          const numEls = {
+            statCourses: false,
+            statStudents: false,
+          };
+          document.querySelectorAll(".stat-value").forEach((el) => {
+            const raw = el.textContent;
+            const num = parseFloat(raw.replace(/[^\d.]/g, ""));
+            if (!isNaN(num) && num > 0) animateCount(el, num);
+          });
+        }, 200);
+      });
+    </script>
+  </body>
+</html>

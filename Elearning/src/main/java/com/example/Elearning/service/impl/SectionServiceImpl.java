@@ -76,7 +76,14 @@ public class SectionServiceImpl implements SectionService {
         List<Section> sections = sectionRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
         
         return sections.stream()
-                .map(sectionMapper::toSectionResponse)
+                .map(section -> {
+                    SectionResponse response = sectionMapper.toSectionResponse(section);
+                    // Manually set sectionId for each lesson
+                    if (response.getLessons() != null) {
+                        response.getLessons().forEach(lesson -> lesson.setSectionId(section.getId()));
+                    }
+                    return response;
+                })
                 .toList();
     }
 }

@@ -27,6 +27,7 @@ public interface CourseMapper {
     @Mapping(target = "status", expression = "java(course.getStatus() != null ? course.getStatus().name() : null)")
     @Mapping(target = "categoryIds", expression = "java(mapCategoriesToIds(course.getCategories()))")
     @Mapping(target = "categoryNames", expression = "java(mapCategoriesToNames(course.getCategories()))")
+    @Mapping(target = "totalStudents", source = "totalEnrollments")
     CourseResponse toResponse(Course course);
 
     @Mapping(target = "userId", source = "user.id")

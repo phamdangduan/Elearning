@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Của Tôi - EduVN</title>
+    <meta name="description" content="Quản lý hồ sơ cá nhân, cập nhật thông tin và theo dõi thành tích học tập của bạn trên EduVN.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* ── CSS Variables ── */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-xlight: #dbeafe;
+            --accent: #06b6d4;
+            --accent-light: #cffafe;
+            --secondary: #1e293b;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --bg-primary: #f8faff;
+            --bg-card: #ffffff;
+            --bg-dark: #0f172a;
+            --border: #e2e8f0;
+            --border-focus: #93c5fd;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --orange: #f97316;
+            --purple: #8b5cf6;
+
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow: 0 4px 16px rgba(37,99,235,0.1);
+            --shadow-md: 0 8px 32px rgba(37,99,235,0.15);
+            --shadow-lg: 0 20px 60px rgba(37,99,235,0.2);
+            --shadow-float: 0 20px 40px rgba(0,0,0,0.12);
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.15s ease;
+
+            --nav-height: 72px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; transition: var(--transition-fast); }
+        ul { list-style: none; }
+        img { max-width: 100%; display: block; }
+        button { cursor: pointer; border: none; background: none; font-family: var(--font); }
+        input, select, textarea { font-family: var(--font); }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000; transition: var(--transition);
+        }
+        .navbar.scrolled {
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 4px 24px rgba(37,99,235,0.1);
+        }
+        .nav-container {
+            max-width: 1340px; margin: 0 auto; padding: 0 24px;
+            height: 100%; display: flex; align-items: center; gap: 32px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        .logo-text { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+        .logo-accent { color: var(--primary); }
+        .nav-links { display: flex; gap: 4px; flex: 1; }
+        .nav-link {
+            padding: 8px 16px; border-radius: var(--radius-full);
+            font-size: 15px; font-weight: 500; color: var(--text-secondary);
+            transition: var(--transition-fast);
+        }
+        .nav-link:hover, .nav-link.active { color: var(--primary); background: var(--primary-xlight); }
+        .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .nav-search {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-primary); border: 1.5px solid var(--border);
+            border-radius: var(--radius-full); padding: 8px 16px; transition: var(--transition);
+        }
+        .nav-search:focus-within {
+            border-color: var(--primary); background: white;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .nav-search i { color: var(--text-muted); font-size: 14px; }
+        .nav-search input {
+            border: none; background: none; outline: none;
+            font-size: 14px; color: var(--text-primary); width: 200px;
+        }
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: var(--radius-full);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: var(--text-secondary);
+            background: var(--bg-primary); border: 1.5px solid var(--border);
+            transition: var(--transition); position: relative;
+        }
+        .icon-btn:hover { color: var(--primary); background: var(--primary-xlight); border-color: var(--border-focus); }
+        .noti-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--danger); color: white;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .nav-notification { position: relative; }
+        .noti-dropdown {
+            position: absolute; top: calc(100% + 12px); right: 0;
+            width: 380px; background: white; border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-float); border: 1px solid var(--border);
+            display: none; z-index: 500; animation: dropIn 0.2s ease;
+        }
+        .noti-dropdown.show { display: block; }
+        .noti-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+        }
+        .noti-header h4 { font-size: 16px; font-weight: 700; }
+        .mark-all-btn { font-size: 12px; color: var(--primary); font-weight: 600; }
+        .mark-all-btn:hover { text-decoration: underline; }
+        .noti-list { max-height: 400px; overflow-y: auto; }
+        .noti-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+        .noti-empty i { font-size: 32px; margin-bottom: 12px; }
+        .noti-item {
+            display: flex; gap: 12px; padding: 14px 20px;
+            transition: var(--transition-fast); border-bottom: 1px solid var(--bg-primary); cursor: pointer;
+        }
+        .noti-item:hover { background: var(--bg-primary); }
+        .noti-item.unread { background: #eff6ff; }
+        .noti-item-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .noti-item-icon.payment { background: #d1fae5; color: var(--success); }
+        .noti-item-icon.alert { background: #fee2e2; color: var(--danger); }
+        .noti-item-icon.info { background: var(--primary-xlight); color: var(--primary); }
+        .noti-item-body p { font-size: 13px; line-height: 1.5; }
+        .noti-item-body small { font-size: 11px; color: var(--text-muted); }
+        .noti-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 6px; }
+
+        .nav-user { position: relative; }
+        .user-avatar-wrapper {
+            display: flex; align-items: center; gap: 10px; padding: 6px 12px;
+            border-radius: var(--radius-full); cursor: pointer; transition: var(--transition);
+            border: 1.5px solid var(--border); background: var(--bg-primary);
+        }
+        .user-avatar-wrapper:hover { background: var(--primary-xlight); border-color: var(--border-focus); }
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 14px; overflow: hidden;
+        }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-name-nav { font-size: 14px; font-weight: 600; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-avatar-wrapper i[class*="chevron"] { font-size: 12px; color: var(--text-muted); }
+        .user-dropdown {
+            position: absolute; top: calc(100% + 12px); right: 0;
+            width: 280px; background: white; border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-float); border: 1px solid var(--border);
+            display: none; z-index: 500; animation: dropIn 0.2s ease; overflow: hidden;
+        }
+        .user-dropdown.show { display: block; }
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-header {
+            display: flex; align-items: center; gap: 12px; padding: 20px;
+            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+        }
+        .dropdown-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 20px; overflow: hidden; flex-shrink: 0;
+        }
+        .dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .dropdown-name { font-weight: 700; font-size: 15px; }
+        .dropdown-email { font-size: 12px; color: var(--text-muted); }
+        .user-dropdown hr { border: none; border-top: 1px solid var(--border); }
+        .dropdown-menu-list { padding: 8px 0; }
+        .dropdown-menu-list li a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+            font-size: 14px; color: var(--text-secondary); transition: var(--transition-fast);
+        }
+        .dropdown-menu-list li a:hover { background: var(--bg-primary); color: var(--primary); }
+        .dropdown-menu-list li a i { width: 16px; color: var(--text-muted); }
+        .logout-btn {
+            width: 100%; padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+            font-size: 14px; color: var(--danger); transition: var(--transition-fast);
+        }
+        .logout-btn:hover { background: #fef2f2; }
+        .hamburger { display: none; flex-direction: column; gap: 5px; padding: 4px; }
+        .hamburger span { width: 24px; height: 2px; background: var(--text-secondary); border-radius: 2px; transition: var(--transition); }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #1e40af 70%, #1d4ed8 100%);
+            padding-top: calc(var(--nav-height) + 48px);
+            padding-bottom: 100px;
+            position: relative; overflow: hidden;
+        }
+        .page-header-bg { position: absolute; inset: 0; pointer-events: none; }
+        .page-header-bg .shape { position: absolute; border-radius: 50%; animation: float 8s ease-in-out infinite; }
+        .page-header-bg .s1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+            top: -200px; right: -80px;
+        }
+        .page-header-bg .s2 {
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+            bottom: -120px; left: -60px; animation-delay: 3s;
+        }
+        .page-header-bg .grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-25px) scale(1.04); }
+        }
+        .page-header-inner {
+            max-width: 1280px; margin: 0 auto; padding: 0 24px;
+            position: relative; z-index: 1;
+        }
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 28px; font-size: 13px; color: rgba(255,255,255,0.55);
+        }
+        .breadcrumb a { color: rgba(255,255,255,0.65); }
+        .breadcrumb a:hover { color: #60a5fa; }
+        .breadcrumb i { font-size: 10px; }
+        .breadcrumb .current { color: rgba(255,255,255,0.9); }
+
+        /* Profile Hero Card */
+        .profile-hero-card {
+            display: flex; align-items: flex-end; gap: 32px;
+        }
+        .profile-avatar-wrapper {
+            position: relative; flex-shrink: 0;
+        }
+        .profile-avatar-large {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 48px; font-weight: 800; color: white;
+            border: 4px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-edit-btn {
+            position: absolute; bottom: 4px; right: 4px;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: white;
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .avatar-edit-btn:hover { transform: scale(1.1); background: var(--primary-xlight); }
+        .profile-hero-info { color: white; flex: 1; }
+        .profile-role-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius-full);
+            padding: 5px 14px; font-size: 12px; font-weight: 700;
+            color: #93c5fd; text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .profile-hero-name {
+            font-size: clamp(24px, 3.5vw, 40px);
+            font-weight: 900; line-height: 1.1;
+            letter-spacing: -0.5px; margin-bottom: 8px;
+        }
+        .profile-hero-email {
+            font-size: 15px; color: rgba(255,255,255,0.65);
+            display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+        }
+        .profile-hero-stats {
+            display: flex; gap: 20px;
+        }
+        .profile-hero-stat {
+            text-align: center;
+        }
+        .profile-hero-stat-val { font-size: 24px; font-weight: 800; color: white; }
+        .profile-hero-stat-lab { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .profile-hero-stat-div { width: 1px; height: 36px; background: rgba(255,255,255,0.2); align-self: center; }
+        .profile-hero-actions { display: flex; gap: 12px; flex-shrink: 0; }
+        .btn-edit-profile {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 22px;
+            background: white; color: var(--primary);
+            border-radius: var(--radius-full);
+            font-size: 14px; font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transition: var(--transition);
+        }
+        .btn-edit-profile:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+        .btn-share-profile {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 22px;
+            background: rgba(255,255,255,0.12); color: white;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: var(--radius-full);
+            font-size: 14px; font-weight: 600;
+            transition: var(--transition); backdrop-filter: blur(10px);
+        }
+        .btn-share-profile:hover { background: rgba(255,255,255,0.2); }
+
+        /* Wave */
+        .page-wave { position: relative; bottom: -1px; left: 0; right: 0; }
+        .page-wave svg { display: block; width: 100%; }
+
+        /* ── MAIN CONTENT ── */
+        .main-body { padding: 48px 0 80px; }
+        .main-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-card {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .sidebar-card-header {
+            padding: 18px 20px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 700;
+        }
+        .sidebar-card-header i { color: var(--primary); }
+        .sidebar-card-body { padding: 20px; }
+
+        /* Completion Score */
+        .completion-ring {
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .ring-wrapper {
+            position: relative; width: 100px; height: 100px;
+        }
+        .ring-svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: #e2e8f0; stroke-width: 8; }
+        .ring-fill {
+            fill: none; stroke: url(#ringGrad); stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ring-label {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .ring-pct { font-size: 22px; font-weight: 900; color: var(--primary); }
+        .ring-sub { font-size: 10px; color: var(--text-muted); }
+        .completion-text { text-align: center; }
+        .completion-text p { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .completion-text span { font-size: 12px; color: var(--text-muted); }
+
+        /* Quick Stats */
+        .quick-stats { display: flex; flex-direction: column; gap: 12px; }
+        .quick-stat-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px; border-radius: var(--radius-sm);
+            background: var(--bg-primary); gap: 10px;
+        }
+        .quick-stat-row:hover { background: var(--primary-xlight); }
+        .quick-stat-left { display: flex; align-items: center; gap: 10px; }
+        .quick-stat-icon {
+            width: 34px; height: 34px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .quick-stat-icon.blue { background: #eff6ff; color: var(--primary); }
+        .quick-stat-icon.green { background: #d1fae5; color: var(--success); }
+        .quick-stat-icon.orange { background: #fff7ed; color: var(--orange); }
+        .quick-stat-icon.purple { background: #ede9fe; color: var(--purple); }
+        .quick-stat-icon.gold { background: #fef3c7; color: var(--warning); }
+        .quick-stat-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .quick-stat-value { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+
+        /* Sidebar Nav */
+        .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; }
+        .sidebar-nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; color: var(--text-secondary);
+            cursor: pointer; transition: var(--transition-fast);
+        }
+        .sidebar-nav-item:hover { background: var(--bg-primary); color: var(--primary); }
+        .sidebar-nav-item.active { background: var(--primary-xlight); color: var(--primary); }
+        .sidebar-nav-item i { width: 18px; text-align: center; }
+
+        /* ── CONTENT AREA ── */
+        .content-area { display: flex; flex-direction: column; gap: 24px; }
+
+        /* Section tabs */
+        .content-panel {
+            background: white; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-header {
+            padding: 20px 28px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .panel-header-left { display: flex; align-items: center; gap: 12px; }
+        .panel-header-icon {
+            width: 40px; height: 40px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .panel-header-icon.blue { background: #eff6ff; color: var(--primary); }
+        .panel-header-icon.green { background: #d1fae5; color: var(--success); }
+        .panel-header-icon.purple { background: #ede9fe; color: var(--purple); }
+        .panel-header-icon.gold { background: #fef3c7; color: var(--warning); }
+        .panel-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+        .panel-sub { font-size: 13px; color: var(--text-muted); }
+        .panel-body { padding: 28px; }
+
+        /* Form Fields */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+        .form-label .required { color: var(--danger); margin-left: 3px; }
+        .form-input, .form-select, .form-textarea {
+            padding: 11px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px; color: var(--text-primary);
+            background: var(--bg-primary);
+            outline: none; transition: var(--transition);
+            width: 100%;
+        }
+        .form-textarea { resize: vertical; min-height: 100px; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        .form-input:disabled {
+            background: #f1f5f9; color: var(--text-muted); cursor: not-allowed;
+        }
+        .form-hint { font-size: 12px; color: var(--text-muted); }
+        .form-actions {
+            display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;
+            padding-top: 24px; border-top: 1px solid var(--border);
+        }
+        .btn-save {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; border-radius: var(--radius-full);
+            font-size: 14px; font-weight: 700;
+            box-shadow: 0 6px 20px rgba(37,99,235,0.3);
+            transition: var(--transition);
+        }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(37,99,235,0.4); }
+        .btn-save.loading { pointer-events: none; opacity: 0.7; }
+        .btn-cancel {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 24px;
+            border: 1.5px solid var(--border); color: var(--text-secondary);
+            border-radius: var(--radius-full);
+            font-size: 14px; font-weight: 600;
+            transition: var(--transition);
+        }
+        .btn-cancel:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-xlight); }
+
+        /* Change Password Section */
+        .password-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .password-strength { margin-top: 8px; }
+        .strength-bar {
+            height: 4px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden; margin-bottom: 6px;
+        }
+        .strength-fill {
+            height: 100%; border-radius: var(--radius-full);
+            transition: width 0.3s ease, background 0.3s ease; width: 0%;
+        }
+        .strength-fill.weak { background: var(--danger); width: 33%; }
+        .strength-fill.medium { background: var(--warning); width: 66%; }
+        .strength-fill.strong { background: var(--success); width: 100%; }
+        .strength-text { font-size: 12px; font-weight: 600; }
+        .strength-text.weak { color: var(--danger); }
+        .strength-text.medium { color: var(--warning); }
+        .strength-text.strong { color: var(--success); }
+
+        /* Input with icon */
+        .input-group { position: relative; }
+        .input-group .form-input { padding-right: 44px; }
+        .input-toggle {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 15px; cursor: pointer; transition: var(--transition-fast);
+        }
+        .input-toggle:hover { color: var(--primary); }
+
+        /* Activity / Learning Stats */
+        .stat-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
+        }
+        .stat-box {
+            background: var(--bg-primary); border-radius: var(--radius);
+            padding: 20px; text-align: center; border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .stat-box:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-focus); }
+        .stat-box-icon {
+            width: 44px; height: 44px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin: 0 auto 10px;
+        }
+        .stat-box-icon.blue { background: #eff6ff; color: var(--primary); }
+        .stat-box-icon.green { background: #d1fae5; color: var(--success); }
+        .stat-box-icon.orange { background: #fff7ed; color: var(--orange); }
+        .stat-box-icon.purple { background: #ede9fe; color: var(--purple); }
+        .stat-box-val { font-size: 28px; font-weight: 900; color: var(--text-primary); }
+        .stat-box-lab { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Skill Progress */
+        .skill-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+        .skill-item {}
+        .skill-header-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; margin-bottom: 8px;
+        }
+        .skill-name-label { font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .skill-pct-label { font-weight: 700; color: var(--primary); }
+        .skill-bar-bg { height: 8px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden; }
+        .skill-bar-inner {
+            height: 100%; border-radius: var(--radius-full); transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+        }
+        .skill-bar-inner.c1 { background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .skill-bar-inner.c2 { background: linear-gradient(90deg, var(--success), #34d399); }
+        .skill-bar-inner.c3 { background: linear-gradient(90deg, var(--orange), #fb923c); }
+        .skill-bar-inner.c4 { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+        .skill-bar-inner.c5 { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+
+        /* Achievements / Badges */
+        .achievements-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+        }
+        .achievement-card {
+            background: var(--bg-primary); border-radius: var(--radius-lg);
+            padding: 20px 16px; text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition); position: relative; overflow: hidden;
+        }
+        .achievement-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--border-focus); }
+        .achievement-card.unlocked { border-color: rgba(245,158,11,0.4); background: linear-gradient(135deg, #fefce8, #fff7ed); }
+        .achievement-icon {
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 10px;
+        }
+        .achievement-icon.gold { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 8px 20px rgba(245,158,11,0.3); }
+        .achievement-icon.blue { background: linear-gradient(135deg, var(--primary), var(--accent)); box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
+        .achievement-icon.green { background: linear-gradient(135deg, var(--success), #34d399); box-shadow: 0 8px 20px rgba(16,185,129,0.25); }
+        .achievement-icon.purple { background: linear-gradient(135deg, var(--purple), #a78bfa); box-shadow: 0 8px 20px rgba(139,92,246,0.25); }
+        .achievement-icon.gray { background: #e2e8f0; }
+        .achievement-card.unlocked .achievement-icon { color: white; }
+        .achievement-card:not(.unlocked) .achievement-icon { color: var(--text-muted); }
+        .achievement-name { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .achievement-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+        .achievement-locked-overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(248,250,255,0.6); backdrop-filter: blur(2px); border-radius: var(--radius-lg);
+        }
+        .achievement-locked-overlay i { font-size: 24px; color: var(--text-muted); }
+        .achievement-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white; font-size: 9px; font-weight: 800;
+            padding: 2px 8px; border-radius: var(--radius-full);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* Recent Courses in Profile */
+        .recent-courses-list { display: flex; flex-direction: column; gap: 12px; }
+        .recent-course-item {
+            display: flex; align-items: center; gap: 16px;
+            padding: 14px 16px; border-radius: var(--radius);
+            background: var(--bg-primary); border: 1px solid var(--border);
+            transition: var(--transition); cursor: pointer;
+        }
+        .recent-course-item:hover { border-color: var(--border-focus); background: #eff6ff; transform: translateX(4px); }
+        .recent-course-thumb {
+            width: 54px; height: 54px; border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, #1e3a8a, var(--primary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0; overflow: hidden;
+        }
+        .recent-course-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .recent-course-info { flex: 1; min-width: 0; }
+        .recent-course-title {
+            font-size: 14px; font-weight: 700; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;
+        }
+        .recent-course-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .recent-course-progress { flex-shrink: 0; text-align: right; }
+        .recent-progress-bar-sm {
+            width: 80px; height: 5px; background: #e2e8f0; border-radius: var(--radius-full); overflow: hidden; margin-bottom: 4px;
+        }
+        .recent-progress-fill-sm {
+            height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: var(--radius-full); transition: width 0.8s ease;
+        }
+        .recent-progress-pct { font-size: 12px; font-weight: 700; color: var(--primary); }
+
+        /* Notification Settings Toggle */
+        .setting-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
+        }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-info { flex: 1; }
+        .setting-label { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+        .setting-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; border-radius: var(--radius-full);
+            background: #e2e8f0; cursor: pointer; transition: var(--transition);
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: white; bottom: 3px; left: 3px;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .toggle-switch input:checked + .toggle-slider { background: linear-gradient(135deg, var(--primary), var(--accent)); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* ── Danger Zone ── */
+        .danger-zone {
+            border: 1.5px solid #fee2e2; border-radius: var(--radius-lg);
+            padding: 20px; background: #fef2f2;
+        }
+        .danger-title { font-size: 14px; font-weight: 800; color: var(--danger); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .danger-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6; }
+        .btn-danger {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px;
+            background: var(--danger); color: white;
+            border-radius: var(--radius-full); font-size: 13px; font-weight: 700;
+            transition: var(--transition);
+        }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+
+        /* ── FOOTER ── */
+        .footer { background: var(--bg-dark); color: white; padding: 64px 0 0; }
+        .footer-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 48px; }
+        .footer-desc { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.55); margin: 16px 0 24px; }
+        .footer-socials { display: flex; gap: 10px; }
+        .social-link {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: rgba(255,255,255,0.6); transition: var(--transition);
+        }
+        .social-link:hover { background: var(--primary); border-color: var(--primary); color: white; }
+        .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { font-size: 14px; color: rgba(255,255,255,0.55); }
+        .footer-col ul li a:hover { color: white; }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08); padding: 24px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; color: rgba(255,255,255,0.4);
+        }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 20px; border-radius: var(--radius);
+            background: white; box-shadow: var(--shadow-float);
+            font-size: 14px; font-weight: 600; min-width: 280px;
+            border-left: 4px solid;
+        }
+        .toast.success { border-color: var(--success); color: var(--success); }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
+        .toast.warning { border-color: var(--warning); color: var(--warning); }
+        .toast.info { border-color: var(--primary); color: var(--primary); }
+
+        /* Scroll top */
+        .scroll-top {
+            position: fixed; bottom: 32px; right: 32px;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+            opacity: 0; pointer-events: none; transition: var(--transition); z-index: 999;
+        }
+        .scroll-top.show { opacity: 1; pointer-events: auto; }
+        .scroll-top:hover { transform: translateY(-4px); }
+
+        /* Section label */
+        .section-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--primary-xlight); color: var(--primary);
+            font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+            text-transform: uppercase; padding: 5px 14px;
+            border-radius: var(--radius-full); margin-bottom: 8px;
+        }
+
+        /* Upload Avatar */
+        .avatar-upload-area {
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+            padding: 20px;
+            border: 2px dashed var(--border); border-radius: var(--radius-lg);
+            background: var(--bg-primary); cursor: pointer; transition: var(--transition);
+            text-align: center;
+        }
+        .avatar-upload-area:hover { border-color: var(--primary); background: var(--primary-xlight); }
+        .avatar-preview-wrap { position: relative; }
+        .avatar-preview {
+            width: 96px; height: 96px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; font-weight: 800; color: white;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md); overflow: hidden;
+        }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-upload-hint { font-size: 13px; color: var(--text-muted); }
+        .avatar-upload-hint strong { display: block; font-size: 14px; color: var(--text-primary); margin-bottom: 4px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 260px 1fr; }
+            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+            .profile-hero-card { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .profile-hero-actions { flex-wrap: wrap; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+            .password-row { grid-template-columns: 1fr; }
+            .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-links, .nav-search { display: none; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+            .hamburger { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <!-- Logo -->
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="nav-link">Trang chủ</a></li>
+                <li><a href="courses.html" class="nav-link">Khóa học</a></li>
+                <li><a href="my-learning.html" class="nav-link">Học của tôi</a></li>
+                <li><a href="instructors.html" class="nav-link">Giáo viên</a></li>
+            </ul>
+
+            <!-- Nav Right -->
+            <div class="nav-right">
+                <div class="nav-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm khóa học..." id="navSearchInput">
+                </div>
+
+                <!-- Notification -->
+                <div class="nav-notification">
+                    <button class="icon-btn" id="notiBell">
+                        <i class="fas fa-bell"></i>
+                        <span class="noti-badge" id="notiBadge">0</span>
+                    </button>
+                    <div class="noti-dropdown" id="notiDropdown">
+                        <div class="noti-header">
+                            <h4>Thông báo</h4>
+                            <button class="mark-all-btn" id="markAllRead">Đánh dấu tất cả đã đọc</button>
+                        </div>
+                        <div class="noti-list" id="notiList">
+                            <div class="noti-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>Chưa có thông báo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User -->
+                <div class="nav-user" id="navUser">
+                    <div class="user-avatar-wrapper" id="userAvatarBtn">
+                        <div class="user-avatar" id="userAvatarNav"><i class="fas fa-user"></i></div>
+                        <span class="user-name-nav" id="userNameNav">Đang tải...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header" id="dropdownHeader">
+                            <div class="dropdown-avatar" id="dropdownAvatar"><i class="fas fa-user"></i></div>
+                            <div>
+                                <p class="dropdown-name" id="dropdownName">Loading...</p>
+                                <p class="dropdown-email" id="dropdownEmail">loading@email.com</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <ul class="dropdown-menu-list">
+                            <li><a href="profile.html"><i class="fas fa-user-circle"></i> Hồ sơ cá nhân</a></li>
+                            <li><a href="my-learning.html"><i class="fas fa-book-open"></i> Khóa học của tôi</a></li>
+                            <li><a href="payments.html"><i class="fas fa-credit-card"></i> Lịch sử thanh toán</a></li>
+                            <li><a href="settings.html"><i class="fas fa-cog"></i> Cài đặt</a></li>
+                        </ul>
+                        <hr>
+                        <button class="logout-btn" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </button>
+                    </div>
+                </div>
+
+                <button class="hamburger" id="hamburger">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===================== PAGE HEADER ===================== -->
+    <section class="page-header">
+        <div class="page-header-bg">
+            <div class="shape s1"></div>
+            <div class="shape s2"></div>
+            <div class="grid"></div>
+        </div>
+        <div class="page-header-inner">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+                <i class="fas fa-chevron-right"></i>
+                <span class="current">Hồ sơ cá nhân</span>
+            </div>
+
+            <!-- Profile Hero -->
+            <div class="profile-hero-card">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar-large" id="profileAvatarLarge">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <label class="avatar-edit-btn" for="avatarFileInput" id="avatarEditBtn" title="Đổi ảnh đại diện">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+                </div>
+
+                <div class="profile-hero-info">
+                    <div class="profile-role-badge">
+                        <i class="fas fa-graduation-cap"></i>
+                        Học viên
+                    </div>
+                    <h1 class="profile-hero-name" id="profileHeroName">Đang tải...</h1>
+                    <div class="profile-hero-email">
+                        <i class="fas fa-envelope"></i>
+                        <span id="profileHeroEmail">--</span>
+                    </div>
+                    <div class="profile-hero-stats">
+                        <div class="profile-hero-stat">
+                            <div class="profile-hero-stat-val" id="heroStatCourses">--</div>
+                            <div class="profile-hero-stat-lab">Khóa học</div>
+                        </div>
+                        <div class="profile-hero-stat-div"></div>
+                        <div class="profile-hero-stat">
+                            <div class="profile-hero-stat-val" id="heroStatCompleted">--</div>
+                            <div class="profile-hero-stat-lab">Hoàn thành</div>
+                        </div>
+                        <div class="profile-hero-stat-div"></div>
+                        <div class="profile-hero-stat">
+                            <div class="profile-hero-stat-val" id="heroStatLessons">--</div>
+                            <div class="profile-hero-stat-lab">Bài đã học</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-hero-actions">
+                    <button class="btn-edit-profile" id="scrollToEditBtn">
+                        <i class="fas fa-edit"></i>
+                        Chỉnh sửa hồ sơ
+                    </button>
+                    <button class="btn-share-profile" id="shareProfileBtn">
+                        <i class="fas fa-share-alt"></i>
+                        Chia sẻ
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave -->
+        <div class="page-wave">
+            <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#f8faff" d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <section class="main-body">
+        <div class="main-inner">
+            <div class="main-grid">
+
+                <!-- ── SIDEBAR ── -->
+                <aside class="sidebar">
+                    <!-- Profile Completion -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            <i class="fas fa-chart-pie"></i>
+                            Mức độ hoàn thiện
+                        </div>
+                        <div class="sidebar-card-body">
+                            <div class="completion-ring">
+                                <div class="ring-wrapper">
+                                    <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+                                        <defs>
+                                            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#2563eb"/>
+                                                <stop offset="100%" style="stop-color:#06b6d4"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                                        <circle class="ring-fill" id="completionRing" cx="50" cy="50" r="42"
+                                            stroke-dasharray="264" stroke-dashoffset="264"/>
+                                    </svg>
+                                    <div class="ring-label">
+                                        <span class="ring-pct" id="completionPct">0%</span>
+                                        <span class="ring-sub">đầy đủ</span>
+                                    </div>
+                                </div>
+                                <div class="completion-text">
+                                    <p id="completionMsg">Hồ sơ chưa hoàn thiện</p>
+                                    <span id="completionSub">Thêm thông tin để tăng độ hiển thị</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            <i class="fas fa-star"></i>
+                            Thống kê nhanh
+                        </div>
+                        <div class="sidebar-card-body" style="padding:12px">
+                            <div class="quick-stats">
+                                <div class="quick-stat-row">
+                                    <div class="quick-stat-left">
+                                        <div class="quick-stat-icon blue"><i class="fas fa-book-open"></i></div>
+                                        <span class="quick-stat-label">Đã đăng ký</span>
+                                    </div>
+                                    <span class="quick-stat-value" id="qsEnrolled">-</span>
+                                </div>
+                                <div class="quick-stat-row">
+                                    <div class="quick-stat-left">
+                                        <div class="quick-stat-icon green"><i class="fas fa-check-circle"></i></div>
+                                        <span class="quick-stat-label">Hoàn thành</span>
+                                    </div>
+                                    <span class="quick-stat-value" id="qsCompleted">-</span>
+                                </div>
+                                <div class="quick-stat-row">
+                                    <div class="quick-stat-left">
+                                        <div class="quick-stat-icon orange"><i class="fas fa-spinner"></i></div>
+                                        <span class="quick-stat-label">Đang học</span>
+                                    </div>
+                                    <span class="quick-stat-value" id="qsInprogress">-</span>
+                                </div>
+                                <div class="quick-stat-row">
+                                    <div class="quick-stat-left">
+                                        <div class="quick-stat-icon purple"><i class="fas fa-play-circle"></i></div>
+                                        <span class="quick-stat-label">Bài đã xem</span>
+                                    </div>
+                                    <span class="quick-stat-value" id="qsLessons">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Navigation -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            <i class="fas fa-th-list"></i>
+                            Điều hướng
+                        </div>
+                        <div class="sidebar-nav">
+                            <div class="sidebar-nav-item active" data-section="info">
+                                <i class="fas fa-user"></i> Thông tin cá nhân
+                            </div>
+                            <div class="sidebar-nav-item" data-section="activity">
+                                <i class="fas fa-chart-bar"></i> Hoạt động học tập
+                            </div>
+                            <div class="sidebar-nav-item" data-section="security">
+                                <i class="fas fa-shield-alt"></i> Bảo mật
+                            </div>
+                            <div class="sidebar-nav-item" data-section="notifications">
+                                <i class="fas fa-bell"></i> Thông báo
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="sidebar-card">
+                        <div class="sidebar-card-header">
+                            <i class="fas fa-link"></i>
+                            Liên kết nhanh
+                        </div>
+                        <div class="sidebar-nav">
+                            <a href="my-learning.html" class="sidebar-nav-item">
+                                <i class="fas fa-book-reader"></i> Khóa học của tôi
+                            </a>
+                            <a href="payments.html" class="sidebar-nav-item">
+                                <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                            </a>
+                            <a href="courses.html" class="sidebar-nav-item">
+                                <i class="fas fa-search"></i> Khám phá khóa học
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- ── CONTENT AREA ── -->
+                <main class="content-area">
+
+                    <!-- ── SECTION: THÔNG TIN CÁ NHÂN ── -->
+                    <div class="content-panel" id="section-info">
+                        <div class="panel-header">
+                            <div class="panel-header-left">
+                                <div class="panel-header-icon blue"><i class="fas fa-user-edit"></i></div>
+                                <div>
+                                    <div class="panel-title">Thông tin cá nhân</div>
+                                    <div class="panel-sub">Cập nhật thông tin hồ sơ của bạn</div>
+                                </div>
+                            </div>
+                            <div class="section-label"><i class="fas fa-user"></i> Hồ sơ</div>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Avatar Upload -->
+                            <div style="margin-bottom:28px">
+                                <div class="form-label" style="margin-bottom:10px">Ảnh đại diện</div>
+                                <label class="avatar-upload-area" for="avatarFileInput2" id="avatarUploadArea">
+                                    <div class="avatar-preview-wrap">
+                                        <div class="avatar-preview" id="avatarPreview">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="avatar-upload-hint">
+                                        <strong>Nhấn để tải ảnh lên</strong>
+                                        JPG, PNG, GIF tối đa 5MB
+                                    </div>
+                                </label>
+                                <input type="file" id="avatarFileInput2" accept="image/*" style="display:none">
+                            </div>
+
+                            <form id="profileForm">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">Tên <span class="required">*</span></label>
+                                        <input type="text" class="form-input" id="firstName" placeholder="Nhập tên...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Họ <span class="required">*</span></label>
+                                        <input type="text" class="form-input" id="lastName" placeholder="Nhập họ...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-input" id="emailInput" placeholder="example@email.com" disabled>
+                                        <span class="form-hint"><i class="fas fa-lock" style="font-size:10px"></i> Email không thể thay đổi</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="tel" class="form-input" id="phoneInput" placeholder="0xx xxx xxxx">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input type="date" class="form-input" id="dobInput">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Giới tính</label>
+                                        <select class="form-select" id="genderInput">
+                                            <option value="">-- Chọn giới tính --</option>
+                                            <option value="male">Nam</option>
+                                            <option value="female">Nữ</option>
+                                            <option value="other">Khác</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group full">
+                                        <label class="form-label">Giới thiệu bản thân</label>
+                                        <textarea class="form-textarea" id="inputBio" placeholder="Viết vài dòng giới thiệu về bản thân bạn..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" class="btn-cancel" id="cancelInfoBtn">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </button>
+                                    <button type="button" class="btn-save" id="saveInfoBtn">
+                                        <i class="fas fa-save"></i> Lưu thay đổi
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- ── SECTION: HOẠT ĐỘNG HỌC TẬP ── -->
+                    <div class="content-panel" id="section-activity">
+                        <div class="panel-header">
+                            <div class="panel-header-left">
+                                <div class="panel-header-icon green"><i class="fas fa-chart-line"></i></div>
+                                <div>
+                                    <div class="panel-title">Hoạt động học tập</div>
+                                    <div class="panel-sub">Theo dõi tiến trình và thành tích của bạn</div>
+                                </div>
+                            </div>
+                            <div class="section-label"><i class="fas fa-chart-bar"></i> Thống kê</div>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Stat Row -->
+                            <div class="stat-row">
+                                <div class="stat-box">
+                                    <div class="stat-box-icon blue"><i class="fas fa-book-open"></i></div>
+                                    <div class="stat-box-val" id="actEnrolled">-</div>
+                                    <div class="stat-box-lab">Đã đăng ký</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-icon green"><i class="fas fa-check-double"></i></div>
+                                    <div class="stat-box-val" id="actCompleted">-</div>
+                                    <div class="stat-box-lab">Hoàn thành</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-icon orange"><i class="fas fa-fire"></i></div>
+                                    <div class="stat-box-val" id="actLessons">-</div>
+                                    <div class="stat-box-lab">Bài đã học</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-icon purple"><i class="fas fa-clock"></i></div>
+                                    <div class="stat-box-val" id="actHours">-</div>
+                                    <div class="stat-box-lab">Giờ học tích lũy</div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Courses -->
+                            <div style="margin-top:28px">
+                                <div class="form-label" style="margin-bottom:4px;font-size:15px;">Khóa học gần đây</div>
+                                <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Tiếp tục hành trình học tập của bạn</p>
+                                <div class="recent-courses-list" id="recentCoursesList">
+                                    <div style="text-align:center;padding:40px;color:var(--text-muted)">
+                                        <i class="fas fa-spinner fa-spin" style="font-size:24px;margin-bottom:10px"></i>
+                                        <p>Đang tải...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── SECTION: BẢO MẬT ── -->
+                    <div class="content-panel" id="section-security">
+                        <div class="panel-header">
+                            <div class="panel-header-left">
+                                <div class="panel-header-icon purple"><i class="fas fa-shield-alt"></i></div>
+                                <div>
+                                    <div class="panel-title">Bảo mật tài khoản</div>
+                                    <div class="panel-sub">Quản lý mật khẩu và bảo mật</div>
+                                </div>
+                            </div>
+                            <div class="section-label"><i class="fas fa-lock"></i> Bảo mật</div>
+                        </div>
+                        <div class="panel-body">
+                            <form id="passwordForm">
+                                <div class="password-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Mật khẩu hiện tại <span class="required">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-input" id="currentPassword" placeholder="••••••••">
+                                            <span class="input-toggle" onclick="togglePassword('currentPassword', this)">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Mật khẩu mới <span class="required">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-input" id="newPassword" placeholder="Tối thiểu 8 ký tự" oninput="checkPasswordStrength(this.value)">
+                                            <span class="input-toggle" onclick="togglePassword('newPassword', this)">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                        <div class="password-strength">
+                                            <div class="strength-bar"><div class="strength-fill" id="strengthBar"></div></div>
+                                            <span class="strength-text" id="strengthText"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-input" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+                                            <span class="input-toggle" onclick="togglePassword('confirmPassword', this)">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-save" id="savePasswordBtn">
+                                        <i class="fas fa-lock"></i> Đổi mật khẩu
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Danger Zone -->
+                            <div class="danger-zone" style="margin-top:24px">
+                                <div class="danger-title"><i class="fas fa-exclamation-triangle"></i> Vùng nguy hiểm</div>
+                                <div class="danger-desc">
+                                    Khi bạn xóa tài khoản, tất cả dữ liệu bao gồm khóa học, tiến trình và chứng chỉ sẽ bị xóa vĩnh viễn
+                                    và không thể khôi phục. Vui lòng cân nhắc kỹ trước khi thực hiện.
+                                </div>
+                                <button class="btn-danger" id="deleteAccountBtn">
+                                    <i class="fas fa-trash-alt"></i> Xóa tài khoản vĩnh viễn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── SECTION: THÔNG BÁO ── -->
+                    <div class="content-panel" id="section-notifications">
+                        <div class="panel-header">
+                            <div class="panel-header-left">
+                                <div class="panel-header-icon blue"><i class="fas fa-bell"></i></div>
+                                <div>
+                                    <div class="panel-title">Cài đặt thông báo</div>
+                                    <div class="panel-sub">Điều chỉnh loại thông báo bạn muốn nhận</div>
+                                </div>
+                            </div>
+                            <div class="section-label"><i class="fas fa-sliders-h"></i> Tùy chọn</div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Thông báo thanh toán</div>
+                                    <div class="setting-desc">Nhận thông báo khi thanh toán thành công hoặc bị từ chối</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notiPayment" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Cập nhật khóa học</div>
+                                    <div class="setting-desc">Nhận thông báo khi có bài học mới trong khóa học đã đăng ký</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notiCourseUpdate" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Nhắc nhở học tập</div>
+                                    <div class="setting-desc">Nhận nhắc nhở hàng ngày để duy trì thói quen học tập</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notiReminder">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Khóa học mới & khuyến mãi</div>
+                                    <div class="setting-desc">Nhận thông báo về khóa học mới và ưu đãi đặc biệt</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notiPromo" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Thông báo email</div>
+                                    <div class="setting-desc">Gửi tóm tắt hoạt động hàng tuần qua email</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notiEmail">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn-save" id="saveNotiBtn">
+                                    <i class="fas fa-check"></i> Lưu cài đặt thông báo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-logo" style="color:white;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span class="logo-text">Edu<span class="logo-accent">VN</span></span>
+                    </a>
+                    <p class="footer-desc">Nền tảng học trực tuyến hàng đầu Việt Nam, kết nối học viên với giáo viên chất lượng cao.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Khám phá</h4>
+                    <ul>
+                        <li><a href="courses.html">Tất cả khóa học</a></li>
+                        <li><a href="categories.html">Danh mục</a></li>
+                        <li><a href="instructors.html">Giáo viên</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Tài khoản</h4>
+                    <ul>
+                        <li><a href="profile.html">Hồ sơ</a></li>
+                        <li><a href="my-learning.html">Học của tôi</a></li>
+                        <li><a href="payments.html">Thanh toán</a></li>
+                        <li><a href="settings.html">Cài đặt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Trung tâm trợ giúp</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Điều khoản</a></li>
+                        <li><a href="#">Bảo mật</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 EduVN. Tất cả quyền được bảo lưu.</p>
+                <p>Made with <i class="fas fa-heart" style="color:#ef4444"></i> in Vietnam</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Profile JavaScript Handler -->
+    <script src="js/profile.js"></script>
+</body>
+</html>

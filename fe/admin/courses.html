@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Khóa học - EduVN Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="teacher-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><i class="fas fa-shield-alt"></i></div>
+      <span class="sidebar-brand-name">Edu<span>VN</span></span>
+      <span class="sidebar-role admin-role">Admin</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Quản trị viên</div>
+        <div class="sidebar-user-role">Super Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Tổng quan</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Báo cáo & Thống kê</span></a>
+      <span class="nav-group-label">Quản lý</span>
+      <a href="users.html" class="nav-item"><i class="fas fa-users"></i><span>Người dùng</span></a>
+      <a href="courses.html" class="nav-item active"><i class="fas fa-book-open"></i><span>Khóa học</span></a>
+      <a href="instructors.html" class="nav-item"><i class="fas fa-chalkboard-teacher"></i><span>Giảng viên</span></a>
+      <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a>
+      <span class="nav-group-label">Hệ thống</span>
+      <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../teacher/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang giảng viên</span></a>
+      <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+    </div>
+  </aside>
+
+  <header class="topnav">
+    <div>
+      <div class="topnav-title">Quản lý Khóa học</div>
+      <div class="topnav-subtitle">Duyệt, ẩn và quản lý toàn bộ khóa học trên hệ thống</div>
+    </div>
+    <div class="topnav-right">
+      <div style="position:relative">
+        <button class="icon-btn" id="notiBell"><i class="fas fa-bell"></i><span class="badge-dot" id="notiBadge" style="display:none">0</span></button>
+        <div class="noti-dropdown" id="notiDropdown">
+          <div class="noti-header-bar"><h4>Thông báo</h4><button class="noti-mark-btn" id="markAllRead">Đọc tất cả</button></div>
+          <div class="noti-list" id="notiList"><div class="noti-empty-msg">Chưa có thông báo</div></div>
+        </div>
+      </div>
+      <div class="dropdown">
+        <div class="user-pill" id="userPillBtn">
+          <div class="user-pill-avatar" id="topNavAvatar">A</div>
+          <span class="user-pill-name" id="topNavUserName">Admin</span>
+          <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+        </div>
+        <div class="dropdown-menu" id="userDropdown">
+          <div class="dropdown-item" onclick="location.href='../teacher/index.html'"><i class="fas fa-exchange-alt"></i>Trang giảng viên</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">📚 Quản lý Khóa học</div>
+        <div class="page-subtitle">Duyệt khóa học chờ phê duyệt và quản lý toàn bộ nội dung</div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-outline" onclick="loadCourses()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="fas fa-book-open"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statTotal">–</div><div class="stat-label">Tổng khóa học</div></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statPublished">–</div><div class="stat-label">Đã xuất bản</div></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statPending">–</div><div class="stat-label">Chờ duyệt</div></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon purple"><i class="fas fa-file-alt"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statDraft">–</div><div class="stat-label">Bản nháp</div></div>
+      </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="tabs" id="statusTabs">
+      <button class="tab-btn active" data-status="" onclick="switchTab(this,'')">Tất cả</button>
+      <button class="tab-btn" data-status="PENDING" onclick="switchTab(this,'PENDING')">⏳ Chờ duyệt</button>
+      <button class="tab-btn" data-status="PUBLISHED" onclick="switchTab(this,'PUBLISHED')">✅ Published</button>
+      <button class="tab-btn" data-status="DRAFT" onclick="switchTab(this,'DRAFT')">📝 Draft</button>
+      <button class="tab-btn" data-status="ARCHIVED" onclick="switchTab(this,'ARCHIVED')">🗄️ Archived</button>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Tìm tên khóa học, giảng viên...">
+      </div>
+      <select class="form-select" id="sortFilter" style="max-width:160px;padding:9px 14px">
+        <option value="newest">Mới nhất</option>
+        <option value="oldest">Cũ nhất</option>
+        <option value="title_asc">Tên A→Z</option>
+        <option value="price_desc">Giá cao nhất</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-list"></i> Danh sách khóa học <span class="badge badge-info" id="displayCount" style="font-size:12px"></span></div>
+        <div style="font-size:13px;color:var(--text-muted)" id="tableCount"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Khóa học</th>
+              <th>Giảng viên</th>
+              <th>Giá</th>
+              <th>Học viên</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="courseTableBody">
+            <tr><td colspan="8"><div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+              <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+              <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+              <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+            </div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px">
+        <div id="pageInfo" style="font-size:13px;color:var(--text-muted)"></div>
+        <div class="pagination" id="paginationWrap"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Course Detail Modal -->
+<div class="modal-overlay" id="courseDetailModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3><i class="fas fa-book-open"></i> Chi tiết khóa học</h3>
+      <button class="modal-close" onclick="closeModal('courseDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="courseDetailBody"></div>
+    <div class="modal-footer" id="courseDetailFooter">
+      <button class="btn btn-outline" onclick="closeModal('courseDetailModal')">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-times-circle"></i> Từ chối khóa học</h3>
+      <button class="modal-close" onclick="closeModal('rejectModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Lý do từ chối <span class="req">*</span></label>
+        <textarea class="form-textarea" id="rejectReason" rows="4" placeholder="Nêu rõ lý do từ chối khóa học này..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('rejectModal')">Huỷ</button>
+      <button class="btn btn-danger" onclick="confirmReject()"><i class="fas fa-times"></i> Xác nhận từ chối</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/common.js"></script>
+<script>
+const PAGE_SIZE = 15;
+let allCourses = [], filteredCourses = [], currentPage = 0;
+let activeStatus = '', rejectTargetId = null;
+
+const MOCK_COURSES = [
+  { id:'c1', title:'ReactJS từ cơ bản đến nâng cao', instructor:'Nguyễn Văn An', price:499000, enrollments:342, status:'PENDING', createdAt:'2026-04-28', thumbnail:null },
+  { id:'c2', title:'Spring Boot Microservices', instructor:'Trần Thị Bình', price:699000, enrollments:218, status:'PENDING', createdAt:'2026-04-29', thumbnail:null },
+  { id:'c3', title:'Python Machine Learning', instructor:'Lê Quốc Cường', price:599000, enrollments:501, status:'PUBLISHED', createdAt:'2026-04-01', thumbnail:null },
+  { id:'c4', title:'DevOps với Docker & Kubernetes', instructor:'Phạm Minh Đức', price:799000, enrollments:189, status:'PUBLISHED', createdAt:'2026-03-15', thumbnail:null },
+  { id:'c5', title:'Lập trình Java cơ bản', instructor:'Hoàng Thị Em', price:399000, enrollments:632, status:'PUBLISHED', createdAt:'2026-02-10', thumbnail:null },
+  { id:'c6', title:'Angular 17 Advanced', instructor:'Vũ Văn Phong', price:549000, enrollments:0, status:'DRAFT', createdAt:'2026-04-30', thumbnail:null },
+  { id:'c7', title:'Node.js & Express API', instructor:'Đỗ Thị Giang', price:449000, enrollments:87, status:'ARCHIVED', createdAt:'2026-01-20', thumbnail:null },
+  { id:'c8', title:'UI/UX Design Figma', instructor:'Ngô Đức Hùng', price:349000, enrollments:421, status:'PUBLISHED', createdAt:'2026-03-05', thumbnail:null },
+  { id:'c9', title:'SQL & Database Design', instructor:'Đinh Thị Lan', price:299000, enrollments:298, status:'PUBLISHED', createdAt:'2026-02-28', thumbnail:null },
+  { id:'c10', title:'Flutter Mobile App', instructor:'Trương Văn Minh', price:649000, enrollments:156, status:'PENDING', createdAt:'2026-04-27', thumbnail:null },
+];
+
+const STATUS_MAP = {
+  PUBLISHED: { cls:'badge-success', txt:'✅ Published' },
+  PENDING:   { cls:'badge-warning', txt:'⏳ Chờ duyệt' },
+  DRAFT:     { cls:'badge-muted',   txt:'📝 Nháp' },
+  ARCHIVED:  { cls:'badge-danger',  txt:'🗄️ Archived' },
+};
+
+const EMOJIS = { react:'⚛️', spring:'🌿', python:'🐍', devops:'🐳', docker:'🐋', java:'☕', angular:'🅰️', node:'🟢', sql:'🗄️', flutter:'📱', design:'🎨', ui:'🎨' };
+function getEmoji(title='') { const t=title.toLowerCase(); for(const[k,v] of Object.entries(EMOJIS)) if(t.includes(k)) return v; return '📚'; }
+
+async function loadCourses() {
+  showSkeleton();
+  try {
+    const r = await apiGet('/course/search?page=0&size=500');
+    allCourses = r?.result?.content || MOCK_COURSES;
+  } catch { allCourses = MOCK_COURSES; }
+  updateStats();
+  applyFilter();
+}
+
+function showSkeleton() {
+  document.getElementById('courseTableBody').innerHTML = `<tr><td colspan="8"><div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+    <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+    <div class="skeleton" style="height:56px;border-radius:var(--radius-sm)"></div>
+  </div></td></tr>`;
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allCourses.length;
+  document.getElementById('statPublished').textContent = allCourses.filter(c=>c.status==='PUBLISHED').length;
+  document.getElementById('statPending').textContent = allCourses.filter(c=>c.status==='PENDING').length;
+  document.getElementById('statDraft').textContent = allCourses.filter(c=>c.status==='DRAFT').length;
+}
+
+function switchTab(btn, status) {
+  document.querySelectorAll('#statusTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeStatus = status;
+  currentPage = 0;
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const sort = document.getElementById('sortFilter').value;
+  let list = [...allCourses];
+  if (activeStatus) list = list.filter(c=>c.status===activeStatus);
+  if (q) list = list.filter(c=>(c.title||'').toLowerCase().includes(q)||(c.instructor||'').toLowerCase().includes(q));
+  if (sort==='oldest') list.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+  else if (sort==='title_asc') list.sort((a,b)=>(a.title||'').localeCompare(b.title||''));
+  else if (sort==='price_desc') list.sort((a,b)=>(b.price||0)-(a.price||0));
+  else list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  filteredCourses = list;
+  currentPage = 0;
+  render();
+}
+
+function render() {
+  const start = currentPage * PAGE_SIZE;
+  const page = filteredCourses.slice(start, start+PAGE_SIZE);
+  const total = filteredCourses.length;
+  document.getElementById('displayCount').textContent = total;
+  document.getElementById('tableCount').textContent = total ? `${start+1}–${Math.min(start+page.length,total)} / ${total}` : '';
+  document.getElementById('pageInfo').textContent = total ? `Tổng ${total} khóa học` : '';
+
+  if (!page.length) {
+    document.getElementById('courseTableBody').innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📚</div><h3>Không có khóa học</h3><p>Thử thay đổi bộ lọc hoặc tab trạng thái</p></div></td></tr>`;
+    document.getElementById('paginationWrap').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('courseTableBody').innerHTML = page.map((c,i) => {
+    const s = STATUS_MAP[c.status] || { cls:'badge-muted', txt:c.status };
+    const emoji = getEmoji(c.title);
+    const approveBtn = c.status==='PENDING' ? `
+      <button class="tbl-action success" title="Duyệt" onclick="approveCourse('${c.id}')"><i class="fas fa-check"></i></button>
+      <button class="tbl-action danger" title="Từ chối" onclick="openReject('${c.id}')"><i class="fas fa-times"></i></button>` : '';
+    const archiveBtn = c.status==='PUBLISHED' ? `<button class="tbl-action" title="Ẩn khóa học" onclick="archiveCourse('${c.id}')"><i class="fas fa-eye-slash"></i></button>` : '';
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:12px">${start+i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:12px">
+        <div class="course-thumb-sm">${c.thumbnail?`<img src="${c.thumbnail}" alt="">`:`<span>${emoji}</span>`}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${formatDate(c.createdAt)}</div>
+        </div>
+      </div></td>
+      <td style="font-size:13px;font-weight:600">${c.instructor||'–'}</td>
+      <td style="font-size:13px;font-weight:700;color:var(--primary)">${formatMoney(c.price)}</td>
+      <td style="font-size:13px">${(c.enrollments||0).toLocaleString('vi-VN')}</td>
+      <td><span class="badge ${s.cls}">${s.txt}</span></td>
+      <td style="font-size:12px;color:var(--text-muted)">${formatDate(c.createdAt)}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="tbl-action" title="Chi tiết" onclick="viewCourse('${c.id}')"><i class="fas fa-eye"></i></button>
+        ${approveBtn}${archiveBtn}
+        <button class="tbl-action danger" title="Xóa" onclick="deleteCourse('${c.id}')"><i class="fas fa-trash"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  const totalPages = Math.ceil(total/PAGE_SIZE);
+  if (totalPages<=1) { document.getElementById('paginationWrap').innerHTML=''; return; }
+  let pHtml = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===0?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+  for (let p=0;p<totalPages;p++) {
+    if (p===0||p===totalPages-1||Math.abs(p-currentPage)<=1)
+      pHtml += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p+1}</button>`;
+    else if (Math.abs(p-currentPage)===2) pHtml += `<span style="padding:0 4px;color:var(--text-muted)">…</span>`;
+  }
+  pHtml += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages-1?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+  document.getElementById('paginationWrap').innerHTML = pHtml;
+}
+
+function goPage(p) { currentPage=p; render(); window.scrollTo(0,0); }
+
+function viewCourse(id) {
+  const c = allCourses.find(x=>x.id===id);
+  if (!c) return;
+  const s = STATUS_MAP[c.status] || { cls:'badge-muted', txt:c.status };
+  const emoji = getEmoji(c.title);
+  document.getElementById('courseDetailBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg-primary);border-radius:var(--radius-lg);margin-bottom:20px">
+      <div class="course-thumb-sm" style="width:80px;height:60px;font-size:28px">${emoji}</div>
+      <div>
+        <div style="font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:6px">${c.title}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge ${s.cls}">${s.txt}</span>
+          <span class="badge badge-info"><i class="fas fa-user"></i> ${c.instructor}</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label class="form-label">Giá khóa học</label><p style="font-size:16px;font-weight:700;color:var(--primary)">${formatMoney(c.price)}</p></div>
+      <div><label class="form-label">Số học viên</label><p style="font-size:16px;font-weight:700">${(c.enrollments||0).toLocaleString('vi-VN')}</p></div>
+      <div><label class="form-label">Ngày tạo</label><p>${formatDate(c.createdAt)}</p></div>
+    </div>`;
+  const footer = document.getElementById('courseDetailFooter');
+  const approveAction = c.status==='PENDING'
+    ? `<button class="btn btn-success" onclick="approveCourse('${c.id}');closeModal('courseDetailModal')"><i class="fas fa-check"></i> Duyệt</button>
+       <button class="btn btn-danger" onclick="closeModal('courseDetailModal');openReject('${c.id}')"><i class="fas fa-times"></i> Từ chối</button>` : '';
+  footer.innerHTML = `<button class="btn btn-outline" onclick="closeModal('courseDetailModal')">Đóng</button>${approveAction}`;
+  openModal('courseDetailModal');
+}
+
+async function approveCourse(id) {
+  try { await apiPut(`/admin/courses/${id}/approve`); } catch {}
+  const c = allCourses.find(x=>x.id===id);
+  if (c) c.status = 'PUBLISHED';
+  updateStats(); applyFilter();
+  showToast('Đã duyệt khóa học thành công!','success');
+}
+
+function openReject(id) { rejectTargetId=id; document.getElementById('rejectReason').value=''; openModal('rejectModal'); }
+async function confirmReject() {
+  const reason = document.getElementById('rejectReason').value.trim();
+  if (!reason) { showToast('Vui lòng nhập lý do từ chối!','error'); return; }
+  try { await apiPut(`/admin/courses/${rejectTargetId}/reject`, { reason }); } catch {}
+  const c = allCourses.find(x=>x.id===rejectTargetId);
+  if (c) c.status = 'ARCHIVED';
+  closeModal('rejectModal'); updateStats(); applyFilter();
+  showToast('Đã từ chối khóa học!','warning');
+}
+
+async function archiveCourse(id) {
+  if (!confirm('Ẩn khóa học này khỏi hệ thống?')) return;
+  try { await apiPatch(`/admin/courses/${id}`, { status:'ARCHIVED' }); } catch {}
+  const c = allCourses.find(x=>x.id===id);
+  if (c) c.status = 'ARCHIVED';
+  updateStats(); applyFilter();
+  showToast('Đã ẩn khóa học!','warning');
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Xóa vĩnh viễn khóa học này? Không thể hoàn tác!')) return;
+  try { await apiDelete(`/admin/courses/${id}`); } catch {}
+  allCourses = allCourses.filter(c=>c.id!==id);
+  updateStats(); applyFilter();
+  showToast('Đã xóa khóa học!','success');
+}
+
+document.getElementById('searchInput').addEventListener('input', debounce(applyFilter));
+document.getElementById('sortFilter').addEventListener('change', applyFilter);
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadCourses();
+  // Auto-switch tab if URL has ?status=
+  const params = new URLSearchParams(location.search);
+  const st = params.get('status');
+  if (st) {
+    const btn = document.querySelector(`[data-status="${st}"]`);
+    if (btn) switchTab(btn, st);
+  }
+});
+</script>
+</body>
+</html>

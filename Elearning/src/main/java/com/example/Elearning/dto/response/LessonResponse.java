@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class LessonResponse {
     String id;
+    String sectionId;  // ✅ THÊM FIELD NÀY
     String title;
     String contentType;
     String contentUrl;

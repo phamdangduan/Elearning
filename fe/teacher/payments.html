@@ -111,7 +111,6 @@
             <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
         </nav>
         <div class="sidebar-footer">
-            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
             <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
         </div>
     </aside>
@@ -272,7 +271,12 @@ async function loadPayments() {
         <div class="skeleton" style="height:140px;border-radius:var(--radius-lg)"></div>`;
 
     const data = await apiGet(`/instructor/payment-requests?userId=${TEACHER_ID}`);
-    allPayments = data?.result || [];
+    allPayments = (data?.result || []).map(p => {
+        if (p.status === 'PENDING') {
+            p.status = p.paymentProofUrl ? 'PROOF_UPLOADED' : 'PENDING_PROOF';
+        }
+        return p;
+    });
     updateStats();
     renderPayments();
 }
@@ -407,12 +411,9 @@ document.getElementById('doConfirmBtn')?.addEventListener('click', async () => {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
 
-    const res = await fetch(`${API_BASE}/instructor/payment-requests/${pendingActionId}/confirm?userId=${TEACHER_ID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ instructorNote: note || 'Đã xác nhận nhận tiền' })
+    const data = await apiPut(`/instructor/payment-requests/${pendingActionId}/confirm?userId=${TEACHER_ID}`, {
+        instructorNote: note || 'Đã xác nhận nhận tiền'
     });
-    const data = await res.json();
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận nhận tiền';
@@ -445,12 +446,9 @@ document.getElementById('doRejectBtn')?.addEventListener('click', async () => {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
 
-    const res = await fetch(`${API_BASE}/instructor/payment-requests/${pendingActionId}/reject?userId=${TEACHER_ID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason })
+    const data = await apiPut(`/instructor/payment-requests/${pendingActionId}/reject?userId=${TEACHER_ID}`, {
+        reason
     });
-    const data = await res.json();
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-times"></i> Từ chối';

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - EduVN Platform</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/common/auth.css">
+
+    <style>
+        /* Registration Specific Styling */
+        .name-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Custom Dropdown Styling */
+        select.premium-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%2364748b' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        select.premium-input option {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Password Strength Meter CSS */
+        .password-strength-container {
+            margin-top: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .strength-meter-bar {
+            height: 5px;
+            background-color: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .strength-meter-fill {
+            height: 100%;
+            width: 0;
+            background-color: var(--error);
+            border-radius: 10px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        }
+
+        .strength-meter-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Label and float adjustments for select and checkbox */
+        .premium-input-group label.floating-label {
+            pointer-events: none;
+        }
+
+        select.premium-input:focus ~ .floating-label,
+        select.premium-input:valid ~ .floating-label,
+        select.premium-input:not([value=""]) ~ .floating-label {
+            top: 0;
+            transform: translateY(-50%) scale(0.85);
+            background-color: #0b0f19;
+            color: var(--primary);
+            left: 14px;
+            font-weight: 600;
+        }
+
+        /* Responsive spacing tweaks */
+        @media (max-width: 968px) {
+            .name-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-page-wrapper">
+        
+        <!-- LEFT: HERO PANE -->
+        <div class="auth-hero-pane">
+            <div class="hero-glow-1"></div>
+            <div class="hero-glow-2"></div>
+            
+            <!-- Logo Brand -->
+            <a href="index.html" class="hero-brand">
+                <div class="hero-logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            
+            <!-- Value Proposition Content -->
+            <div class="hero-content">
+                <span class="hero-tag"><i class="fas fa-sparkles"></i> KIẾN TẠO TƯƠNG LAI SỐ</span>
+                <h1 class="hero-title">Bắt đầu hành trình tri thức mới cùng <span>EduVN</span></h1>
+                <p class="hero-desc">Đăng ký tài khoản ngay hôm nay để nhận được lộ trình học tập cá nhân hóa, kết nối trực tiếp với các chuyên gia và mở khóa hàng trăm khóa học miễn phí.</p>
+                
+                <!-- Glassmorphism Stats Card -->
+                <div class="hero-stats-card">
+                    <div class="stat-item">
+                        <div class="stat-val">100K+</div>
+                        <div class="stat-lbl">Học viên</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val">300+</div>
+                        <div class="stat-lbl">Khóa học</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val">95%</div>
+                        <div class="stat-lbl">Hoàn thành</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-footer">
+                <span>© 2026 EduVN. Empowering Vietnamese Excellence.</span>
+            </div>
+        </div>
+        
+        <!-- RIGHT: FORM PANE -->
+        <div class="auth-form-pane">
+            <div class="auth-card-container" style="max-width: 480px;">
+                
+                <!-- Header -->
+                <div class="form-header">
+                    <h2>Đăng ký tài khoản</h2>
+                    <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+                </div>
+                
+                <!-- Register Form -->
+                <form id="registerForm" novalidate>
+                    
+                    <!-- Row 1: Họ & Tên -->
+                    <div class="name-grid">
+                        <!-- Họ -->
+                        <div class="premium-input-group">
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="firstName" 
+                                    class="premium-input" 
+                                    placeholder=" "
+                                    required
+                                >
+                                <i class="far fa-user input-icon"></i>
+                                <label class="floating-label" for="firstName">Họ</label>
+                            </div>
+                            <div class="error-text" id="firstNameError">Vui lòng nhập họ của bạn.</div>
+                        </div>
+                        
+                        <!-- Tên -->
+                        <div class="premium-input-group">
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="lastName" 
+                                    class="premium-input" 
+                                    placeholder=" "
+                                    required
+                                >
+                                <i class="far fa-user input-icon"></i>
+                                <label class="floating-label" for="lastName">Tên</label>
+                            </div>
+                            <div class="error-text" id="lastNameError">Vui lòng nhập tên của bạn.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Input -->
+                    <div class="premium-input-group">
+                        <div class="input-wrapper">
+                            <input 
+                                type="email" 
+                                id="regEmail" 
+                                class="premium-input" 
+                                placeholder=" "
+                                required
+                            >
+                            <i class="far fa-envelope input-icon"></i>
+                            <label class="floating-label" for="regEmail">Địa chỉ Email</label>
+                        </div>
+                        <div class="error-text" id="regEmailError">Vui lòng nhập địa chỉ email hợp lệ.</div>
+                    </div>
+                    
+                    <!-- Phone Input -->
+                    <div class="premium-input-group">
+                        <div class="input-wrapper">
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                class="premium-input" 
+                                placeholder=" "
+                                required
+                            >
+                            <i class="far fa-phone input-icon" style="font-family: 'Font Awesome 6 Free'; font-weight: 900;"></i>
+                            <label class="floating-label" for="phone">Số điện thoại</label>
+                        </div>
+                        <div class="error-text" id="phoneError">Vui lòng nhập số điện thoại hợp lệ.</div>
+                    </div>
+                    
+                    <!-- Role Dropdown -->
+                    <div class="premium-input-group">
+                        <div class="input-wrapper">
+                            <select id="role" class="premium-input" required>
+                                <option value="" disabled selected hidden></option>
+                                <option value="STUDENT">Sinh viên / Học viên</option>
+                                <option value="TEACHER">Giảng viên / Giáo viên</option>
+                            </select>
+                            <i class="far fa-user-graduate input-icon" style="font-family: 'Font Awesome 6 Free'; font-weight: 900;"></i>
+                            <label class="floating-label" for="role">Vai trò của bạn</label>
+                        </div>
+                        <div class="error-text" id="roleError">Vui lòng chọn vai trò phù hợp.</div>
+                    </div>
+                    
+                    <!-- Password Input -->
+                    <div class="premium-input-group">
+                        <div class="input-wrapper">
+                            <input 
+                                type="password" 
+                                id="regPassword" 
+                                class="premium-input" 
+                                placeholder=" "
+                                required
+                                minlength="6"
+                            >
+                            <i class="far fa-lock input-icon" style="font-family: 'Font Awesome 6 Free'; font-weight: 900;"></i>
+                            <label class="floating-label" for="regPassword">Mật khẩu (tối thiểu 6 ký tự)</label>
+                            <button type="button" class="pwd-toggle-btn" id="togglePassword" aria-label="Ẩn/Hiện mật khẩu">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-text" id="regPasswordError">Mật khẩu phải chứa ít nhất 6 ký tự.</div>
+                        
+                        <!-- Password Strength Indicator -->
+                        <div class="password-strength-container" id="strengthContainer">
+                            <div class="strength-meter-bar">
+                                <div class="strength-meter-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-meter-text" id="strengthText">
+                                <i class="fas fa-circle-info"></i> Nhập mật khẩu
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password Input -->
+                    <div class="premium-input-group">
+                        <div class="input-wrapper">
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                class="premium-input" 
+                                placeholder=" "
+                                required
+                            >
+                            <i class="far fa-lock input-icon" style="font-family: 'Font Awesome 6 Free'; font-weight: 900;"></i>
+                            <label class="floating-label" for="confirmPassword">Xác nhận mật khẩu</label>
+                            <button type="button" class="pwd-toggle-btn" id="toggleConfirmPassword" aria-label="Ẩn/Hiện mật khẩu">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-text" id="confirmPasswordError">Mật khẩu nhập lại không khớp.</div>
+                    </div>
+                    
+                    <!-- Terms and Conditions Checkbox -->
+                    <div class="form-options-row" style="margin-bottom: 24px;">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="terms" required>
+                            <div class="checkbox-box">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span style="font-size: 13.5px; line-height: 1.4;">Tôi đồng ý với <a href="#" class="forgot-link" onclick="event.preventDefault(); alert('Điều khoản sử dụng!')">Điều khoản sử dụng</a> và <a href="#" class="forgot-link" onclick="event.preventDefault(); alert('Chính sách bảo mật!')">Chính sách bảo mật</a></span>
+                        </label>
+                    </div>
+                    <div class="error-text" id="termsError" style="margin-top: -16px; margin-bottom: 20px;">Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.</div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-premium-submit">
+                        <span>Đăng ký ngay</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Divider -->
+                    <div class="premium-divider">
+                        <span>Hoặc đăng ký bằng</span>
+                    </div>
+                    
+                    <!-- Google Signup Button -->
+                    <button type="button" class="btn-premium-social" id="googleSignupBtn">
+                        <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                        </svg>
+                        <span>Google Workspace</span>
+                    </button>
+                    
+                </form>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- LOADING/SUCCESS OVERLAY -->
+    <div class="auth-loading-overlay" id="loadingOverlay">
+        <!-- Loader animation (visible during signup processing) -->
+        <div id="loaderArea" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="auth-loader-circle">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="auth-loading-text" id="loadingText">Đang khởi tạo tài khoản...</div>
+        </div>
+        
+        <!-- Success Checkmark animation (visible on registration success) -->
+        <div id="successArea" style="display: none; flex-direction: column; align-items: center;">
+            <div class="success-checkmark">
+                <div class="check-icon">
+                    <span class="icon-line line-tip"></span>
+                    <span class="icon-line line-long"></span>
+                    <div class="icon-circle"></div>
+                    <div class="icon-fix"></div>
+                </div>
+            </div>
+            <div class="auth-loading-text" style="color: #4caf50; margin-top: 24px;">Đăng ký tài khoản thành công!</div>
+        </div>
+    </div>
+
+    <!-- Auth Script -->
+    <script src="js/auth.js"></script>
+</body>
+</html>

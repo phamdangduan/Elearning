@@ -7,7 +7,9 @@ import com.example.Elearning.entity.User;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.mapper.ProfileMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.Elearning.repository.ProfileRepository;
+import com.example.Elearning.repository.UserRepository;
 import com.example.Elearning.service.FileStorageService;
 import com.example.Elearning.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,10 @@ import java.util.stream.Collectors;
 public class ProfileServiceImpl implements ProfileService {
 
     ProfileRepository profileRepository;
+    UserRepository userRepository;
     ProfileMapper profileMapper;
     FileStorageService fileStorageService;
+    PasswordEncoder passwordEncoder;
 
     @Override
     public ProfileResponse getMyProfile(String userId) {
@@ -43,6 +47,25 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileResponse updateProfile(ProfileUpdateRequest request, String userId) {
         var profile = profileRepository.findByUserId(userId);
+        if (profile == null) {
+            throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
+        }
+
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty() 
+                && !request.getEmail().trim().equalsIgnoreCase(user.getEmail())) {
+            String newEmail = request.getEmail().trim();
+            // Check if email already exists for another user
+            var existingUser = userRepository.findByEmail(newEmail);
+            if (existingUser.isPresent()) {
+                throw new AppException(ErrorCode.EMAIL_EXISTED);
+            }
+            user.setEmail(newEmail);
+            userRepository.save(user);
+        }
+
         profileMapper.update(profile, request);
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
@@ -119,15 +142,27 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public void deleteUser(String userId) {
-        var profile = profileRepository.findByUserId(userId);
-        if (profile == null) {
-            throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
-        }
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         
-        // Xóa profile (cascade sẽ xóa user và tất cả courses, enrollments, reviews...)
-        profileRepository.delete(profile);
+        // Xóa user (cascade sẽ xóa profile và tất cả courses, enrollments, reviews...)
+        userRepository.delete(user);
         
         log.info("Deleted user and all related data: {}", userId);
+    }
+
+    @Override
+    public void changePassword(String userId, String oldPassword, String newPassword) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new AppException(ErrorCode.PASSWORD_INVALID);
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Successfully changed password for user: {}", userId);
     }
 
 }

@@ -43,3 +43,14 @@ jwt:
     expiryDay: 14
     accessKey: bidu-access-secret-123456
     refreshKey: bidu-refresh-secret-654321
+  secret: your-secret-key-must-be-at-least-256-bits-long-for-HS256-algorithm-security-purpose-only-production-use
+  expiration: 86400000
+  refresh:
+    expiration: 604800000
+
+# ===== LOGGING =====
+logging:
+  level:
+    com.example.Elearning.security: INFO
+    com.example.Elearning.service.AuthService: INFO
+    org.springframework.security: DEBUG

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh mục khóa học - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing CSS -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <style>
+        .category-page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .category-page-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+        .category-page-desc {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .cat-page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+        .cat-page-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .cat-page-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.1);
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+        .cat-page-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: var(--primary);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cat-page-card:hover .cat-page-icon {
+            background: var(--primary-gradient);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+        }
+        .cat-page-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        .cat-page-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body style="background: #f8fafc;">
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link">Giảng viên</a>
+                <a href="categories.html" class="nav-link" style="color: var(--primary); font-weight: 700;">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding-top: 140px; padding-bottom: 60px; min-height: calc(100vh - 80px);">
+        <div class="category-page-header">
+            <h1 class="category-page-title">Khám phá theo danh mục</h1>
+            <p class="category-page-desc">Lựa chọn lĩnh vực bạn đam mê và bắt đầu học hỏi từ các chuyên gia. Hàng ngàn khóa học chất lượng đang chờ đón bạn.</p>
+        </div>
+
+        <div class="cat-page-grid" id="categoryPageGrid">
+            <!-- Sẽ được load từ JS -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">Đang tải danh mục...</div>
+        </div>
+    </main>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                <p>Đăng ký ngay hôm nay để nhận được những ưu đãi độc quyền và lộ trình học tập được cá nhân hóa cho riêng bạn.</p>
+                <div class="cta-actions">
+                    <a href="../register.html" class="btn" style="background: white; color: var(--primary);">Bắt đầu ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="../index.html" class="nav-brand" style="margin-bottom: 20px; display: flex;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="../about.html">Giới thiệu</a></li>
+                        <li><a href="instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin!'); this.reset();">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../login.html';
+        });
+
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const guest = document.getElementById('navGuestActions');
+        const logged = document.getElementById('navLoggedIn');
+        if (token) {
+            if (guest) guest.style.display = 'none';
+            if (logged) logged.style.display = 'flex';
+            let dispName = localStorage.getItem('userName') || 'Sinh viên';
+            let avatarUrl = localStorage.getItem('userAvatar') || '';
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const data = JSON.parse(userStr);
+                    dispName = data.fullName || data.username || dispName;
+                    avatarUrl = data.avatar || data.avatarUrl || avatarUrl;
+                } catch(e) {}
+            }
+            const nameEl = document.getElementById('userNameDisplay') || document.getElementById('landingUserName');
+            if(nameEl) nameEl.textContent = dispName;
+            const avatarEl = document.getElementById('navUserAvatar');
+            if(avatarEl) {
+                if (avatarUrl) {
+                    avatarEl.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                } else {
+                    avatarEl.textContent = dispName.charAt(0).toUpperCase();
+                }
+            }
+
+            // Intercept "Khóa học" links to redirect to my-courses.html
+            const courseLinks = document.querySelectorAll('a.nav-link[href*="catalog.html"]');
+            courseLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isStudentDir = window.location.pathname.includes('/student/');
+                    window.location.href = isStudentDir ? 'my-courses.html' : 'student/my-courses.html';
+                });
+            });
+
+        } else {
+            if (guest) guest.style.display = 'flex';
+            if (logged) logged.style.display = 'none';
+        }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+    </script>
+    <script src="../js/student/categories-page.js"></script>
+</body>
+</html>

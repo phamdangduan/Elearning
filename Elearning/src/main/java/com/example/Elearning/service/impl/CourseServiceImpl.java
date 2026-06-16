@@ -6,7 +6,9 @@ import com.example.Elearning.dto.request.CreatedCourseRequest;
 import com.example.Elearning.dto.request.UpdateCourseRequest;
 import com.example.Elearning.dto.request.UploadThumbnailRequest;
 import com.example.Elearning.dto.response.*;
+import com.example.Elearning.entity.Category;
 import com.example.Elearning.entity.Course;
+import com.example.Elearning.repository.CategoryRepository;
 import com.example.Elearning.enums.CourseStatus;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
@@ -39,6 +41,7 @@ public class CourseServiceImpl implements CourseService {
     ReviewRepository reviewRepository;
     CourseMapper courseMapper;
     com.example.Elearning.repository.UserRepository userRepository;
+    CategoryRepository categoryRepository;
 
     @Override
     public PageResponse<CourseResponse> getCourseWithStatusByUserId(String userId, Pageable pageable) {
@@ -206,6 +209,10 @@ public class CourseServiceImpl implements CourseService {
                 createdCourseRequest.getThumbnailUrl());
         
         var course = courseMapper.toEntity(createdCourseRequest);
+        if (createdCourseRequest.getCategoryIds() != null && !createdCourseRequest.getCategoryIds().isEmpty()) {
+            List<Category> categories = categoryRepository.findAllById(createdCourseRequest.getCategoryIds());
+            course.setCategories(categories);
+        }
         
         // Fetch user from database to ensure it exists and is managed by Hibernate
         com.example.Elearning.entity.User user = userRepository.findById(userId)
@@ -261,6 +268,10 @@ public class CourseServiceImpl implements CourseService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         courseMapper.updateEntity(course, request);
+        if (request.getCategoryIds() != null) {
+            List<Category> categories = categoryRepository.findAllById(request.getCategoryIds());
+            course.setCategories(categories);
+        }
         course.setUpdatedAt(LocalDateTime.now());
         return courseMapper.toResponse(courseRepository.save(course));
     }

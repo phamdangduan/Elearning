@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biên soạn Khóa học - Giảng viên</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/teacher/teacher-dashboard.css">
+</head>
+<body>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="teacher-sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN Pro</span>
+            </a>
+        </div>
+        <ul class="sidebar-menu-list">
+            <li>
+                <a href="index.html" class="menu-item-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tổng quan</span>
+                </a>
+            </li>
+            <li>
+                <a href="courses.html" class="menu-item-link active">
+                    <i class="fas fa-book"></i>
+                    <span>Khóa học</span>
+                </a>
+            </li>
+            <li>
+                <a href="payments.html" class="menu-item-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Duyệt học phí</span>
+                </a>
+            </li>
+            <li>
+                <a href="bank-accounts.html" class="menu-item-link">
+                    <i class="fas fa-university"></i>
+                    <span>Tài khoản ngân hàng</span>
+                </a>
+            </li>
+            <li>
+                <a href="profile.html" class="menu-item-link">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Trang cá nhân</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="menu-item-link" id="btnLogout" style="color: #f87171; padding: 12px 16px;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <main class="teacher-main">
+        
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-title" style="display:flex; align-items:center; gap:16px;">
+                <button class="action-icon-btn edit" onclick="location.href='courses.html'" style="margin: 0; padding: 8px 12px;" title="Quay lại"><i class="fas fa-arrow-left"></i></button>
+                <div>
+                    <h1 id="courseTitleHeader">Đang tải khóa học...</h1>
+                    <p>Biên soạn chương trình bài giảng, thiết lập giá bán và xuất bản khóa học.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <span id="courseStatusBadge" class="badge draft">Draft</span>
+                <button class="btn btn-outline" id="btnPublishCourse" style="padding: 10px 20px; font-weight:700;"><i class="fas fa-globe" style="margin-right:6px;"></i> Xuất bản</button>
+            </div>
+        </header>
+
+        <!-- Alert Notification -->
+        <div id="alertBanner" class="alert-banner"></div>
+
+        <div class="editor-layout">
+            
+            <!-- Left Column: Course General Settings Form -->
+            <div class="profile-card">
+                <h3 class="panel-title" style="font-size:16px; margin-bottom: 20px;">Thiết lập chung</h3>
+                <form id="courseSettingsForm">
+                    <!-- Thumbnail -->
+                    <div class="form-group">
+                        <label>Ảnh bìa khóa học (Thumbnail)</label>
+                        <div class="thumbnail-preview-container" id="thumbnailContainer">
+                            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='100%25' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='360' fill='url(%23g)'/%3E%3Cpath d='M300 130c-16.5 0-30 13.5-30 30s13.5 30 30 30 30-13.5 30-30-13.5-30-30-30zm0 48c-9.9 0-18-8.1-18-18s8.1-18 18-18 18 8.1 18 18-8.1 18-18 18z' fill='white' fill-opacity='0.85'/%3E%3Cpath d='M336 112h-18.3l-8.5-11.4c-1.9-2.5-4.8-4-8-4H298.8c-3.2 0-6.1 1.5-8 4l-8.5 11.4H264c-8.8 0-16 7.2-16 16v64c0 8.8 7.2 16 16 16h72c8.8 0 16-7.2 16-16v-64c0-8.8-7.2-16-16-16zm4 80c0 2.2-1.8 4-4 4H264c-2.2 0-4-1.8-4-4v-64c0-2.2 1.8-4 4-4h22.2c3.2 0 6.1-1.5 8-4l8.5-11.4c.6-.8 1.6-1.2 2.6-1.2h21.4c1 0 2 .4 2.6 1.2l8.5 11.4c1.9 2.5 4.8 4 8 4H336c2.2 0 4 1.8 4 4v64z' fill='white' fill-opacity='0.85'/%3E%3Ctext x='300' y='242' fill='white' fill-opacity='0.85' font-family='sans-serif' font-size='16' font-weight='600' text-anchor='middle'%3EEduVN Nền Tảng Giảng Viên%3C/text%3E%3C/svg%3E" class="thumbnail-preview" id="courseThumbnail" alt="Thumbnail" onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'360\' viewBox=\'0 0 600 360\'%3E%3Cdefs%3E%3ClinearGradient id=\'g\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'%3E%3Cstop offset=\'0%25\' stop-color=\'%238b5cf6\'/%3E%3Cstop offset=\'100%25\' stop-color=\'%236366f1\'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=\'600\' height=\'360\' fill=\'url(%23g)\'/%3E%3Cpath d=\'M300 130c-16.5 0-30 13.5-30 30s13.5 30 30 30 30-13.5 30-30-13.5-30-30-30zm0 48c-9.9 0-18-8.1-18-18s8.1-18 18-18 18 8.1 18 18-8.1 18-18 18z\' fill=\'white\' fill-opacity=\'0.85\'/%3E%3Cpath d=\'M336 112h-18.3l-8.5-11.4c-1.9-2.5-4.8-4-8-4H298.8c-3.2 0-6.1 1.5-8 4l-8.5 11.4H264c-8.8 0-16 7.2-16 16v64c0 8.8 7.2 16 16 16h72c8.8 0 16-7.2 16-16v-64c0-8.8-7.2-16-16-16zm4 80c0 2.2-1.8 4-4 4H264c-2.2 0-4-1.8-4-4v-64c0-2.2 1.8-4 4-4h22.2c3.2 0 6.1-1.5 8-4l8.5-11.4c.6-.8 1.6-1.2 2.6-1.2h21.4c1 0 2 .4 2.6 1.2l8.5 11.4c1.9 2.5 4.8 4 8 4H336c2.2 0 4 1.8 4 4v64z\' fill=\'white\' fill-opacity=\'0.85\'/%3E%3Ctext x=\'300\' y=\'242\' fill=\'white\' fill-opacity=\'0.85\' font-family=\'sans-serif\' font-size=\'16\' font-weight=\'600\' text-anchor=\'middle\'%3EEduVN Nền Tảng Giảng Viên%3C/text%3E%3C/svg%3E';">
+                            <div class="thumbnail-overlay">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:24px;"></i>
+                                <span>Tải ảnh lên</span>
+                            </div>
+                        </div>
+                        <input type="file" id="thumbnailFileInput" accept="image/*" style="display:none;">
+                    </div>
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="titleInput">Tiêu đề khóa học</label>
+                        <input type="text" id="titleInput" class="form-input" required minlength="3" maxlength="100">
+                    </div>
+
+                    <!-- Price -->
+                    <div class="form-group">
+                        <label for="priceInput">Giá bán (đ)</label>
+                        <input type="number" id="priceInput" class="form-input" required min="0">
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="categorySelect">Danh mục</label>
+                        <select id="categorySelect" class="form-input" required>
+                            <option value="">Chọn danh mục</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="descInput">Mô tả chi tiết</label>
+                        <textarea id="descInput" class="form-input" rows="5" required placeholder="Nhập giới thiệu chi tiết về khóa học..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnSaveSettings" style="width: 100%; padding: 12px;"><i class="fas fa-save" style="margin-right: 6px;"></i> Lưu thiết lập chung</button>
+                </form>
+            </div>
+
+            <!-- Right Column: Curriculum builder -->
+            <div>
+                <div class="panel-card">
+                    <div class="panel-header-flex">
+                        <h2 class="panel-title">Chương trình học tập (Curriculum)</h2>
+                        <button class="btn btn-outline" id="btnOpenSectionModal" style="padding: 8px 16px; font-size:13px; font-weight:700;"><i class="fas fa-plus"></i> Thêm chương mới</button>
+                    </div>
+                    
+                    <div id="syllabusContainer">
+                        <!-- Sections will render here -->
+                        <div style="text-align:center; padding: 40px 0; color:var(--text-muted);">
+                            Chưa có chương học nào được tạo. Hãy bấm "Thêm chương mới" để bắt đầu xây dựng bài giảng!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ══ SECTION MODAL ══ -->
+    <div class="modal-overlay" id="sectionModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 id="sectionModalTitle">Thêm chương học mới</h3>
+                <button class="modal-close-btn" id="btnCloseSectionModal">&times;</button>
+            </div>
+            <form id="sectionForm">
+                <input type="hidden" id="editSectionId">
+                <div class="form-group">
+                    <label for="sectionTitleInput">Tên chương học</label>
+                    <input type="text" id="sectionTitleInput" class="form-input" placeholder="Ví dụ: Chương 1: Giới thiệu cơ bản" required minlength="3" maxlength="100">
+                </div>
+                <div class="form-actions" style="border-top:none; padding-top:0;">
+                    <button type="button" class="btn btn-outline" id="btnCancelSection">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitSection">Lưu chương học</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══ LESSON MODAL ══ -->
+    <div class="modal-overlay" id="lessonModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Thêm bài giảng mới</h3>
+                <button class="modal-close-btn" id="btnCloseLessonModal">&times;</button>
+            </div>
+            <form id="lessonForm">
+                <input type="hidden" id="lessonSectionId">
+                <div class="form-group">
+                    <label for="lessonTitleInput">Tiêu đề bài học</label>
+                    <input type="text" id="lessonTitleInput" class="form-input" placeholder="Ví dụ: 1.1 Cài đặt môi trường JDK" required minlength="3" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>Video bài giảng</label>
+                    
+                    <!-- File upload wrapper -->
+                    <div style="display:flex; gap:12px; margin-bottom: 8px;">
+                        <button type="button" class="btn btn-outline" id="btnTriggerVideoUpload" style="padding: 8px 12px; font-size:12.5px;"><i class="fas fa-file-video" style="margin-right:6px;"></i> Tải video lên</button>
+                        <input type="file" id="videoFileInput" accept="video/*" style="display:none;">
+                        <span style="font-size:12px; color:var(--text-muted); align-self:center;">Định dạng MP4/MOV, tối đa 50MB</span>
+                    </div>
+
+                    <!-- Video Upload Loader Progress -->
+                    <div class="progress-bar-container" id="videoProgressContainer">
+                        <div class="progress-bar-fill" id="videoProgressBarFill"></div>
+                        <span id="videoProgressText" style="font-size:11px; color:var(--primary); font-weight:600; margin-top:4px; display:block;">Đang tải lên: 0%</span>
+                    </div>
+
+                    <label for="lessonUrlInput" style="font-size: 12px; font-weight:500; margin-top: 10px;">Hoặc dán URL video (Youtube/Cloudinary)</label>
+                    <input type="text" id="lessonUrlInput" class="form-input" placeholder="https://res.cloudinary.com/..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lessonDurationInput">Thời lượng bài học (giây)</label>
+                    <input type="number" id="lessonDurationInput" class="form-input" placeholder="Ví dụ: 600 (cho 10 phút)" required min="5">
+                </div>
+                
+                <div class="form-actions" style="border-top:none; padding-top:0;">
+                    <button type="button" class="btn btn-outline" id="btnCancelLesson">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitLesson">Lưu bài giảng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══ SCRIPTS ══ -->
+    <script src="js/course-editor.js"></script>
+</body>
+</html>

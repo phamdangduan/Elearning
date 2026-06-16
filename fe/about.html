@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về chúng tôi - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/common/landing.css">
+    <link rel="stylesheet" href="css/common/about.css">
+</head>
+<body>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="catalog.html" class="nav-link">Khóa học</a>
+                <a href="student/instructors.html" class="nav-link">Giảng viên</a>
+                <a href="student/categories.html" class="nav-link">Danh mục</a>
+                <a href="about.html" class="nav-link" style="color: var(--primary); font-weight: 700;">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions">
+                    <a href="login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" hidden onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="landingUserName">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="student/profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="student/settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="student/payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="landingLogoutBtn" style="color: #ef4444;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- ══ ABOUT HERO ══ -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="about-hero-container">
+                <div class="about-hero-content">
+                    <span class="about-badge">Khát vọng vươn xa</span>
+                    <h1>Nâng tầm trí tuệ <span>người Việt</span> qua giáo dục số</h1>
+                    <p>EduVN ra đời với sứ mệnh xóa bỏ rào cản học tập, mang đến những khóa học chất lượng cao từ các chuyên gia hàng đầu cho mọi người dân Việt Nam.</p>
+                    <div class="about-hero-actions">
+                        <a href="register.html" class="btn btn-primary">Bắt đầu ngay</a>
+                        <a href="catalog.html" class="btn btn-outline-primary">Xem khóa học</a>
+                    </div>
+                </div>
+                <div class="about-hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80" alt="Đội ngũ EduVN" class="about-hero-image">
+                    <div class="about-floating-badge">
+                        <div class="about-floating-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="about-floating-text">
+                            <h4>500+</h4>
+                            <p>Khóa học chuyên sâu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STATS BAR ══ -->
+    <div class="container">
+        <div class="stats-bar-wrapper">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>1M+</h3>
+                    <p>Học viên tin dùng</p>
+                </div>
+                <div class="stat-box">
+                    <h3>200+</h3>
+                    <p>Chuyên gia hàng đầu</p>
+                </div>
+                <div class="stat-box">
+                    <h3>95%</h3>
+                    <p>Học viên hài lòng</p>
+                </div>
+                <div class="stat-box">
+                    <h3>50+</h3>
+                    <p>Đối tác doanh nghiệp</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MISSION & VISION ══ -->
+    <section class="mission-vision-section">
+        <div class="container">
+            <div class="mv-container">
+                <div class="mv-boxes">
+                    <div class="mv-box">
+                        <h3><i class="fas fa-bullseye"></i> Sứ mệnh</h3>
+                        <p>Mang tri thức thực tế và rèn luyện kỹ năng cho người học, không phân biệt khoảng cách địa lý hay điều kiện kinh tế. Chúng tôi tin rằng giáo dục là chìa khóa mở ra tương lai thịnh vượng cho Việt Nam.</p>
+                    </div>
+                    <div class="mv-box">
+                        <h3><i class="fas fa-eye"></i> Tầm nhìn</h3>
+                        <p>Trở thành nền tảng giáo dục trực tuyến số 1 Đông Nam Á, nơi hội tụ tinh hoa tri thức và công nghệ học tập thông minh nhất.</p>
+                    </div>
+                </div>
+                <div class="mv-text">
+                    <h2>Tại sao EduVN tồn tại?</h2>
+                    <p>Trong kỷ nguyên số, việc cập nhật kỹ năng là điều bắt buộc. Tuy nhiên, nhiều người vẫn gặp khó khăn trong việc tiếp cận các nguồn học liệu chất lượng. EduVN ra đời để giải quyết bài toán đó bằng một nền tảng học cụ và những khóa học chuẩn tế.</p>
+                    <div class="mv-quote">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80" alt="CEO" class="mv-quote-avatar">
+                        <div class="mv-quote-content">
+                            <p>"Giáo dục không phải là lấp đầy một cái thùng rỗng, mà là thắp lên một ngọn lửa."</p>
+                            <span>- Nguyễn Anh Tuấn, Founder EduVN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ CORE VALUES ══ -->
+    <section class="core-values-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Giá trị cốt lõi</h2>
+                <p class="section-desc">Nền tảng của sự phát triển bền vững và niềm tin của cộng đồng học viên</p>
+            </div>
+            <div class="core-values-grid">
+                <div class="cv-card">
+                    <div class="cv-icon"><i class="fas fa-gem"></i></div>
+                    <h4>Chất lượng</h4>
+                    <p>Nội dung được kiểm duyệt khắt khe bởi các chuyên gia.</p>
+                </div>
+                <div class="cv-card">
+                    <div class="cv-icon"><i class="fas fa-lightbulb"></i></div>
+                    <h4>Đổi mới</h4>
+                    <p>Ứng dụng công nghệ và phương pháp học tập tương tác hiện đại.</p>
+                </div>
+                <div class="cv-card">
+                    <div class="cv-icon"><i class="fas fa-users"></i></div>
+                    <h4>Cộng đồng</h4>
+                    <p>Hỗ trợ lẫn nhau và cùng nhau phát triển vượt bậc.</p>
+                </div>
+                <div class="cv-card">
+                    <div class="cv-icon"><i class="fas fa-heart"></i></div>
+                    <h4>Tận tâm</h4>
+                    <p>Luôn đặt học viên làm trung tâm trong mọi quyết định.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ OUR STORY ══ -->
+    <section class="story-section">
+        <div class="container">
+            <div class="story-container">
+                <div class="story-left">
+                    <h2>Câu chuyện của chúng tôi</h2>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="timeline-date">2020</h4>
+                            <p class="timeline-desc">Bắt đầu từ một dự án nhỏ với mong muốn cung cấp khóa học kỹ năng số cho sinh viên trong mùa dịch.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="timeline-date">2022</h4>
+                            <p class="timeline-desc">EduVN chính thức ra mắt phiên bản v2 với hơn 100 chuyên gia cộng tác và đạt mốc 100k học viên.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="timeline-date">2024</h4>
+                            <p class="timeline-desc">Trở thành một trong những nền tảng EdTech hàng đầu Việt Nam, mở rộng sang đào tạo doanh nghiệp và quốc tế.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-images">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="Team 1" class="story-img-main">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=300&q=80" alt="Team 2" class="story-img-sub">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=300&q=80" alt="Team 3" class="story-img-sub">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ LEADERSHIP ══ -->
+    <section class="leadership-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Đội ngũ lãnh đạo</h2>
+                <p class="section-desc">Những người đứng sau sự thành công và tầm nhìn của EduVN</p>
+            </div>
+            <div class="leadership-grid">
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80" alt="Lê Anh Tuấn" class="leader-img">
+                    <div class="leader-info">
+                        <h4>Lê Anh Tuấn</h4>
+                        <span class="leader-title">CEO & Founder</span>
+                        <p>Cựu chuyên gia công nghệ Google với hơn 10 năm kinh nghiệm trong lĩnh vực EdTech.</p>
+                    </div>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" alt="Nguyễn Mai Chi" class="leader-img">
+                    <div class="leader-info">
+                        <h4>Nguyễn Mai Chi</h4>
+                        <span class="leader-title">Giám đốc Vận hành</span>
+                        <p>Tiến sĩ giáo dục đại học với chuyên môn về xây dựng chương trình giảng dạy chất lượng cao.</p>
+                    </div>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80" alt="Trần Hoàng Nam" class="leader-img">
+                    <div class="leader-info">
+                        <h4>Trần Hoàng Nam</h4>
+                        <span class="leader-title">Giám đốc Công nghệ</span>
+                        <p>Kiến trúc sư hệ thống với đam mê xây dựng các giải pháp tối ưu học tập cá nhân hóa.</p>
+                    </div>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80" alt="Phạm Tuyết Nhung" class="leader-img">
+                    <div class="leader-info">
+                        <h4>Phạm Tuyết Nhung</h4>
+                        <span class="leader-title">Giám đốc Phát triển</span>
+                        <p>Chuyên gia mở rộng thị trường và quản lý mạng lưới đối tác doanh nghiệp, giáo dục.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section" style="margin: 0 20px 60px; border-radius: var(--radius-xl);">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để kiến tạo tương lai của bạn?</h2>
+                <p>Gia nhập cộng đồng 1 triệu học viên tại EduVN ngay hôm nay và nhận ưu đãi 50% cho khóa học đầu tiên của bạn.</p>
+                <div class="cta-actions">
+                    <a href="register.html" class="btn" style="background: white; color: var(--primary);">Đăng ký học ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-brand" style="margin-bottom: 20px; display: flex;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                        <li><a href="student/instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        // ── Auth Handling ──
+        function applyLandingNavAuth() {
+            const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+            const uid = localStorage.getItem('userId');
+            const guest = document.getElementById('navGuestActions');
+            const logged = document.getElementById('navLoggedIn');
+            const nameEl = document.getElementById('landingUserName');
+
+            if (!guest || !logged) return;
+            if (token && uid) {
+                guest.hidden = true;
+                logged.hidden = false;
+                if (nameEl) {
+                    const disp = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'Học viên';
+                    nameEl.textContent = disp.length > 26 ? disp.slice(0, 23) + '…' : disp;
+                    nameEl.title = disp;
+                    
+                    let avatarUrl = localStorage.getItem('userAvatar') || '';
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        try {
+                            const data = JSON.parse(userStr);
+                            if (!avatarUrl) {
+                                avatarUrl = data.avatar || data.avatarUrl || '';
+                            }
+                        } catch(e) {}
+                    }
+                    const avatarEl = document.getElementById('navUserAvatar');
+                    const renderAvatar = (url) => {
+                        if (avatarEl) {
+                            if (url) {
+                                avatarEl.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                            } else {
+                                avatarEl.textContent = disp.charAt(0).toUpperCase();
+                            }
+                        }
+                    };
+
+                    if (avatarUrl) {
+                        renderAvatar(avatarUrl);
+                    } else {
+                        renderAvatar('');
+                        // Fetch ngầm nếu chưa có cache
+                        fetch(`${API_BASE}/profile/me?userId=${uid}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        })
+                        .then(res => {
+                            if (res.ok) return res.json();
+                        })
+                        .then(json => {
+                            if (json && json.result) {
+                                const data = json.result;
+                                const newAvatar = data.avatar || data.avatarUrl || '';
+                                if (newAvatar) {
+                                    localStorage.setItem('userAvatar', newAvatar);
+                                    localStorage.setItem('user', JSON.stringify(data));
+                                    renderAvatar(newAvatar);
+                                }
+                            }
+                        })
+                        .catch(err => console.warn("Failed to sync avatar in background", err));
+                    }
+                }
+            } else {
+                guest.hidden = false;
+                logged.hidden = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyLandingNavAuth();
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+            });
+
+            // Mobile menu
+            document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.toggle('mobile-open');
+                document.getElementById('navGuestActions').classList.toggle('mobile-open');
+            });
+
+            // Logout
+            document.getElementById('landingLogoutBtn')?.addEventListener('click', () => {
+                localStorage.clear();
+                location.reload();
+            });
+
+            // Newsletter submit
+            document.querySelector('.newsletter-form')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Cảm ơn bạn đã đăng ký nhận bản tin!');
+                e.target.reset();
+            });
+        });
+    </script>
+</body>
+</html>

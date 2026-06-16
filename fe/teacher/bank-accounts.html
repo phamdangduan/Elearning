@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản nhận tiền - Giảng viên</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/teacher/teacher-dashboard.css">
+</head>
+<body>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="teacher-sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN Pro</span>
+            </a>
+        </div>
+        <ul class="sidebar-menu-list">
+            <li>
+                <a href="index.html" class="menu-item-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tổng quan</span>
+                </a>
+            </li>
+            <li>
+                <a href="courses.html" class="menu-item-link">
+                    <i class="fas fa-book"></i>
+                    <span>Khóa học</span>
+                </a>
+            </li>
+            <li>
+                <a href="payments.html" class="menu-item-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Duyệt học phí</span>
+                </a>
+            </li>
+            <li>
+                <a href="bank-accounts.html" class="menu-item-link active">
+                    <i class="fas fa-university"></i>
+                    <span>Tài khoản ngân hàng</span>
+                </a>
+            </li>
+            <li>
+                <a href="profile.html" class="menu-item-link">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Trang cá nhân</span>
+                </a>
+            </li>
+
+        </ul>
+        <div class="sidebar-footer">
+            <a href="#" class="menu-item-link" id="btnLogout" style="color: #f87171; padding: 12px 16px;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Đăng xuất</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <main class="teacher-main">
+        
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-title">
+                <h1>Tài khoản nhận tiền</h1>
+                <p>Quản lý các tài khoản ngân hàng nhận tiền chuyển khoản đăng ký học và mã QR quét nhanh của bạn.</p>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div class="user-meta-pill">
+                    <i class="far fa-user-circle" style="color: var(--primary); font-size: 16px;"></i>
+                    <span id="instructorName">Giảng viên</span>
+                </div>
+                <button class="btn btn-primary" id="btnOpenCreateModal" style="display:flex; align-items:center; gap:8px; padding: 10px 20px;">
+                    <i class="fas fa-plus"></i> Thêm tài khoản
+                </button>
+            </div>
+        </header>
+
+        <!-- Alert Notification -->
+        <div id="alertBanner" class="alert-banner"></div>
+
+        <!-- Accounts Grid List -->
+        <div id="bankAccountsList" class="bank-accounts-grid">
+            <div style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 40px 0;">
+                Đang tải danh sách tài khoản ngân hàng...
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ══ CREATE BANK MODAL ══ -->
+    <div class="modal-overlay" id="createBankModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Thêm tài khoản ngân hàng mới</h3>
+                <button class="modal-close-btn" id="btnCloseCreateModal">&times;</button>
+            </div>
+            <form id="createBankForm">
+                
+                <!-- Bank Name Select -->
+                <div class="form-group">
+                    <label for="bankNameInput">Tên ngân hàng</label>
+                    <select id="bankNameInput" class="form-input" required>
+                        <option value="">Chọn ngân hàng</option>
+                        <option value="Vietcombank">Vietcombank (VCB)</option>
+                        <option value="Techcombank">Techcombank (TCB)</option>
+                        <option value="MB Bank">MB Bank (MB)</option>
+                        <option value="Vietinbank">Vietinbank (VTB)</option>
+                        <option value="BIDV">BIDV</option>
+                        <option value="Agribank">Agribank</option>
+                        <option value="ACB">ACB</option>
+                    </select>
+                </div>
+
+                <!-- Account Number -->
+                <div class="form-group">
+                    <label for="accountNumInput">Số tài khoản</label>
+                    <input type="text" id="accountNumInput" class="form-input" placeholder="Nhập số tài khoản ngân hàng" required minlength="5" maxlength="50">
+                </div>
+
+                <!-- Account Name -->
+                <div class="form-group">
+                    <label for="accountNameInput">Tên chủ tài khoản (Viết hoa không dấu)</label>
+                    <input type="text" id="accountNameInput" class="form-input" placeholder="Ví dụ: NGUYEN VAN ANH" required minlength="3" maxlength="200">
+                </div>
+
+                <!-- QR upload preview -->
+                <div class="form-group">
+                    <label>Mã QR nhận tiền (Dùng để hiển thị cho sinh viên quét nhanh)</label>
+                    <div style="display:flex; gap:16px;">
+                        <div class="qr-upload-preview" id="qrUploadPreview">
+                            <span id="qrPlaceholder" style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;"><i class="fas fa-qrcode" style="font-size:24px; margin-bottom:8px; display:block; color:var(--primary);"></i>Chọn ảnh QR</span>
+                            <img src="" id="qrPreviewImg" style="display:none;" alt="QR Preview">
+                        </div>
+                        <div style="align-self:center;">
+                            <button type="button" class="btn btn-outline" id="btnTriggerQrUpload" style="padding: 8px 12px; font-size:13px;"><i class="fas fa-upload" style="margin-right:6px;"></i>Tải ảnh lên</button>
+                            <input type="file" id="qrFileInput" accept="image/*" style="display:none;">
+                        </div>
+                    </div>
+                    <input type="hidden" id="qrCodeUrlInput">
+                </div>
+
+                <!-- Primary Checkbox -->
+                <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="isPrimaryInput" style="width:18px; height:18px; cursor:pointer;" checked>
+                    <label for="isPrimaryInput" style="margin-bottom:0; cursor:pointer; font-weight:600; font-size:13.5px;">Thiết lập làm tài khoản chính</label>
+                </div>
+
+                <div class="form-actions" style="border-top:none; padding-top:10px; margin-top:0;">
+                    <button type="button" class="btn btn-outline" id="btnCancelCreate">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitBank">Thêm tài khoản</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══ SCRIPTS ══ -->
+    <script src="js/bank-accounts.js"></script>
+</body>
+</html>

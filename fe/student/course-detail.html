@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Khóa Học - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing CSS -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <link rel="stylesheet" href="../css/student/course-detail.css">
+</head>
+<body>
+
+    
+    
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link">Giảng viên</a>
+                <a href="categories.html" class="nav-link">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <div class="cd-hero">
+        <div class="container cd-hero-container">
+            <div class="cd-hero-content">
+                <div class="cd-breadcrumb">
+                    <a href="../index.html">Trang chủ</a> <i class="fas fa-chevron-right"></i>
+                    <a href="../catalog.html">Khóa học</a> <i class="fas fa-chevron-right"></i>
+                    <span id="breadcrumbCategory">Chi tiết</span>
+                </div>
+                <h1 class="cd-title" id="courseTitle">Đang tải tên khóa học...</h1>
+                <p class="cd-desc" id="courseDescShort">Đang tải mô tả ngắn của khóa học...</p>
+                <div class="cd-meta">
+                    <div class="cd-meta-item"><i class="fas fa-star text-warning"></i> <span id="courseRatingDisplay">4.9 (1,234 Đánh giá)</span></div>
+                    <div class="cd-meta-item"><i class="fas fa-user-graduate"></i> <span id="courseStudents">0</span> Học viên</div>
+                    <div class="cd-meta-item"><i class="fas fa-globe"></i> Tiếng Việt</div>
+                    <div class="cd-meta-item"><i class="fas fa-clock"></i> Cập nhật gần đây</div>
+                </div>
+                <div class="cd-instructor-mini">
+                    Được hướng dẫn bởi <a href="#" id="instructorName">Giảng viên</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div class="cd-body-section">
+        <div class="container cd-grid">
+            <!-- LEFT COLUMN -->
+            <div class="cd-main-column">
+                
+                <div class="cd-card">
+                    <h2 class="cd-section-title">Tổng quan khóa học</h2>
+                    <div class="cd-html-content" id="courseDescFull">
+                        Đang tải thông tin tổng quan khóa học...
+                    </div>
+                </div>
+
+                <div class="cd-card">
+                    <h2 class="cd-section-title">Nội dung khóa học</h2>
+                    <div class="cd-curriculum" id="syllabusList">
+                        <p style="color: #94a3b8;">Chưa có nội dung</p>
+                    </div>
+                </div>
+
+                <div class="cd-instructor-box">
+                    <div class="cd-instructor-avatar" id="instructorAvatar">G</div>
+                    <div class="cd-instructor-info">
+                        <span class="cd-instructor-label">Giảng viên hướng dẫn</span>
+                        <h3 class="cd-instructor-name" id="instructorNameBox">Đang tải...</h3>
+                        <p class="cd-instructor-bio">Chuyên gia hàng đầu với nhiều năm kinh nghiệm thực chiến trong lĩnh vực phát triển phần mềm và đào tạo nguồn nhân lực chất lượng cao.</p>
+                    </div>
+                </div>
+
+                <div class="cd-card">
+                    <h2 class="cd-section-title">Đánh giá từ học viên</h2>
+                    
+                    <!-- Write Review Section (hidden by default) -->
+                    <div id="writeReviewSection" style="display: none; margin-bottom: 30px; padding-bottom: 24px; border-bottom: 1px dashed #e2e8f0;">
+                        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #0f172a;">Viết đánh giá của bạn</h3>
+                        <div class="rating-input" style="display: flex; gap: 8px; margin-bottom: 16px; font-size: 24px;">
+                            <i class="far fa-star star-btn" data-value="1" style="color: #fbbf24; cursor: pointer; transition: transform 0.2s;"></i>
+                            <i class="far fa-star star-btn" data-value="2" style="color: #fbbf24; cursor: pointer; transition: transform 0.2s;"></i>
+                            <i class="far fa-star star-btn" data-value="3" style="color: #fbbf24; cursor: pointer; transition: transform 0.2s;"></i>
+                            <i class="far fa-star star-btn" data-value="4" style="color: #fbbf24; cursor: pointer; transition: transform 0.2s;"></i>
+                            <i class="far fa-star star-btn" data-value="5" style="color: #fbbf24; cursor: pointer; transition: transform 0.2s;"></i>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <textarea id="reviewCommentInput" rows="3" placeholder="Chia sẻ suy nghĩ của bạn về khóa học này..." style="width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 14.5px; outline: none; resize: vertical; transition: border-color 0.2s; box-sizing: border-box;"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="submitReviewBtn" style="padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 8px;">Gửi đánh giá</button>
+                    </div>
+
+                    <div id="courseReviewsList" class="cd-reviews-container">
+                        <p style="color: #94a3b8; font-size: 14.5px;">Đang tải đánh giá...</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN (FLOATING CARD) -->
+            <div class="cd-sidebar-column">
+                <div class="cd-floating-card">
+                    <div class="cd-video-preview">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80" alt="Thumbnail" id="courseThumb">
+                        <div class="cd-play-btn"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="cd-floating-body">
+                        <div class="cd-price-wrap">
+                            <span class="cd-price" id="coursePrice">Miễn phí</span>
+                        </div>
+                        <button class="btn btn-primary btn-enroll" id="enrollBtn">Đăng ký học ngay</button>
+                        <div id="enrollStatus" class="cd-enrolled-status" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Bạn đã đăng ký khóa này
+                        </div>
+
+                        <div class="cd-features">
+                            <h4>Khóa học này bao gồm:</h4>
+                            <ul>
+                                <li><i class="fas fa-video"></i> Truy cập trọn đời các bài giảng</li>
+                                <li><i class="fas fa-file-download"></i> Tài liệu thực hành miễn phí</li>
+                                <li><i class="fas fa-mobile-alt"></i> Học mọi lúc, mọi nơi</li>
+                                <li><i class="fas fa-trophy"></i> Cấp chứng chỉ sau hoàn thành</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cd-guarantee-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h4>Cam kết chất lượng 30 ngày</h4>
+                        <p>Đảm bảo hoàn tiền 100% nếu bạn không hài lòng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                <p>Đăng ký ngay hôm nay để nhận được những ưu đãi độc quyền và lộ trình học tập được cá nhân hóa cho riêng bạn.</p>
+                <div class="cta-actions">
+                    <a href="../register.html" class="btn" style="background: white; color: var(--primary);">Bắt đầu ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="../index.html" class="nav-brand" style="margin-bottom: 20px; display: flex;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Close dropdown
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+        const API_BASE = 'http://localhost:8080';
+    </script>
+    <script src="../js/student/course-detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán khóa học - EduVN</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing CSS -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <link rel="stylesheet" href="../css/student/checkout.css">
+</head>
+<body style="background-color: #f8fafc;">
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link">Giảng viên</a>
+                <a href="categories.html" class="nav-link">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Học viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <div class="container checkout-container">
+        <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại</a>
+        
+        <div class="checkout-grid">
+            <!-- Cột trái: Tóm tắt đơn hàng -->
+            <div class="checkout-summary">
+                <h2 class="section-title">Tóm tắt đơn hàng</h2>
+                <div class="order-card">
+                    <div class="course-info">
+                        <img src="" id="courseThumb" alt="Course Thumbnail" class="course-thumb">
+                        <div class="course-details">
+                            <h3 id="courseTitle">Đang tải...</h3>
+                            <p class="instructor-name">Giảng viên: <span id="instructorName">...</span></p>
+                        </div>
+                    </div>
+                    <div class="price-row mt-4">
+                        <span>Giá khóa học</span>
+                        <span class="price-value" id="coursePrice">... đ</span>
+                    </div>
+                    <hr>
+                    <div class="price-row total-row">
+                        <span>Tổng cộng</span>
+                        <span class="price-value highlight" id="totalPrice">... đ</span>
+                    </div>
+                </div>
+
+                <div class="guarantee-box mt-4">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>Thanh toán an toàn 100%. Nếu có vấn đề, bạn có thể yêu cầu hỗ trợ hoàn tiền trong vòng 7 ngày.</p>
+                </div>
+            </div>
+
+            <!-- Cột phải: Thông tin chuyển khoản & Upload Bill -->
+            <div class="checkout-payment">
+                <h2 class="section-title">Phương thức thanh toán</h2>
+                
+                <div class="payment-card">
+                    <div class="payment-header">
+                        <i class="fas fa-qrcode"></i> Chuyển khoản qua mã QR (VietQR)
+                    </div>
+                    <div class="payment-body">
+                        <p class="instruction-text">Sử dụng ứng dụng ngân hàng của bạn để quét mã QR bên dưới, hoặc chuyển khoản thủ công theo thông tin sau:</p>
+                        
+                        <div class="qr-container">
+                            <img src="" id="bankQrCode" alt="Mã QR thanh toán" style="display:none;">
+                            <div id="qrLoading" class="qr-loading"><i class="fas fa-spinner fa-spin"></i> Đang tạo mã QR...</div>
+                        </div>
+
+                        <div class="bank-details">
+                            <div class="bank-row">
+                                <span class="bank-label">Ngân hàng:</span>
+                                <span class="bank-value" id="bankName">...</span>
+                            </div>
+                            <div class="bank-row">
+                                <span class="bank-label">Số tài khoản:</span>
+                                <span class="bank-value highlight-copy" id="bankAccount">... <i class="far fa-copy" onclick="copyText('bankAccount')"></i></span>
+                            </div>
+                            <div class="bank-row">
+                                <span class="bank-label">Chủ tài khoản:</span>
+                                <span class="bank-value" id="bankOwner">...</span>
+                            </div>
+                            <div class="bank-row">
+                                <span class="bank-label">Số tiền:</span>
+                                <span class="bank-value highlight-copy" id="transferAmount">... <i class="far fa-copy" onclick="copyText('transferAmount')"></i></span>
+                            </div>
+                            <div class="bank-row">
+                                <span class="bank-label">Nội dung CK:</span>
+                                <span class="bank-value highlight-copy" id="transferContent">... <i class="far fa-copy" onclick="copyText('transferContent')"></i></span>
+                            </div>
+                        </div>
+                        <div class="warning-text">
+                            <i class="fas fa-exclamation-triangle"></i> Vui lòng ghi chính xác Nội dung CK để hệ thống duyệt nhanh nhất.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-card mt-4">
+                    <h3 class="upload-title">Xác nhận thanh toán</h3>
+                    <p class="upload-desc">Sau khi chuyển khoản thành công, vui lòng tải lên ảnh chụp màn hình giao dịch (Bill).</p>
+                    
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('billInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Nhấn vào đây để chọn ảnh Bill</p>
+                        <input type="file" id="billInput" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <div class="preview-zone" id="previewZone" style="display: none;">
+                        <img src="" id="billPreview" alt="Bill Preview">
+                        <button class="btn btn-sm btn-outline" onclick="removeBill()">Đổi ảnh khác</button>
+                    </div>
+
+                    <button class="btn btn-primary btn-block mt-4" id="confirmBtn" disabled>Xác nhận đã thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                <p>Đăng ký ngay hôm nay để nhận được những ưu đãi độc quyền và lộ trình học tập được cá nhân hóa cho riêng bạn.</p>
+                <div class="cta-actions">
+                    <a href="../register.html" class="btn" style="background: white; color: var(--primary);">Bắt đầu ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer" style="margin-top: 60px;">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="../index.html" class="nav-brand" style="margin-bottom: 20px; display: flex;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="../about.html">Giới thiệu</a></li>
+                        <li><a href="instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin!'); this.reset();">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../login.html';
+        });
+        
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+    </script>
+    <script src="../js/student/checkout.js"></script>
+</body>
+</html>

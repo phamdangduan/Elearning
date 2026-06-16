@@ -8,6 +8,14 @@
   window.API_BASE = 'http://localhost:8080';
   window.ADMIN_ID = localStorage.getItem('adminId') || 'admin-001';
   console.log('[Admin] common.js initialized');
+
+  // Kiểm tra quyền truy cập Admin
+  const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+  const role = localStorage.getItem('userRole');
+  if (!token || role !== 'ADMIN') {
+    alert('Bạn không có quyền truy cập trang quản trị! Vui lòng đăng nhập bằng tài khoản Admin.');
+    window.location.href = '../login.html';
+  }
 })();
 
 /* ── API Helpers ── */
@@ -16,10 +24,23 @@ async function apiGet(path) {
     const token = localStorage.getItem('token');
     const headers = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
+    
+    console.log('[API GET]', API_BASE + path, 'Token:', token ? 'Present' : 'Missing');
+    
     const res = await fetch(API_BASE + path, { headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (e) { console.error('[GET]', path, e.message); return null; }
+    const data = await res.json();
+    
+    if (!res.ok) {
+      console.error('[API GET Error]', path, 'Status:', res.status, 'Response:', data);
+      return data; // Return error response for handling
+    }
+    
+    console.log('[API GET Success]', path, 'Data:', data);
+    return data;
+  } catch (e) {
+    console.error('[API GET Exception]', path, e);
+    return { status: 500, message: e.message, result: null };
+  }
 }
 async function apiPost(path, body) {
   try {
@@ -173,7 +194,12 @@ function initDropdowns() {
     if (el) el.addEventListener('click', () => {
       if (confirm('Bạn có chắc muốn đăng xuất?')) {
         localStorage.removeItem('token');
-        window.location.href = '../student/courses.html';
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('adminId');
+        localStorage.removeItem('adminName');
+        localStorage.removeItem('adminAvatar');
+        window.location.href = '../login.html';
       }
     });
   });

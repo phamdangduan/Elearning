@@ -79,4 +79,12 @@ public class PaymentRequestController {
             @PathVariable String courseId
     ) { return ApiResponse.ok(paymentRequestService.getPaymentInfoForCourse(courseId), SuccessCode.GET_PAYMENT_INFO_SUCCESS);}
 
+    @GetMapping("/stats")
+    public ApiResponse<com.example.Elearning.dto.response.AdminPaymentStatsResponse> getAdminPaymentStats() {
+        return ApiResponse.ok(
+                paymentRequestService.getAdminPaymentStats(),
+                SuccessCode.GET_PAYMENT_REQUESTS_SUCCESS
+        );
+    }
+
 }

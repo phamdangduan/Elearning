@@ -71,7 +71,7 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
         if (status != null) {
             paymentRequests = paymentRequestRepository.findByStatus(status);
         } else {
-            paymentRequests = paymentRequestRepository.findAll();
+            paymentRequests = paymentRequestRepository.findAllWithDetails();
         }
 
         return paymentRequests.stream()
@@ -395,6 +395,18 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
 
     }
 
+    @Override
+    public com.example.Elearning.dto.response.AdminPaymentStatsResponse getAdminPaymentStats() {
+        return com.example.Elearning.dto.response.AdminPaymentStatsResponse.builder()
+                .totalRevenue(paymentRequestRepository.calculateTotalPlatformRevenue())
+                .totalPayments(paymentRequestRepository.countAllPayments())
+                .confirmedCount(paymentRequestRepository.countAllByPaymentStatus(PaymentStatus.CONFIRMED))
+                .pendingCount(paymentRequestRepository.countAllByPaymentStatus(PaymentStatus.PENDING))
+                .rejectedCount(paymentRequestRepository.countAllByPaymentStatus(PaymentStatus.REJECTED))
+                .expiredCount(paymentRequestRepository.countAllByPaymentStatus(PaymentStatus.EXPIRED))
+                .cancelledCount(paymentRequestRepository.countAllByPaymentStatus(PaymentStatus.CANCELLED))
+                .build();
+    }
 
 
 }

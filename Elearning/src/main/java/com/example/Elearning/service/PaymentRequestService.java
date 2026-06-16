@@ -32,4 +32,7 @@ public interface PaymentRequestService {
 
     // System APIs (Scheduled job)
     void expireOldPaymentRequests();
+
+    // Admin Stats
+    com.example.Elearning.dto.response.AdminPaymentStatsResponse getAdminPaymentStats();
 }

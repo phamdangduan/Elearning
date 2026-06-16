@@ -380,10 +380,6 @@
           </a>
         </nav>
         <div class="sidebar-footer">
-          <a href="../student/index.html" class="nav-item">
-            <i class="fas fa-exchange-alt"></i>
-            <span>Trang học viên</span>
-          </a>
           <div class="nav-item" id="logoutBtn">
             <i class="fas fa-sign-out-alt"></i>
             <span>Đăng xuất</span>
@@ -441,12 +437,6 @@
                 onclick="window.location.href = 'profile.html'"
               >
                 <i class="fas fa-user-circle"></i>Hồ sơ cá nhân
-              </div>
-              <div
-                class="dropdown-item"
-                onclick="window.location.href = '../student/index.html'"
-              >
-                <i class="fas fa-exchange-alt"></i>Trang học viên
               </div>
               <div class="dropdown-divider"></div>
               <div class="dropdown-item danger" id="dropdownLogout">
@@ -793,7 +783,12 @@
           `/instructor/payment-requests?userId=${TEACHER_ID}`,
         );
         if (payData?.result) {
-          const reqs = payData.result;
+          const reqs = payData.result.map(r => {
+            if (r.status === 'PENDING') {
+              r.status = r.paymentProofUrl ? 'PROOF_UPLOADED' : 'PENDING_PROOF';
+            }
+            return r;
+          });
           const pending = reqs.filter(
             (r) =>
               r.status === "PENDING_PROOF" || r.status === "PROOF_UPLOADED",

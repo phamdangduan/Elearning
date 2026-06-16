@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng học - EduVN</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing CSS -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <link rel="stylesheet" href="../css/student/learning.css">
+</head>
+<body class="learning-mode">
+
+    <!-- Navbar -->
+        <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <span class="learning-course-title" id="courseTitleHeader">Đang tải...</span>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link">Giảng viên</a>
+                <a href="categories.html" class="nav-link">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="learning-container">
+        <!-- Video Section -->
+        <div class="video-section">
+            <div class="video-player-container">
+                <!-- Using HTML5 video tag, video src will be set via JS -->
+                <video id="lessonVideo" controls controlsList="nodownload">
+                    <source src="" type="video/mp4" id="videoSource">
+                    Trình duyệt của bạn không hỗ trợ video HTML5.
+                </video>
+            </div>
+            <div class="video-controls">
+                <h1 class="lesson-title" id="lessonTitleDisplay">Đang tải bài học...</h1>
+                <div class="lesson-actions">
+                    <div style="color: #9ca3af; font-size: 14px;" id="lessonDescDisplay"></div>
+                    <button class="btn-complete" id="markCompleteBtn">
+                        <i class="fas fa-check"></i> Đánh dấu hoàn thành
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Syllabus Sidebar -->
+        <div class="syllabus-sidebar">
+            <div class="syllabus-header" style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Nội dung khóa học</span>
+                <span id="progressText" style="font-size: 13px; font-weight: 500; color: #94a3b8;">0% Hoàn thành</span>
+            </div>
+            <div class="syllabus-content" id="syllabusContent">
+                <!-- Data loaded via JS -->
+                <div style="padding: 20px; color: #9ca3af;">Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+        const API_BASE = 'http://localhost:8080';</script>
+    <script src="../js/student/learning.js"></script>
+</body>
+</html>

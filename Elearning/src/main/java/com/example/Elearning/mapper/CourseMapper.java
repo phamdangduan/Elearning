@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public interface CourseMapper {
     Course toEntity(CreatedCourseRequest createdCourseRequest);
 
+    @Mapping(target = "categoryIds", expression = "java(mapCategoriesToIds(course.getCategories()))")
     CreatedCourseResponse toResponseCreated(Course course);
     
     @Mapping(target = "userId", source = "user.id")
@@ -33,6 +34,8 @@ public interface CourseMapper {
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "status", expression = "java(course.getStatus() != null ? course.getStatus().name() : null)")
     @Mapping(target = "instructor", source = "user")
+    @Mapping(target = "categoryIds", expression = "java(mapCategoriesToIds(course.getCategories()))")
+    @Mapping(target = "categoryNames", expression = "java(mapCategoriesToNames(course.getCategories()))")
     CourseDetailResponse toCourseDetailResponse(Course course);
 
     void updateEntity(@MappingTarget Course course, UpdateCourseRequest request);
@@ -53,5 +56,19 @@ public interface CourseMapper {
         return categories.stream()
                 .map(Category::getName)
                 .collect(Collectors.toList());
+    }
+
+    default com.example.Elearning.dto.response.UserResponse mapUserToUserResponse(com.example.Elearning.entity.User user) {
+        if (user == null) return null;
+        com.example.Elearning.dto.response.UserResponse response = new com.example.Elearning.dto.response.UserResponse();
+        response.setId(user.getId());
+        response.setUserName(user.getUserName());
+        response.setEmail(user.getEmail());
+        if (user.getProfile() != null) {
+            response.setFullName(user.getProfile().getFullName());
+            response.setAvatar(user.getProfile().getAvatar());
+            response.setBio(user.getProfile().getBio());
+        }
+        return response;
     }
 }

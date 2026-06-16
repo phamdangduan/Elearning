@@ -1,0 +1,506 @@
+/* ══════════════════════════════════════════════════════
+   EduVN - Student Dashboard Premium Styles
+   ══════════════════════════════════════════════════════ */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    --bg-light: #f8fafc;
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --card-shadow-hover: 0 20px 35px -5px rgba(99, 102, 241, 0.12), 0 10px 15px -5px rgba(99, 102, 241, 0.04);
+    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-container {
+    padding-top: 40px;
+    padding-bottom: 80px;
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Welcome Banner Card */
+.welcome-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border-radius: var(--radius-lg);
+    padding: 48px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 40px;
+    box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.welcome-banner::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0,0,0,0) 70%);
+    top: -100px;
+    right: -100px;
+    z-index: 1;
+    animation: rotateGlow 15s infinite linear;
+}
+
+.welcome-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: 1;
+}
+
+@keyframes rotateGlow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.welcome-banner-content {
+    position: relative;
+    z-index: 2;
+    max-width: 650px;
+}
+
+.welcome-banner-content h1 {
+    font-family: var(--font-outfit);
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff 30%, #c7d2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-banner-content p {
+    color: #cbd5e1;
+    font-size: 15.5px;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+/* Stat Cards Row */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.stat-card:hover::before {
+    background: var(--primary-gradient);
+}
+
+.stat-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    transition: var(--transition);
+}
+
+.stat-card:hover .stat-icon-wrap {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.stat-icon-wrap.learning {
+    background: rgba(99, 102, 241, 0.08);
+    color: #6366f1;
+}
+
+.stat-icon-wrap.completed {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+}
+
+.stat-icon-wrap.certificates {
+    background: rgba(245, 158, 11, 0.08);
+    color: #f59e0b;
+}
+
+.stat-icon-wrap.hours {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+}
+
+.stat-number {
+    font-family: var(--font-outfit);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* Two Column Layout */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+/* Sections headers */
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.section-header-flex h2 {
+    font-family: var(--font-outfit);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+}
+
+.view-all-link {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: var(--transition);
+}
+
+.view-all-link:hover {
+    color: var(--primary-hover);
+    gap: 8px;
+}
+
+/* Recently Active Course Panel */
+.recent-course-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    padding: 28px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 28px;
+    transition: var(--transition);
+    align-items: center;
+}
+
+.recent-course-card:hover {
+    box-shadow: var(--card-shadow-hover);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.rcc-image {
+    width: 220px;
+    height: 138px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.rcc-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.rcc-title {
+    font-family: var(--font-outfit);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    line-height: 1.4;
+    letter-spacing: -0.3px;
+    transition: color 0.2s ease;
+}
+
+.recent-course-card:hover .rcc-title {
+    color: var(--primary);
+}
+
+.rcc-meta {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rcc-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rcc-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.rcc-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 16px;
+}
+
+.rcc-last-lesson {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.rcc-last-lesson span {
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* Timeline Activity */
+.timeline-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    padding: 28px;
+    margin-bottom: 40px;
+}
+
+.timeline-list {
+    position: relative;
+    padding-left: 24px;
+    list-style: none;
+}
+
+.timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -24px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #cbd5e1;
+    transition: var(--transition);
+}
+
+.timeline-item.active .timeline-dot {
+    background-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.timeline-item:hover .timeline-dot {
+    transform: scale(1.2);
+}
+
+.timeline-content {
+    font-size: 13.5px;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+.timeline-content strong {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.timeline-time {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-top: 6px;
+    display: block;
+}
+
+/* Learning Schedule Card */
+.schedule-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+}
+
+.schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.schedule-item:hover {
+    transform: translateX(4px);
+}
+
+.schedule-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.schedule-item:first-child {
+    padding-top: 0;
+}
+
+.schedule-date-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: var(--primary-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-outfit);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.schedule-date-day {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.schedule-date-month {
+    font-size: 10px;
+    color: var(--primary);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.schedule-info {
+    flex: 1;
+}
+
+.schedule-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.schedule-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Responsive Dashboard Layout */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recent-course-card {
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
+    }
+    
+    .rcc-image {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .welcome-banner {
+        padding: 32px 24px;
+    }
+}

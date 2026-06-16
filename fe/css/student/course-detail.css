@@ -1,0 +1,540 @@
+/* ══════════════════════════════════════════════════════
+   EduVN - Premium Course Detail CSS
+   ══════════════════════════════════════════════════════ */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+body {
+    background-color: #f8fafc;
+}
+
+/* ── Hero Banner ── */
+.cd-hero {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 130px 0 60px 0; /* Padding top accounts for navbar */
+    position: relative;
+    overflow: hidden;
+}
+
+.cd-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 50%);
+}
+
+.cd-hero-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+}
+
+.cd-hero-content {
+    max-width: 65%;
+}
+
+.cd-breadcrumb {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cd-breadcrumb a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.cd-breadcrumb a:hover {
+    color: #818cf8;
+}
+
+.cd-breadcrumb i {
+    font-size: 10px;
+}
+
+.cd-title {
+    font-family: var(--font-outfit, 'Inter', sans-serif);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.cd-desc {
+    font-size: 16px;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.cd-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.cd-meta-item {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e2e8f0;
+}
+
+.cd-meta-item .text-warning {
+    color: #fbbf24;
+}
+
+.cd-meta-item i:not(.text-warning) {
+    color: #94a3b8;
+}
+
+.cd-instructor-mini {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.cd-instructor-mini a {
+    color: #818cf8;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* ── Body Section & Grid ── */
+.cd-body-section {
+    padding: 40px 0 80px 0;
+}
+
+.cd-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.cd-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.cd-card {
+    background: white;
+    border-radius: var(--radius-xl, 12px);
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.cd-section-title {
+    font-family: var(--font-outfit, 'Inter', sans-serif);
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 24px;
+}
+
+.cd-html-content {
+    line-height: 1.8;
+    color: #475569;
+    font-size: 15.5px;
+}
+
+.cd-html-content p {
+    margin-bottom: 16px;
+}
+
+/* ── Floating Sidebar Card ── */
+.cd-sidebar-column {
+    position: sticky;
+    top: 100px; /* offset below navbar */
+    margin-top: -300px; /* Pulls the card UP into the hero section */
+    z-index: 10;
+}
+
+.cd-floating-card {
+    background: white;
+    border-radius: var(--radius-xl, 12px);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.cd-video-preview {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background: #000;
+    cursor: pointer;
+}
+
+.cd-video-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.cd-video-preview:hover img {
+    opacity: 0.6;
+}
+
+.cd-play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; height: 64px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #0f172a;
+    font-size: 22px;
+    padding-left: 5px;
+    transition: all 0.3s ease;
+}
+
+.cd-video-preview:hover .cd-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+    color: var(--primary, #4f46e5);
+}
+
+.cd-floating-body {
+    padding: 24px;
+}
+
+.cd-price-wrap {
+    margin-bottom: 20px;
+}
+
+.cd-price {
+    font-family: var(--font-outfit, 'Inter', sans-serif);
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.btn-enroll {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.cd-enrolled-status {
+    background: #ecfdf5;
+    color: #10b981;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+    border: 1px solid #d1fae5;
+}
+
+.cd-features {
+    margin-top: 24px;
+}
+
+.cd-features h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 16px;
+}
+
+.cd-features ul {
+    list-style: none;
+    padding: 0; margin: 0;
+}
+
+.cd-features li {
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cd-features li i {
+    color: var(--primary, #4f46e5);
+    width: 16px;
+    text-align: center;
+}
+
+.cd-guarantee-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius-lg, 10px);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.cd-guarantee-card i {
+    font-size: 24px;
+    color: #10b981;
+}
+
+.cd-guarantee-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.cd-guarantee-card p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Accordion Syllabus ── */
+.cd-accordion-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.cd-accordion-header {
+    background: #f8fafc;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cd-accordion-header:hover {
+    background: #f1f5f9;
+}
+
+.cd-accordion-title {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 15.5px;
+}
+
+.cd-accordion-title span {
+    color: var(--primary, #4f46e5);
+    margin-right: 4px;
+}
+
+.cd-accordion-meta {
+    font-size: 13.5px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cd-accordion-meta i {
+    transition: transform 0.3s ease;
+}
+
+.cd-accordion-body {
+    display: none;
+    padding: 0 20px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cd-accordion-item.open .cd-accordion-body {
+    display: block;
+}
+
+.cd-accordion-item.open .cd-accordion-meta i {
+    transform: rotate(180deg);
+}
+
+.cd-lesson-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.cd-lesson-row:last-child {
+    border-bottom: none;
+}
+
+.cd-lesson-info {
+    font-size: 14.5px;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cd-lesson-info i {
+    color: #cbd5e1;
+    font-size: 16px;
+}
+
+.cd-lesson-row:hover .cd-lesson-info i {
+    color: var(--primary, #4f46e5);
+}
+
+.cd-lesson-duration {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* ── Instructor Box ── */
+.cd-instructor-box {
+    background: white;
+    border-radius: var(--radius-xl, 12px);
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.cd-instructor-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #334155;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.cd-instructor-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #818cf8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.cd-instructor-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.cd-instructor-bio {
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .cd-grid {
+        grid-template-columns: 1fr;
+    }
+    .cd-hero-content {
+        max-width: 100%;
+    }
+    .cd-sidebar-column {
+        margin-top: 0;
+        position: relative;
+        top: 0;
+    }
+}
+
+
+/* ── Reviews Section ── */
+.cd-reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cd-review-item {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cd-review-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cd-review-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.cd-review-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #334155;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    overflow: hidden;
+}
+
+.cd-review-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cd-review-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cd-review-name {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.cd-review-stars {
+    color: #fbbf24;
+    font-size: 12px;
+    display: flex;
+    gap: 2px;
+}
+
+.cd-review-date {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: 8px;
+}
+
+.cd-review-body {
+    color: #475569;
+    font-size: 14.5px;
+    line-height: 1.6;
+}

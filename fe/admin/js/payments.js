@@ -10,8 +10,7 @@ let currentPage = 0;
 let activeStatus = '';
 
 const STATUS_MAP = {
-    PROOF_UPLOADED: { cls: 'badge-orange', txt: '📋 Chờ duyệt' },
-    PENDING_PROOF: { cls: 'badge-warning', txt: '⏳ Chờ bill' },
+    PENDING: { cls: 'badge-orange', txt: '📋 Chờ duyệt' },
     CONFIRMED: { cls: 'badge-success', txt: '✅ Đã xác nhận' },
     REJECTED: { cls: 'badge-danger', txt: '❌ Từ chối' },
     CANCELLED: { cls: 'badge-muted', txt: '🚫 Đã hủy' },
@@ -21,40 +20,48 @@ const STATUS_MAP = {
 /* ── Load Payments ── */
 async function loadPayments() {
     showSkeleton();
+    let payments = [];
     try {
         // Get all payment requests from backend
         const data = await apiGet('/payment-requests/all');
-        const payments = data?.result || [];
-        
-        console.log('[Payments] Loaded:', payments.length, payments);
-        
+        console.log('[Payments] Raw API response:', data);
+        payments = data?.result || [];
+        console.log('[Payments] Parsed payments:', payments);
+    } catch (error) {
+        console.error('[Payments] Error loading:', error);
+        showToast('Không thể tải danh sách thanh toán', 'error');
+    }
+
+    try {
         // Transform data to match frontend format
-        allPayments = payments.map(p => ({
-            id: p.id,
-            studentId: p.studentId,
-            studentName: p.studentName || p.studentId,
-            courseId: p.courseId,
-            courseTitle: p.courseTitle || 'Khóa học',
-            instructorId: p.instructorId,
-            instructor: p.instructorName || p.instructorId,
-            amount: parseFloat(p.amount) || 0,
-            status: p.status,
-            createdAt: p.createdAt,
-            expiredAt: p.expiredAt,
-            proofUrl: p.proofUrl,
-            note: p.note
-        }));
+        allPayments = payments.map(p => {
+            return {
+                id: p.id,
+                studentId: p.studentId,
+                studentName: p.studentName || p.studentId || '–',
+                courseId: p.courseId,
+                courseTitle: p.courseTitle || 'Khóa học',
+                instructorId: p.instructorId,
+                instructor: p.instructorName || p.instructorId || '–',
+                amount: parseFloat(p.amount) || 0,
+                status: p.status,
+                createdAt: p.createdAt,
+                confirmedAt: p.confirmedAt,
+                expiredAt: p.expiredAt,
+                proofUrl: p.paymentProofUrl,
+                note: p.studentNote || p.instructorNote,
+                referenceCode: p.referenceCode,
+                transferNote: p.transferNote
+            };
+        });
         
-        console.log('[Payments] Transformed:', allPayments);
+        console.log('[Payments] Transformed payments:', allPayments);
         
         updateStats();
         applyFilter();
     } catch (error) {
-        console.error('[Payments] Error loading:', error);
-        showToast('Không thể tải danh sách thanh toán', 'error');
-        allPayments = [];
-        updateStats();
-        applyFilter();
+        console.error('[Payments] Error transforming:', error);
+        showToast('Không thể hiển thị danh sách thanh toán', 'error');
     }
 }
 
@@ -67,10 +74,33 @@ function showSkeleton() {
         </div></td></tr>`;
 }
 
-/* ── Update Stats ── */
-function updateStats() {
+/* ── Update Stats (from backend DB) ── */
+async function updateStats() {
+    try {
+        const data = await apiGet('/payment-requests/stats');
+        const stats = data?.result;
+        
+        if (stats) {
+            const totalRevenue = parseFloat(stats.totalRevenue) || 0;
+            document.getElementById('statRevenue').textContent = shortNum(totalRevenue) + 'đ';
+            document.getElementById('statConfirmed').textContent = stats.confirmedCount || 0;
+            document.getElementById('statPending').textContent = stats.pendingCount || 0;
+            document.getElementById('statRejected').textContent = (stats.rejectedCount || 0) + (stats.expiredCount || 0) + (stats.cancelledCount || 0);
+            
+            console.log('[Stats from DB]', stats);
+        } else {
+            // Fallback: tính client-side nếu API stats lỗi
+            updateStatsClientSide();
+        }
+    } catch (error) {
+        console.error('[Stats API Error]', error);
+        updateStatsClientSide();
+    }
+}
+
+function updateStatsClientSide() {
     const confirmed = allPayments.filter(p => p.status === 'CONFIRMED');
-    const pending = allPayments.filter(p => p.status === 'PROOF_UPLOADED' || p.status === 'PENDING_PROOF');
+    const pending = allPayments.filter(p => p.status === 'PENDING');
     const rejected = allPayments.filter(p => ['REJECTED', 'CANCELLED', 'EXPIRED'].includes(p.status));
     
     const totalRevenue = confirmed.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
@@ -80,7 +110,7 @@ function updateStats() {
     document.getElementById('statPending').textContent = pending.length;
     document.getElementById('statRejected').textContent = rejected.length;
     
-    console.log('[Stats]', { totalRevenue, confirmed: confirmed.length, pending: pending.length, rejected: rejected.length });
+    console.log('[Stats client-side]', { totalRevenue, confirmed: confirmed.length, pending: pending.length, rejected: rejected.length });
 }
 
 /* ── Switch Tab ── */
@@ -109,7 +139,8 @@ function applyFilter() {
         list = list.filter(p =>
             (p.studentName || '').toLowerCase().includes(q) ||
             (p.courseTitle || '').toLowerCase().includes(q) ||
-            (p.instructor || '').toLowerCase().includes(q)
+            (p.instructor || '').toLowerCase().includes(q) ||
+            (p.referenceCode || '').toLowerCase().includes(q)
         );
     }
     
@@ -146,7 +177,7 @@ function render() {
                 <div class="empty-state">
                     <div class="empty-icon">💳</div>
                     <h3>Không có giao dịch</h3>
-                    <p>Thử thay đổi bộ lọc</p>
+                    <p>Chưa có giao dịch thanh toán nào trong hệ thống</p>
                 </div>
             </td></tr>`;
         document.getElementById('paginationWrap').innerHTML = '';
@@ -156,7 +187,7 @@ function render() {
     document.getElementById('paymentTableBody').innerHTML = page.map((p, i) => {
         const s = STATUS_MAP[p.status] || { cls: 'badge-muted', txt: p.status };
         const initials = (p.studentName || 'U')[0].toUpperCase();
-        const canApprove = p.status === 'PROOF_UPLOADED';
+        const canApprove = p.status === 'PENDING' && p.proofUrl;
         
         return `
             <tr>
@@ -258,10 +289,22 @@ function viewPayment(id) {
             <div><label class="form-label">Giảng viên</label><p style="font-size:14px">${p.instructor || '–'}</p></div>
             <div><label class="form-label">Ngày tạo</label><p style="font-size:14px">${formatDate(p.createdAt)}</p></div>
         </div>
+        ${p.referenceCode ? `
+            <div style="margin-top:16px">
+                <label class="form-label">Mã tham chiếu</label>
+                <p style="font-size:14px;font-weight:600;color:var(--primary)">${p.referenceCode}</p>
+            </div>
+        ` : ''}
         ${p.expiredAt ? `
             <div style="margin-top:16px">
                 <label class="form-label">Hết hạn</label>
                 <p style="font-size:14px">${formatDate(p.expiredAt)}</p>
+            </div>
+        ` : ''}
+        ${p.transferNote ? `
+            <div style="margin-top:16px">
+                <label class="form-label">Nội dung chuyển khoản</label>
+                <p style="font-size:14px">${p.transferNote}</p>
             </div>
         ` : ''}
         ${p.note ? `
@@ -278,7 +321,7 @@ function viewPayment(id) {
         ` : ''}`;
     
     const footer = document.getElementById('payDetailFooter');
-    const canApprove = p.status === 'PROOF_UPLOADED';
+    const canApprove = p.status === 'PENDING' && p.proofUrl;
     
     footer.innerHTML = `
         <button class="btn btn-outline" onclick="closeModal('payDetailModal')">Đóng</button>
@@ -300,19 +343,21 @@ async function confirmPayment(id) {
     if (!p) return;
     
     try {
-        // Call instructor payment API (admin acts as instructor)
-        await fetch(`${API_BASE}/instructor/payment-requests/${id}/confirm?userId=${p.instructorId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ note: 'Đã xác nhận bởi admin' })
-        });
+        // Call instructor payment API using apiPut (includes auth token)
+        const result = await apiPut(
+            `/instructor/payment-requests/${id}/confirm?userId=${p.instructorId}`,
+            { instructorNote: 'Đã xác nhận bởi admin' }
+        );
         
-        // Update local state
-        p.status = 'CONFIRMED';
-        updateStats();
-        applyFilter();
+        console.log('[Confirm Payment] Result:', result);
         
-        showToast('Đã xác nhận thanh toán!', 'success');
+        if (result && result.result) {
+            // Reload data from server to get fresh state
+            await loadPayments();
+            showToast('Đã xác nhận thanh toán!', 'success');
+        } else {
+            showToast('Không thể xác nhận: ' + (result?.message || 'Lỗi không xác định'), 'error');
+        }
     } catch (error) {
         console.error('[Confirm Payment] Error:', error);
         showToast('Không thể xác nhận thanh toán', 'error');
@@ -327,19 +372,21 @@ async function rejectPayment(id) {
     if (!p) return;
     
     try {
-        // Call instructor payment API (admin acts as instructor)
-        await fetch(`${API_BASE}/instructor/payment-requests/${id}/reject?userId=${p.instructorId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason: 'Từ chối bởi admin' })
-        });
+        // Call instructor payment API using apiPut (includes auth token)
+        const result = await apiPut(
+            `/instructor/payment-requests/${id}/reject?userId=${p.instructorId}`,
+            { instructorNote: 'Từ chối bởi admin' }
+        );
         
-        // Update local state
-        p.status = 'REJECTED';
-        updateStats();
-        applyFilter();
+        console.log('[Reject Payment] Result:', result);
         
-        showToast('Đã từ chối thanh toán!', 'warning');
+        if (result && result.result) {
+            // Reload data from server to get fresh state
+            await loadPayments();
+            showToast('Đã từ chối thanh toán!', 'warning');
+        } else {
+            showToast('Không thể từ chối: ' + (result?.message || 'Lỗi không xác định'), 'error');
+        }
     } catch (error) {
         console.error('[Reject Payment] Error:', error);
         showToast('Không thể từ chối thanh toán', 'error');
@@ -348,7 +395,7 @@ async function rejectPayment(id) {
 
 /* ── Export CSV ── */
 function exportCSV() {
-    const rows = [['#', 'Học viên', 'Khóa học', 'Giảng viên', 'Số tiền', 'Trạng thái', 'Ngày tạo']];
+    const rows = [['#', 'Học viên', 'Khóa học', 'Giảng viên', 'Số tiền', 'Trạng thái', 'Ngày tạo', 'Mã tham chiếu']];
     
     filteredPayments.forEach((p, i) => {
         rows.push([
@@ -358,7 +405,8 @@ function exportCSV() {
             p.instructor,
             p.amount,
             p.status,
-            formatDate(p.createdAt)
+            formatDate(p.createdAt),
+            p.referenceCode || ''
         ]);
     });
     

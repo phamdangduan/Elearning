@@ -55,7 +55,8 @@ public enum ErrorCode {
     NOTIFICATION_NOT_FOUND(1000, "Không tìm thấy thông báo", HttpStatus.NOT_FOUND),
 
     PROFILE_NOT_FOUND(1100, "Profile not found", HttpStatus.NOT_FOUND),
-
+    EMAIL_EXISTED(1101, "Email already exists", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(1102, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
     ;
 
     private final int status;

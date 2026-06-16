@@ -147,7 +147,6 @@
             <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
         </nav>
         <div class="sidebar-footer">
-            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
             <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
         </div>
     </aside>
@@ -209,8 +208,6 @@
                 <option value="">Tất cả trạng thái</option>
                 <option value="PUBLISHED">Published</option>
                 <option value="DRAFT">Draft</option>
-                <option value="PENDING">Chờ duyệt</option>
-                <option value="ARCHIVED">Archived</option>
             </select>
             <select class="form-select" id="sortFilter" style="max-width:160px">
                 <option value="createdAt,desc">Mới nhất</option>
@@ -821,8 +818,13 @@ async function uploadThumbnailToCloudinary(file) {
     try {
         showToast('Đang upload ảnh...', 'info');
         
+        const token = localStorage.getItem('token');
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
         const response = await fetch(`${API_BASE}/course/upload-thumbnail?instructorId=${TEACHER_ID}`, {
             method: 'POST',
+            headers: headers,
             body: formData
         });
         
@@ -965,6 +967,10 @@ async function uploadVideoToCloudinary(file) {
         
         // Send request
         xhr.open('POST', `${API_BASE}/lesson/upload-video?instructorId=${TEACHER_ID}`);
+        const token = localStorage.getItem('token');
+        if (token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        }
         xhr.send(formData);
         
     } catch (error) {
@@ -1043,7 +1049,7 @@ async function saveCourse() {
     console.log('Response message:', result?.message);
     console.log('Response result:', result?.result);
     
-    if (result && (result.status === 200 || result.status === 201)) {
+    if (result && (result.status === 200 || result.status === 201 || result.status === 202)) {
         showToast(editingCourseId ? 'Cập nhật khóa học thành công!' : 'Tạo khóa học thành công!', 'success');
         closeModal('courseModal');
         await loadCourses();
@@ -1149,17 +1155,21 @@ function renderLessons(lessons) {
     if (!Array.isArray(lessons) || !lessons.length) {
         return `<div style="padding:14px 16px;font-size:13px;color:var(--text-muted)">Chưa có bài học nào</div>`;
     }
-    return lessons.map((l, i) => `
+    return lessons.map((l, i) => {
+        const type = l.contentType || l.type || 'VIDEO';
+        const duration = l.durationInSeconds ? Math.round(l.durationInSeconds / 60) + ' min' : (l.duration ? l.duration + ' min' : 'VIDEO');
+        return `
         <div class="lesson-item">
-            <div class="lesson-icon"><i class="fas fa-${l.type==='VIDEO'?'play':l.type==='QUIZ'?'question':'file-alt'}"></i></div>
+            <div class="lesson-icon"><i class="fas fa-${type==='VIDEO'?'play':type==='QUIZ'?'question':'file-alt'}"></i></div>
             <div class="lesson-info">
                 <div class="lesson-title">Bài ${i+1}: ${l.title}</div>
-                <div class="lesson-duration">${l.duration ? l.duration+'min' : l.type || 'VIDEO'}</div>
+                <div class="lesson-duration">${duration}</div>
             </div>
             <button class="btn btn-outline btn-sm" style="color:var(--teacher-red)" onclick="deleteLesson('${l.id}')">
                 <i class="fas fa-trash"></i>
             </button>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
 function toggleSection(bodyId, arrowId) {
@@ -1182,11 +1192,7 @@ async function createSection() {
     const title = document.getElementById('newSectionTitle').value.trim();
     if (!title) { showToast('Vui lòng nhập tên chương', 'warning'); return; }
 
-    const res = await fetch(`${API_BASE}/section/created/${currentCurriculumCourseId}?instructorId=${TEACHER_ID}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ title, orderIndex: 1 })
-    });
-    const data = await res.json();
+    const data = await apiPost(`/section/created/${currentCurriculumCourseId}?instructorId=${TEACHER_ID}`, { title, orderIndex: 1 });
     if (data?.result || data?.status) {
         showToast('Đã tạo chương mới!', 'success');
         document.getElementById('addSectionForm').style.display = 'none';
@@ -1234,21 +1240,26 @@ async function openAddLesson(sectionId, skipOrderCalculation = false) {
             // First try to get from cached sections data
             let lessons = [];
             let dataSource = 'none';
+            let foundInCache = false;
             
             if (window.currentSections) {
                 const section = window.currentSections.find(s => s.id === sectionId);
                 if (section) {
                     lessons = section.lessonResponses || section.lessons || [];
                     dataSource = 'cache';
+                    foundInCache = true;
                 }
             }
             
-            // If no cached data, fetch from API
-            if (lessons.length === 0) {
-                const data = await apiGet(`/section/${sectionId}`);
-                if (data?.result) {
-                    lessons = data.result.lessons || data.result.lessonResponses || [];
-                    dataSource = 'api';
+            // If no cached data, reload sections for the course from API
+            if (!foundInCache && typeof currentCurriculumCourseId !== 'undefined' && currentCurriculumCourseId) {
+                await loadSections(currentCurriculumCourseId);
+                if (window.currentSections) {
+                    const section = window.currentSections.find(s => s.id === sectionId);
+                    if (section) {
+                        lessons = section.lessonResponses || section.lessons || [];
+                        dataSource = 'reload-cache';
+                    }
                 }
             }
             
@@ -1307,20 +1318,21 @@ document.getElementById('saveLessonBtn')?.addEventListener('click', async () => 
     // Use uploaded video URL if available, otherwise use URL input
     const videoUrl = uploadedVideoUrl || document.getElementById('lessonVideoUrl').value.trim() || null;
     
+    let typeValue = document.getElementById('lessonType').value;
+    if (typeValue === 'TEXT') {
+        typeValue = 'DOCUMENT';
+    }
+
     const body = {
         title,
-        type: document.getElementById('lessonType').value,
-        orderIndex: parseInt(document.getElementById('lessonOrder').value) || 1,
-        videoUrl: videoUrl,
-        content: document.getElementById('lessonContent').value.trim() || null
+        contentType: typeValue,
+        contentUrl: videoUrl,
+        durationInSeconds: 600
     };
     
     console.log('Creating lesson with video URL:', videoUrl);
     
-    const res = await fetch(`${API_BASE}/lesson/create/${currentSectionId}?instructorId=${TEACHER_ID}`, {
-        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
-    });
-    const data = await res.json();
+    const data = await apiPost(`/lesson/create/${currentSectionId}?instructorId=${TEACHER_ID}`, body);
     if (data?.result || data?.status) {
         showToast('Đã thêm bài học!', 'success');
         

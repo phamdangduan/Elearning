@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
+
 @Repository
 public interface LessonProgressRepository extends JpaRepository<LessonProgress,String> {
     boolean existsByUser_IdAndLesson_Id(String userId, String lessonId);
@@ -35,4 +38,8 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress,S
     LocalDateTime findLastAccessedAtByCourse(@Param("studentId") String studentId,
                                              @Param("courseId") String courseId);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM LessonProgress lp WHERE lp.course.id = :courseId")
+    void deleteByCourseId(@Param("courseId") String courseId);
 }

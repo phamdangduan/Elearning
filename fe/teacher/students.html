@@ -326,7 +326,6 @@
             <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
         </nav>
         <div class="sidebar-footer">
-            <a href="../student/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang học viên</span></a>
             <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
         </div>
     </aside>
@@ -601,8 +600,8 @@ async function loadAllData() {
         allEnrollments.push({
             studentId: e.userId,
             studentName: e.instructorName || 'Học viên', // Backend uses instructorName field for student name
-            studentEmail: '', // Not available in API, would need separate call
-            studentAvatar: null, // Not available in API
+            studentEmail: e.studentEmail || '', 
+            studentAvatar: e.studentAvatar || null,
             courseId: e.courseId,
             courseTitle: e.courseTitle,
             courseThumbnail: e.courseThumbnailUrl,

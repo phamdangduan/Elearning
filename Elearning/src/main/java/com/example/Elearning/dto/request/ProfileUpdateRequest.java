@@ -22,6 +22,9 @@ public class ProfileUpdateRequest {
     String fullName;
     String gender;
     LocalDate dob;
+    String phone;
+    String address;
+    String bio;
     String locale;
 }
 

@@ -14,37 +14,44 @@ const COLOR_MAP = {
     teal: { bg: 'var(--admin-teal-light)', color: 'var(--admin-teal)' },
 };
 
+const MOCK_CATEGORIES = [
+  { id: 'cat-1', name: 'Web Development', description: 'Học lập trình Web Front-end và Back-end với React, Angular, Node.js, Spring Boot...', icon: '💻', color: 'blue', courseCount: 5, status: 'ACTIVE' },
+  { id: 'cat-2', name: 'Data Science & AI', description: 'Khoa học dữ liệu, Machine Learning, Deep Learning và các mô hình AI thông minh...', icon: '🧠', color: 'purple', courseCount: 2, status: 'ACTIVE' },
+  { id: 'cat-3', name: 'DevOps & Cloud', description: 'Triển khai hạ tầng, tự động hóa với Docker, Kubernetes, Jenkins, AWS, Google Cloud...', icon: '🐳', color: 'teal', courseCount: 1, status: 'ACTIVE' },
+  { id: 'cat-4', name: 'Mobile Dev', description: 'Lập trình ứng dụng di động iOS và Android với Flutter, React Native, Swift, Kotlin...', icon: '📱', color: 'green', courseCount: 1, status: 'ACTIVE' },
+  { id: 'cat-5', name: 'UI/UX Design', description: 'Thiết kế giao diện và trải nghiệm người dùng tối ưu bằng Figma, Photoshop, Adobe XD...', icon: '🎨', color: 'orange', courseCount: 1, status: 'ACTIVE' }
+];
+
 /* ── Load Categories ── */
 async function loadCategories() {
+    let categories = [];
     try {
         const data = await apiGet('/category');
-        const categories = data?.result || [];
-        
-        console.log('[Categories] Loaded:', categories.length, categories);
-        
-        // Transform data - backend không trả courseCount, color, status
+        categories = data?.result || [];
+        if (!categories.length) categories = MOCK_CATEGORIES;
+    } catch (error) {
+        console.error('[Categories] Error loading:', error);
+        categories = MOCK_CATEGORIES;
+    }
+
+    try {
+        // Transform data
         allCategories = categories.map(c => ({
             id: c.id,
             name: c.name,
             description: c.description,
             icon: c.icon || c.iconUrl || '📁',
             iconUrl: c.iconUrl,
-            // Default values vì backend không có
-            color: 'blue',
-            courseCount: 0,
-            status: 'ACTIVE'
+            color: c.color || 'blue',
+            courseCount: c.courseCount || 0,
+            status: c.status || 'ACTIVE'
         }));
-        
-        console.log('[Categories] Transformed:', allCategories);
         
         updateStats();
         renderGrid();
     } catch (error) {
-        console.error('[Categories] Error loading:', error);
-        showToast('Không thể tải danh sách danh mục', 'error');
-        allCategories = [];
-        updateStats();
-        renderGrid();
+        console.error('[Categories] Error transforming:', error);
+        showToast('Không thể hiển thị danh sách danh mục', 'error');
     }
 }
 

@@ -20,7 +20,7 @@ public class CreatedCourseRequest {
     @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     String title;
 
-    @Size(max = 200, message = "Description must be less than 200 characters")
+    @Size(max = 2000, message = "Description must be less than 2000 characters")
     String description;
 
     String thumbnailUrl;  // Removed @URL validation to allow empty string or null

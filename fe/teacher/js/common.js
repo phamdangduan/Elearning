@@ -14,8 +14,8 @@
     return;
   }
 
-  // Always use teacher-001 for now (can be changed to use localStorage later)
-  window.TEACHER_ID = 'teacher-001';
+  // Read teacher ID from localStorage, fallback to teacher-001 if not found
+  window.TEACHER_ID = localStorage.getItem('userId') || 'teacher-001';
   window.API_BASE = "http://localhost:8080";
   
   console.log('Teacher common.js initialized with userId:', window.TEACHER_ID);
@@ -244,8 +244,10 @@ function initDropdowns() {
     const el = document.getElementById(id);
     if (el)
       el.addEventListener("click", () => {
-        if (confirm("Bạn có chắc muốn đăng xuất?"))
-          window.location.href = "../student/index.html";
+        if (confirm("Bạn có chắc muốn đăng xuất?")) {
+          localStorage.clear();
+          window.location.href = "../index.html";
+        }
       });
   });
 

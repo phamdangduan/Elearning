@@ -632,8 +632,24 @@ tbody tr:hover td { background: #f8faff; }
 @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.mobile-open { transform: translateX(0); }
-    .topnav { left: 0; }
-    .main-content { margin-left: 0; }
+    .topnav { 
+        left: 0; 
+        padding: 0 16px; 
+        gap: 10px;
+    }
+    .topnav-subtitle {
+        display: none;
+    }
+    .topnav-title {
+        font-size: 15px;
+    }
+    .user-pill-name {
+        display: none;
+    }
+    .user-pill {
+        padding: 4px;
+    }
+    .main-content { margin-left: 0; padding: 16px; }
     .stats-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
     .form-row, .form-row-3 { grid-template-columns: 1fr; }
 }

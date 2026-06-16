@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -77,7 +78,33 @@ public interface PaymentRequestRepository extends JpaRepository<PaymentRequest, 
     // Tìm các payment đã hết hạn (để auto-expire)
     List<PaymentRequest> findByStatusAndExpiredAtBefore(PaymentStatus status, LocalDateTime expiredAt);
 
-    List<PaymentRequest> findByStatus(PaymentStatus status);
+    @Query("SELECT p FROM PaymentRequest p " +
+            "LEFT JOIN FETCH p.student " +
+            "LEFT JOIN FETCH p.course " +
+            "LEFT JOIN FETCH p.instructor " +
+            "WHERE p.status = :status " +
+            "ORDER BY p.createdAt DESC")
+    List<PaymentRequest> findByStatus(@Param("status") PaymentStatus status);
 
+    @Query("SELECT p FROM PaymentRequest p " +
+            "LEFT JOIN FETCH p.student " +
+            "LEFT JOIN FETCH p.course " +
+            "LEFT JOIN FETCH p.instructor " +
+            "ORDER BY p.createdAt DESC")
+    List<PaymentRequest> findAllWithDetails();
 
+    // ── Admin Stats Queries (tính trực tiếp từ DB) ──
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PaymentRequest p WHERE p.status = 'CONFIRMED'")
+    BigDecimal calculateTotalPlatformRevenue();
+
+    @Query("SELECT COUNT(p) FROM PaymentRequest p WHERE p.status = :status")
+    Long countAllByPaymentStatus(@Param("status") PaymentStatus status);
+
+    @Query("SELECT COUNT(p) FROM PaymentRequest p")
+    Long countAllPayments();
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query("DELETE FROM PaymentRequest p WHERE p.courseId = :courseId")
+    void deleteByCourseId(@Param("courseId") String courseId);
 }

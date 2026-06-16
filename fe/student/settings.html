@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt tài khoản - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing CSS & Layout -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <link rel="stylesheet" href="../css/student/profile.css">
+    
+    <style>
+        body { background: #f8fafc; }
+        
+        .account-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .account-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            height: fit-content;
+        }
+
+        .account-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .account-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .account-nav a i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .account-nav a:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .account-nav a.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .page-header-premium {
+            margin-bottom: 30px;
+        }
+
+        .page-header-premium h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page-header-premium p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* Settings Card Styling */
+        .settings-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+
+        .settings-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .settings-card-title i {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        /* Toggle Switches */
+        .setting-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .setting-toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-toggle-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .setting-toggle-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .setting-toggle-info p {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Danger block */
+        .danger-zone-card {
+            border: 1px dashed #fca5a5;
+            background: #fff5f5;
+        }
+
+        .danger-zone-card .settings-card-title i {
+            color: #ef4444;
+        }
+
+        /* Custom overrides to match footer and CTA design */
+        .cta-section {
+            background: #4f46e5;
+            padding: 80px 0;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .cta-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            color: white;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-actions .btn {
+            padding: 12px 32px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cta-actions .btn-primary-white {
+            background: white;
+            color: #4f46e5;
+            border: 1px solid white;
+        }
+
+        .cta-actions .btn-primary-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .cta-actions .btn-outline-white {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .cta-actions .btn-outline-white:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #ffffff !important;
+            padding: 60px 0 40px 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-brand .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #4f46e5;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            max-width: 320px;
+            text-align: left;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .social-link:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer-col h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+            text-transform: none;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-col ul li a {
+            font-size: 14px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-col ul li a:hover {
+            color: #4f46e5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .newsletter-form input {
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .newsletter-form input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .newsletter-form button.btn-primary-blue {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .newsletter-form button.btn-primary-blue:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .account-layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            .account-sidebar {
+                padding: 16px;
+            }
+            .account-nav {
+                flex-direction: row;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 8px;
+            }
+            .account-nav::-webkit-scrollbar {
+                height: 4px;
+            }
+            .account-nav::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link">Giảng viên</a>
+                <a href="categories.html" class="nav-link">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="container" style="padding-top: 140px; padding-bottom: 80px; min-height: calc(100vh - 80px);">
+        
+        <div class="account-layout">
+            
+            <!-- Sidebar Navigation -->
+            <aside class="account-sidebar">
+                <nav class="account-nav">
+                    <a href="profile.html">
+                        <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                    </a>
+                    <a href="settings.html" class="active">
+                        <i class="fas fa-cog"></i> Cài đặt tài khoản
+                    </a>
+                    <a href="payments.html">
+                        <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Account Content -->
+            <div class="account-content">
+                <div class="page-header-premium">
+                    <h1>Cài đặt tài khoản</h1>
+                    <p>Quản lý mật khẩu, bảo mật và thiết lập tùy chỉnh tài khoản của bạn.</p>
+                </div>
+
+                <!-- Card 1: Change Password -->
+                <div class="settings-card">
+                    <h3 class="settings-card-title">
+                        <i class="fas fa-shield-alt"></i> Thay đổi mật khẩu
+                    </h3>
+                    <form id="passwordForm">
+                        <div class="profile-form-group">
+                            <label>Mật khẩu hiện tại</label>
+                            <input type="password" id="oldPassword" class="profile-form-control" required placeholder="Nhập mật khẩu cũ của bạn...">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                            <div class="profile-form-group" style="margin-bottom: 0;">
+                                <label>Mật khẩu mới</label>
+                                <input type="password" id="newPassword" class="profile-form-control" required placeholder="Tối thiểu 6 ký tự...">
+                            </div>
+                            <div class="profile-form-group" style="margin-bottom: 0;">
+                                <label>Xác nhận mật khẩu mới</label>
+                                <input type="password" id="confirmNewPassword" class="profile-form-control" required placeholder="Nhập lại mật khẩu mới...">
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <button type="submit" class="btn btn-primary" id="changePasswordBtn">Cập nhật mật khẩu</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Card 2: Notification Settings -->
+                <div class="settings-card">
+                    <h3 class="settings-card-title">
+                        <i class="fas fa-bell"></i> Cài đặt thông báo
+                    </h3>
+                    <div class="setting-toggle-row">
+                        <div class="setting-toggle-info">
+                            <h4>Thông báo bài học mới</h4>
+                            <p>Nhận email thông báo khi giảng viên đăng tải bài giảng hoặc tài liệu mới trong khóa học đã đăng ký.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyNewLesson" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-toggle-row">
+                        <div class="setting-toggle-info">
+                            <h4>Nhận phản hồi thảo luận</h4>
+                            <p>Thông báo cho tôi khi giảng viên hoặc học viên khác trả lời câu hỏi của tôi trong phần thảo luận.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyDiscussion" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-toggle-row">
+                        <div class="setting-toggle-info">
+                            <h4>Bản tin khuyến mãi & sự kiện</h4>
+                            <p>Nhận thông tin về các chương trình giảm giá học phí và khóa học mới nổi bật hàng tuần.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyMarketing">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Card 3: Privacy Settings -->
+                <div class="settings-card">
+                    <h3 class="settings-card-title">
+                        <i class="fas fa-eye"></i> Quyền riêng tư hiển thị
+                    </h3>
+                    <div class="setting-toggle-row">
+                        <div class="setting-toggle-info">
+                            <h4>Hồ sơ công khai</h4>
+                            <p>Cho phép các học viên khác tìm kiếm và xem hồ sơ học tập cá nhân của bạn.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="privacyPublicProfile" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-toggle-row">
+                        <div class="setting-toggle-info">
+                            <h4>Bảng xếp hạng tiến độ</h4>
+                            <p>Hiển thị tên và tiến độ học tập của tôi trên bảng xếp hạng thi đua của các khóa học.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="privacyLeaderboard" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Card 4: Danger Zone -->
+                <div class="settings-card danger-zone-card">
+                    <h3 class="settings-card-title">
+                        <i class="fas fa-exclamation-triangle"></i> Khu vực nguy hiểm
+                    </h3>
+                    <div class="setting-toggle-row" style="border: none;">
+                        <div class="setting-toggle-info">
+                            <h4 style="color: #ef4444;">Vô hiệu hóa tài khoản</h4>
+                            <p style="color: #ef4444; opacity: 0.8;">Hành động này sẽ tạm khóa tài khoản của bạn. Bạn có thể kích hoạt lại bất kỳ lúc nào bằng cách đăng nhập lại.</p>
+                        </div>
+                        <button class="btn" id="deactivateAccountBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;">Tạm khóa tài khoản</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                <p>Đăng ký ngay hôm nay để nhận được những ưu đãi độc quyền và lộ trình học tập được cá nhân hóa cho riêng bạn.</p>
+                <div class="cta-actions">
+                    <a href="../register.html" class="btn btn-primary-white">Bắt đầu ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="../index.html" class="nav-brand">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="../about.html">Giới thiệu</a></li>
+                        <li><a href="instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:#64748b;margin-bottom:12px;line-height:1.6;text-align:left;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin!'); this.reset();">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn-primary-blue">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '../login.html';
+        });
+
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const guest = document.getElementById('navGuestActions');
+        const logged = document.getElementById('navLoggedIn');
+        if (token) {
+            if (guest) guest.style.display = 'none';
+            if (logged) logged.style.display = 'flex';
+            let dispName = localStorage.getItem('userName') || 'Sinh viên';
+            let avatarUrl = '';
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const data = JSON.parse(userStr);
+                    dispName = data.fullName || data.username || dispName;
+                    avatarUrl = data.avatar || data.avatarUrl || '';
+                } catch(e) {}
+            }
+            const nameEl = document.getElementById('userNameDisplay') || document.getElementById('landingUserName');
+            if(nameEl) nameEl.textContent = dispName;
+            const avatarEl = document.getElementById('navUserAvatar');
+            if(avatarEl) {
+                if (avatarUrl) {
+                    avatarEl.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                } else {
+                    avatarEl.textContent = dispName.charAt(0).toUpperCase();
+                }
+            }
+
+            // Intercept "Khóa học" links to redirect to my-courses.html
+            const courseLinks = document.querySelectorAll('a.nav-link[href*="catalog.html"]');
+            courseLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'my-courses.html';
+                });
+            });
+        } else {
+            if (guest) guest.style.display = 'flex';
+            if (logged) logged.style.display = 'none';
+        }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+    </script>
+    <script src="../js/student/settings.js"></script>
+</body>
+</html>

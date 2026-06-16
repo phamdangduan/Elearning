@@ -37,7 +37,6 @@
       <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
     </nav>
     <div class="sidebar-footer">
-      <a href="../teacher/index.html" class="nav-item"><i class="fas fa-exchange-alt"></i><span>Trang giảng viên</span></a>
       <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
     </div>
   </aside>
@@ -62,8 +61,6 @@
           <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
         </div>
         <div class="dropdown-menu" id="userDropdown">
-          <div class="dropdown-item" onclick="location.href='../teacher/index.html'"><i class="fas fa-exchange-alt"></i>Trang giảng viên</div>
-          <div class="dropdown-divider"></div>
           <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
         </div>
       </div>
@@ -105,10 +102,10 @@
     <!-- Status Tabs -->
     <div class="tabs" id="statusTabs">
       <button class="tab-btn active" data-status="" onclick="switchTab(this,'')">Tất cả</button>
-      <button class="tab-btn" data-status="PROOF_UPLOADED" onclick="switchTab(this,'PROOF_UPLOADED')">📋 Chờ duyệt</button>
-      <button class="tab-btn" data-status="PENDING_PROOF" onclick="switchTab(this,'PENDING_PROOF')">⏳ Chờ bill</button>
+      <button class="tab-btn" data-status="PENDING" onclick="switchTab(this,'PENDING')">📋 Chờ xử lý</button>
       <button class="tab-btn" data-status="CONFIRMED" onclick="switchTab(this,'CONFIRMED')">✅ Đã xác nhận</button>
       <button class="tab-btn" data-status="REJECTED" onclick="switchTab(this,'REJECTED')">❌ Từ chối</button>
+      <button class="tab-btn" data-status="EXPIRED" onclick="switchTab(this,'EXPIRED')">⌛ Hết hạn</button>
     </div>
 
     <!-- Filter -->

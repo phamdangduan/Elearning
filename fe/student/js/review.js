@@ -4,7 +4,7 @@
 ===================================================== */
 
 const API_BASE = 'http://localhost:8080';
-const USER_ID = 'student-001'; // Hardcoded for testing
+const USER_ID = localStorage.getItem('userId') || 'student-001';
 
 // ── State Management ──
 const state = {
@@ -27,7 +27,14 @@ const state = {
 // ── API Helper ──
 async function apiGet(path) {
     try {
-        const res = await fetch(`${API_BASE}${path}`);
+        const headers = {};
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${API_BASE}${path}`, {
+            headers: headers
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (err) {
@@ -38,9 +45,14 @@ async function apiGet(path) {
 
 async function apiPost(path, body) {
     try {
+        const headers = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         const res = await fetch(`${API_BASE}${path}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify(body)
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -140,7 +152,7 @@ async function loadCourseData() {
     
     if (!state.courseId) {
         showToast('Không tìm thấy ID khóa học', 'error');
-        setTimeout(() => window.location.href = 'my-learning.html', 2000);
+        setTimeout(() => window.location.href = 'my-courses.html', 2000);
         return;
     }
 
@@ -165,7 +177,7 @@ async function loadCourseData() {
         
         if (!state.enrollment) {
             showToast('Bạn chưa đăng ký khóa học này', 'warning');
-            setTimeout(() => window.location.href = `detailcourse.html?courseId=${state.courseId}`, 2000);
+            setTimeout(() => window.location.href = `../course-detail.html?id=${state.courseId}`, 2000);
             return;
         }
     }
@@ -291,16 +303,15 @@ function disableFormForViewing() {
 
 // ── Load Course Reviews ──
 async function loadCourseReviews() {
-    const reviewsData = await apiGet(`/review/get-reviewsForCourse?courseId=${state.courseId}&page=0&size=3&sort=createdAt,desc`);
+    const reviewsData = await apiGet(`/review/get-reviewsForCourse?courseId=${state.courseId}&page=0&size=1000`);
     
     if (reviewsData?.result?.content) {
-        state.courseReviews = reviewsData.result.content;
+        const allReviews = reviewsData.result.content;
+        state.courseReviews = allReviews.slice(0, 3);
         renderCommunityReviews();
         
-        // Update rating summary
-        if (state.course) {
-            renderRatingSummary();
-        }
+        // Update rating summary and distribution dynamically
+        renderRatingDistribution(allReviews);
     }
 }
 
@@ -331,25 +342,66 @@ function renderCourseInfo() {
     document.querySelector('.hcc-progress-bar-fill').style.width = `${progress}%`;
     document.querySelector('.hcc-progress-label strong').textContent = `${Math.round(progress)}%`;
     
-    // Update breadcrumb
-    const breadcrumbCourse = document.querySelector('.breadcrumb a[href="detailcourse.html"]');
+    // Update breadcrumb and links
+    const breadcrumbCourse = document.getElementById('breadcrumbCourseLink');
     if (breadcrumbCourse) {
-        breadcrumbCourse.href = `detailcourse.html?courseId=${state.courseId}`;
+        breadcrumbCourse.href = `../course-detail.html?id=${state.courseId}`;
+    }
+    const seeAllReviewsLink = document.getElementById('seeAllReviewsLink');
+    if (seeAllReviewsLink) {
+        seeAllReviewsLink.href = `../course-detail.html?id=${state.courseId}#reviews`;
     }
 }
 
-// ── Render Rating Summary ──
-function renderRatingSummary() {
-    const rating = parseFloat(state.course.averageRating) || 0;
-    const totalReviews = state.course.totalReviews || 0;
+// ── Render Rating Distribution ──
+function renderRatingDistribution(allReviews) {
+    const total = allReviews.length;
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     
-    // Update big score
-    document.querySelector('.big-score-number').textContent = rating > 0 ? rating.toFixed(1) : '0.0';
-    document.querySelector('.big-score-label').textContent = `Dựa trên ${totalReviews.toLocaleString()} đánh giá`;
-    
-    // Update stars
-    const starsHtml = renderStars(rating);
-    document.querySelector('.big-score-stars').innerHTML = starsHtml;
+    allReviews.forEach(r => {
+        const rating = Math.round(r.rating || 0);
+        if (counts[rating] !== undefined) {
+            counts[rating]++;
+        }
+    });
+
+    const container = document.querySelector('.rating-dist');
+    if (container) {
+        let html = '';
+        for (let stars = 5; stars >= 1; stars--) {
+            const count = counts[stars];
+            const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+            html += `
+                <div class="dist-row">
+                    <div class="dist-star"><i class="fas fa-star"></i>${stars}</div>
+                    <div class="dist-bar-bg">
+                        <div class="dist-bar-fill" style="width:${percent}%"></div>
+                    </div>
+                    <div class="dist-pct">${percent}%</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    // Calculate dynamic average
+    let sum = 0;
+    allReviews.forEach(r => sum += (r.rating || 0));
+    const computedAvg = total > 0 ? (sum / total) : 0;
+
+    // Update big score card
+    const bigScoreNum = document.querySelector('.big-score-number');
+    if (bigScoreNum) {
+        bigScoreNum.textContent = computedAvg > 0 ? computedAvg.toFixed(1) : '0.0';
+    }
+    const bigScoreLabel = document.querySelector('.big-score-label');
+    if (bigScoreLabel) {
+        bigScoreLabel.textContent = `Dựa trên ${total.toLocaleString()} đánh giá`;
+    }
+    const bigScoreStars = document.querySelector('.big-score-stars');
+    if (bigScoreStars) {
+        bigScoreStars.innerHTML = renderStars(computedAvg);
+    }
 }
 
 function renderStars(rating) {
@@ -585,12 +637,12 @@ async function submitReview() {
     try {
         const result = await apiPost(`/review/create?userId=${USER_ID}`, requestData);
         
-        if (result?.code === 200) {
+        if (result?.status === 200 || result?.code === 200) {
             showToast('Đánh giá của bạn đã được gửi thành công!', 'success');
             
             // Redirect after 2 seconds
             setTimeout(() => {
-                window.location.href = `detailcourse.html?courseId=${state.courseId}#reviews`;
+                window.location.href = `../course-detail.html?id=${state.courseId}#reviews`;
             }, 2000);
         } else {
             const errorMsg = result?.message || 'Không thể gửi đánh giá';
@@ -609,7 +661,9 @@ async function submitReview() {
 // ── Cancel Button ──
 function setupCancelButton() {
     const cancelBtn = document.getElementById('cancelBtn');
-    cancelBtn.href = `detailcourse.html?courseId=${state.courseId}`;
+    if (cancelBtn) {
+        cancelBtn.href = `../course-detail.html?id=${state.courseId}`;
+    }
 }
 
 // ── Scroll to Top ──

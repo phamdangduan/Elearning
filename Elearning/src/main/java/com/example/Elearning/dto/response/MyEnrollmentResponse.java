@@ -24,4 +24,7 @@ public class MyEnrollmentResponse {
     Double progress;
     Integer completedLessons;  // Number of completed lessons
     Integer totalLessons;      // Total lessons in course
+    String paymentStatus;
+    String studentEmail;
+    String studentAvatar;
 }

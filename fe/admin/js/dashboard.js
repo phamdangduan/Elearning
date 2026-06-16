@@ -128,7 +128,12 @@ async function loadSystemStats() {
 async function loadPendingPayments() {
     try {
         const data = await apiGet('/payment-request/pending?page=0&size=10');
-        const payments = data?.result?.content || [];
+        const payments = (data?.result?.content || []).map(p => {
+            if (p.status === 'PENDING') {
+                p.status = p.paymentProofUrl ? 'PROOF_UPLOADED' : 'PENDING_PROOF';
+            }
+            return p;
+        });
         
         console.log('[Pending Payments] Found:', payments.length);
         

@@ -2,9 +2,11 @@ package com.example.Elearning.controller;
 
 import com.example.Elearning.dto.ApiResponse;
 import com.example.Elearning.dto.request.ProfileUpdateRequest;
+import com.example.Elearning.dto.request.ChangePasswordRequest;
 import com.example.Elearning.dto.response.ProfileResponse;
 import com.example.Elearning.exception.SuccessCode;
 import com.example.Elearning.service.ProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -67,10 +69,23 @@ public class ProfileController {
         );
     }
 
+    @GetMapping("/{userId}")
+    public ApiResponse<ProfileResponse> getUserProfile(@PathVariable String userId) {
+        return ApiResponse.ok(profileService.getMyProfile(userId), SuccessCode.GET_PROFILE_SUCCESS);
+    }
+
     @DeleteMapping("/{userId}")
     public ApiResponse<Void> deleteUser(@PathVariable String userId) {
         profileService.deleteUser(userId);
         return ApiResponse.ok(null, SuccessCode.DELETE_ALL_SUCCESS);
+    }
+
+    @PostMapping("/change-password")
+    public ApiResponse<Void> changePassword(
+            @RequestParam String userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        profileService.changePassword(userId, request.getOldPassword(), request.getNewPassword());
+        return ApiResponse.ok(null, SuccessCode.PROFILE_UPDATED);
     }
 
 }

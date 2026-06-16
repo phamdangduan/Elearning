@@ -31,6 +31,8 @@ public class CourseDetailResponse {
     Integer totalStudents;  // Alias for totalEnrollments for frontend compatibility
     Integer totalLessons;
     Integer totalDurationSeconds;
+    List<String> categoryIds;
+    List<String> categoryNames;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh mục Khóa học - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/common/landing.css">
+    <style>
+        #catalogSearchForm div:focus-within {
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="catalog.html" class="nav-link" style="color: var(--primary); font-weight: 700;">Khóa học</a>
+                <a href="student/instructors.html" class="nav-link">Giảng viên</a>
+                <a href="student/categories.html" class="nav-link">Danh mục</a>
+                <a href="about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions">
+                    <a href="login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" hidden onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="landingUserName">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="student/profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="student/settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="student/payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="landingLogoutBtn" style="color: #ef4444;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- ══ HEADER ══ -->
+    <section class="courses-section" style="padding-top: 120px;">
+        <div class="container">
+            <div class="section-header text-left">
+                <h2 class="section-title" id="catalogTitle">Tất cả khóa học</h2>
+                <p class="section-desc" id="catalogDesc">Khám phá hàng ngàn khóa học chất lượng cao từ các chuyên gia hàng đầu.</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="catalog-search-wrapper" style="margin-bottom: 40px; max-width: 600px;">
+                <form id="catalogSearchForm" style="display: flex; gap: 12px; position: relative;">
+                    <div style="position: relative; flex: 1; display: flex; align-items: center; background: white; border: 1.5px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.3s;">
+                        <i class="fas fa-search" style="position: absolute; left: 16px; color: var(--text-muted); font-size: 16px; pointer-events: none;"></i>
+                        <input type="text" id="catalogSearchInput" placeholder="Tìm kiếm khóa học theo tên hoặc kỹ năng..." style="width: 100%; padding: 14px 16px 14px 48px; border: none; border-radius: 12px; font-size: 15px; outline: none; background: transparent;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 14px 28px; border-radius: 12px; font-weight: 600;">Tìm kiếm</button>
+                </form>
+            </div>
+
+            <!-- ══ COURSE GRID ══ -->
+            <div class="course-grid" id="catalogGrid">
+                <!-- Skeletons -->
+                <div class="skeleton" style="height: 320px;"></div>
+                <div class="skeleton" style="height: 320px;"></div>
+                <div class="skeleton" style="height: 320px;"></div>
+                <div class="skeleton" style="height: 320px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-brand" style="margin-bottom: 20px; display: flex;">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="about.html">Giới thiệu</a></li>
+                        <li><a href="student/instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/catalog.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

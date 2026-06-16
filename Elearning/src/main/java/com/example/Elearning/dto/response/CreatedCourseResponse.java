@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,5 +23,6 @@ public class CreatedCourseResponse {
     BigDecimal price;
     String userId;
     String status;
+    List<String> categoryIds;
     LocalDateTime createdAt;
 }

@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, String> {
     boolean existsByUser_IdAndCourse_Id(String userId, String courseId);
+    java.util.Optional<Enrollment> findByUser_IdAndCourse_Id(String userId, String courseId);
     Page<Enrollment> findByUser_Id(String userId, Pageable pageable);
     boolean existsByUserIdAndCourseId(String userId, String courseId);
     Integer countByCourse_Id(String courseId);

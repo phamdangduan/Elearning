@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ Giảng viên - EduVN</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Landing & Layout CSS -->
+    <link rel="stylesheet" href="../css/common/landing.css">
+    <link rel="stylesheet" href="../css/student/student-layout.css">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4f46e5, #6366f1);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --card-border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .profile-hero {
+            background: linear-gradient(135deg, #e0e7ff 0%, #e8edd5 100%);
+            padding: 140px 0 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to top, #f8fafc, transparent);
+            pointer-events: none;
+        }
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 991px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Info Card */
+        .profile-sidebar {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: var(--card-border);
+            text-align: center;
+            height: fit-content;
+        }
+
+        .profile-avatar-container {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin: 0 auto 24px auto;
+            position: relative;
+            padding: 6px;
+            background: white;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: 800;
+            color: #4f46e5;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+        }
+
+        .profile-socials {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .profile-social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .profile-social-link:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Main Content area */
+        .profile-main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* Stats Grid */
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .profile-stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: var(--card-border);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .profile-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+        }
+
+        .profile-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #f5f3ff;
+            color: #7c3aed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .profile-stat-card.blue .profile-stat-icon { background: #eff6ff; color: #2563eb; }
+        .profile-stat-card.yellow .profile-stat-icon { background: #fffbeb; color: #d97706; }
+        .profile-stat-card.green .profile-stat-icon { background: #f0fdf4; color: #16a34a; }
+
+        .profile-stat-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .profile-stat-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Bio Block */
+        .profile-section-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: var(--card-border);
+        }
+
+        .section-header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header-title i {
+            color: #4f46e5;
+        }
+
+        .profile-bio-text {
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        /* Course list grid */
+        .instructor-courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .ins-course-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: var(--card-border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ins-course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            border-color: rgba(79, 70, 229, 0.2);
+        }
+
+        .ins-course-img {
+            height: 160px;
+            width: 100%;
+            object-fit: cover;
+            background-color: #e2e8f0;
+        }
+
+        .ins-course-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ins-course-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .ins-course-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .ins-course-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .ins-course-rating i {
+            color: #f5a623;
+        }
+
+        .ins-course-price {
+            font-weight: 700;
+            color: #4f46e5;
+            font-size: 15px;
+        }
+
+        /* Custom overrides to match footer and CTA design */
+        .cta-section {
+            background: #4f46e5; /* Primary color */
+            padding: 80px 0;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .cta-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            color: white;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-actions .btn {
+            padding: 12px 32px;
+            border-radius: 30px; /* Fully rounded buttons */
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cta-actions .btn-primary-white {
+            background: white;
+            color: #4f46e5;
+            border: 1px solid white;
+        }
+
+        .cta-actions .btn-primary-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .cta-actions .btn-outline-white {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .cta-actions .btn-outline-white:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: #ffffff !important; /* Force pure white background */
+            padding: 60px 0 40px 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-brand .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #4f46e5;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .footer-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            max-width: 320px;
+            text-align: left;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .social-link:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer-col h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 20px;
+            text-transform: none;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-col ul li a {
+            font-size: 14px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-col ul li a:hover {
+            color: #4f46e5;
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .newsletter-form input {
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .newsletter-form input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .newsletter-form button.btn-primary-blue {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .newsletter-form button.btn-primary-blue:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-brand">
+                <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                <span>EduVN</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="../catalog.html" class="nav-link">Khóa học</a>
+                <a href="instructors.html" class="nav-link" style="color: var(--primary); font-weight: 700;">Giảng viên</a>
+                <a href="categories.html" class="nav-link">Danh mục</a>
+                <a href="../about.html" class="nav-link">Về chúng tôi</a>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-actions-guest" id="navGuestActions" style="display: none;">
+                    <a href="../login.html" class="nav-login" style="margin-right: 16px;">Đăng nhập</a>
+                    <a href="../register.html" class="btn btn-primary">Đăng ký miễn phí</a>
+                </div>
+                <div class="nav-actions-user user-dropdown" id="navLoggedIn" onclick="this.classList.toggle('active')">
+                    <div class="user-dropdown-toggle">
+                        <div class="user-avatar" id="navUserAvatar">SV</div>
+                        <span class="user-name-text" id="userNameDisplay">Sinh viên</span>
+                    </div>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
+                        <a href="payments.html" class="dropdown-item">
+                            <i class="fas fa-credit-card"></i> Lịch sử thanh toán
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="logoutBtn" style="color: #ef4444; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- HERO PROFILE HEADER -->
+    <section class="profile-hero">
+        <div class="container">
+        </div>
+    </section>
+
+    <!-- PROFILE LAYOUT -->
+    <main class="container" style="padding-bottom: 80px; margin-top: -60px;">
+        <div class="profile-container">
+            
+            <!-- Sidebar -->
+            <aside class="profile-sidebar" id="profileSidebar">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar" id="instructorAvatar">G</div>
+                </div>
+                <h2 class="profile-name" id="instructorName">Đang tải...</h2>
+                <div class="profile-badge" id="instructorTitle">Giảng viên</div>
+                <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 0;" id="instructorEmail"></p>
+                
+                <div class="profile-socials">
+                    <a href="#" class="profile-social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="profile-social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="profile-social-link"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <section class="profile-main-content">
+                
+                <!-- Stats Row -->
+                <div class="profile-stats-grid">
+                    <div class="profile-stat-card yellow">
+                        <div class="profile-stat-icon"><i class="fas fa-star"></i></div>
+                        <div class="profile-stat-num" id="statRating">0.0</div>
+                        <div class="profile-stat-label">Đánh giá trung bình</div>
+                    </div>
+                    <div class="profile-stat-card blue">
+                        <div class="profile-stat-icon"><i class="fas fa-comment-dots"></i></div>
+                        <div class="profile-stat-num" id="statReviews">0</div>
+                        <div class="profile-stat-label">Tổng số đánh giá</div>
+                    </div>
+                    <div class="profile-stat-card green">
+                        <div class="profile-stat-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div class="profile-stat-num" id="statStudents">0</div>
+                        <div class="profile-stat-label">Học viên đăng ký</div>
+                    </div>
+                    <div class="profile-stat-card">
+                        <div class="profile-stat-icon"><i class="fas fa-book-open"></i></div>
+                        <div class="profile-stat-num" id="statCourses">0</div>
+                        <div class="profile-stat-label">Khóa học giảng dạy</div>
+                    </div>
+                </div>
+
+                <!-- Bio Block -->
+                <div class="profile-section-card">
+                    <h3 class="section-header-title">
+                        <i class="fas fa-user"></i> Giới thiệu bản thân
+                    </h3>
+                    <div class="profile-bio-text" id="instructorBio">
+                        Đang tải thông tin giới thiệu giảng viên...
+                    </div>
+                </div>
+
+                <!-- Course List Block -->
+                <div class="profile-section-card">
+                    <h3 class="section-header-title">
+                        <i class="fas fa-graduation-cap"></i> Các khóa học đang giảng dạy
+                    </h3>
+                    <div class="instructor-courses-grid" id="instructorCoursesGrid">
+                        <!-- Sẽ được điền bằng Javascript -->
+                        <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #64748b;">
+                            Đang tải danh sách khóa học...
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ══ CTA ══ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                <p>Đăng ký ngay hôm nay để nhận được những ưu đãi độc quyền và lộ trình học tập được cá nhân hóa cho riêng bạn.</p>
+                <div class="cta-actions">
+                    <a href="../register.html" class="btn btn-primary-white">Bắt đầu ngay</a>
+                    <a href="#" class="btn btn-outline-white">Liên hệ tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="../index.html" class="nav-brand">
+                        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span>EduVN</span>
+                    </a>
+                    <p class="footer-desc">
+                        © 2026 EduVN - Nền tảng học tập trực tuyến hàng đầu Việt Nam. Nâng tầm tri thức đến mọi nơi.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="../about.html">Giới thiệu</a></li>
+                        <li><a href="instructors.html">Đội ngũ giảng viên</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ & Pháp lý</h4>
+                    <ul>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Trung tâm hỗ trợ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nhận bản tin</h4>
+                    <ul>
+                        <li><p style="font-size:14px;color:#64748b;margin-bottom:12px;line-height:1.6;text-align:left;">Cập nhật những khóa học mới nhất và tin tức công nghệ từ EduVN.</p></li>
+                        <li>
+                            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin!'); this.reset();">
+                                <input type="email" placeholder="Email của bạn" required>
+                                <button type="submit" class="btn-primary-blue">Đăng ký</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/student/instructor-profile-page.js"></script>
+
+</body>
+</html>

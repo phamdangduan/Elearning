@@ -1,0 +1,274 @@
+/* Cải thiện CSS Layout với hiệu ứng Glassmorphism, Micro-animations và Gradient */
+
+body {
+    background-color: #f3f6f9; /* Nền sáng dịu, hiện đại hơn */
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+}
+
+/* Navbar: Glassmorphism effect */
+.navbar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.nav-container {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Layout có Sidebar */
+.student-layout {
+    display: flex;
+    min-height: calc(100vh - 70px);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Sidebar */
+.student-sidebar {
+    width: 280px;
+    background-color: transparent;
+    padding: 32px 16px;
+    position: sticky;
+    top: 70px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-link i {
+    width: 24px;
+    margin-right: 12px;
+    font-size: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-link:hover {
+    color: #4f46e5;
+    background-color: rgba(79, 70, 229, 0.05);
+    transform: translateX(4px);
+}
+
+.sidebar-link:hover i {
+    transform: scale(1.1);
+}
+
+.sidebar-link.active {
+    color: white;
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
+}
+
+.sidebar-link.active i {
+    color: white;
+}
+
+/* Main Content */
+.student-main {
+    flex: 1;
+    padding: 40px;
+    overflow-x: hidden;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Thẻ khóa học Premium */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+}
+
+.course-card {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy hover */
+    display: flex;
+    flex-direction: column;
+}
+
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.12);
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+.course-thumbnail {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    transition: transform 0.5s ease;
+}
+
+.course-card:hover .course-thumbnail {
+    transform: scale(1.05);
+}
+
+/* Cắt hình ảnh bằng overflow hidden trên container */
+.course-img-wrapper {
+    overflow: hidden;
+    height: 180px;
+    width: 100%;
+}
+
+.course-info {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.course-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+.course-card:hover .course-title {
+    color: #4f46e5;
+}
+
+.course-progress-wrap {
+    margin-bottom: 24px;
+    margin-top: auto;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #f1f5f9;
+    border-radius: 999px; /* Pill shape */
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    border-radius: 999px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.course-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.course-actions .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 12px 20px;
+    transition: all 0.3s;
+}
+
+.course-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .student-layout {
+        flex-direction: column;
+    }
+    .student-sidebar {
+        width: 100%;
+        height: auto;
+        padding: 16px;
+        position: static;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        z-index: 10;
+    }
+    .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+        padding-bottom: 8px;
+    }
+    .sidebar-menu::-webkit-scrollbar {
+        height: 4px;
+    }
+    .sidebar-menu::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .sidebar-link {
+        padding: 10px 16px;
+        white-space: nowrap;
+    }
+    .student-main {
+        padding: 24px 16px;
+    }
+}

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,4 +23,8 @@ public class UpdateCourseRequest {
     String description;
     
     BigDecimal price;
+
+    List<String> categoryIds;
+
+    String thumbnailUrl;
 }

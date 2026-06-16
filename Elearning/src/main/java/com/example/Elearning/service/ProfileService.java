@@ -16,4 +16,5 @@ public interface ProfileService {
     String uploadAvatar(MultipartFile avatar, String userId);
     ProfileResponse updateUserStatus(String userId, UserStatus status);  // ← THÊM METHOD NÀY
     void deleteUser(String userId);  // ← THÊM METHOD XÓA USER
+    void changePassword(String userId, String oldPassword, String newPassword); // ← THÊM METHOD ĐỔI MẬT KHẨU
 }

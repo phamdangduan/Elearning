@@ -564,7 +564,7 @@ async function markCurrentLessonDone() {
 
         console.log('Complete lesson result:', result);
 
-        if (result?.code === 200) {
+        if (result?.status === 200 || result?.code === 200) {
             state.completedLessons.add(lesson.id);
             showToast('Đã đánh dấu hoàn thành!', 'success');
             

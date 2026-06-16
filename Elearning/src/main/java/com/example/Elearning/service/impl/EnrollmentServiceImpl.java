@@ -103,6 +103,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                         response.setInstructorName(enrollment.getCourse().getUser().getUserName());
                     }
 
+                    // Set payment status
+                    if (enrollment.getPaymentRequest() != null) {
+                        response.setPaymentStatus(enrollment.getPaymentRequest().getStatus().name());
+                    } else {
+                        response.setPaymentStatus("CONFIRMED");
+                    }
+
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -118,6 +125,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public EnrollmentStatusResponse getEnrollmentStatus(String userId, String courseId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -125,11 +133,23 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        boolean isEnrolled =
-                enrollmentRepository.existsByUser_IdAndCourse_Id(user.getId(), course.getId());
+        java.util.Optional<Enrollment> enrollmentOpt =
+                enrollmentRepository.findByUser_IdAndCourse_Id(user.getId(), course.getId());
+
+        boolean isEnrolled = enrollmentOpt.isPresent();
+        String paymentStatus = null;
+        if (isEnrolled) {
+            Enrollment enrollment = enrollmentOpt.get();
+            if (enrollment.getPaymentRequest() != null) {
+                paymentStatus = enrollment.getPaymentRequest().getStatus().name();
+            } else {
+                paymentStatus = "CONFIRMED";
+            }
+        }
 
         return EnrollmentStatusResponse.builder()
                 .isEnrolled(isEnrolled)
+                .paymentStatus(paymentStatus)
                 .build();
     }
 
@@ -162,9 +182,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
                     response.setProgress(progress);
 
-                    // Set student name (thay vì instructor name)
+                    // Set student name (thay vì instructor name), email, and avatar
                     if (enrollment.getUser() != null) {
                         response.setInstructorName(enrollment.getUser().getUserName());
+                        response.setStudentEmail(enrollment.getUser().getEmail());
+                        if (enrollment.getUser().getProfile() != null) {
+                            response.setStudentAvatar(enrollment.getUser().getProfile().getAvatar());
+                        }
                     }
 
                     return response;

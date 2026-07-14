@@ -24,6 +24,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -33,32 +34,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt)) {
                 String email = jwtUtil.getEmailFromToken(jwt);
-                String role = jwtUtil.getRoleFromToken(jwt);
 
-                // Log for debugging
-                logger.info("JWT Filter - Email: " + email + ", Role from token: " + role);
+                org.springframework.security.core.userdetails.UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                // Spring Security convention: prefix role with ROLE_ if it doesn't have it
-                String authorityRole = role;
-                if (!authorityRole.startsWith("ROLE_")) {
-                    authorityRole = "ROLE_" + role;
+                if (userDetails != null && userDetails.isEnabled()) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    
+                    logger.info("JWT Filter - Authentication set successfully for: " + email);
+                } else {
+                    logger.warn("JWT Filter - User account is disabled or not found: " + email);
                 }
-
-                logger.info("JWT Filter - Authority role set: " + authorityRole);
-
-                List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(authorityRole));
-
-                // Create Authentication token
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        email, null, authorities);
-                
-                // Add request details
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Set Authentication to SecurityContext
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                
-                logger.info("JWT Filter - Authentication set successfully for: " + email);
             } else {
                 logger.warn("JWT Filter - No valid JWT token found in request to: " + request.getRequestURI());
             }

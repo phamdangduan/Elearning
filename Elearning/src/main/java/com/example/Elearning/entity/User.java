@@ -14,7 +14,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements Serializable {
+public class User implements java.io.Serializable {
 
     @Id
     @Column(name = "id", length = 36)
@@ -76,6 +76,4 @@ public class User implements Serializable {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-
 }

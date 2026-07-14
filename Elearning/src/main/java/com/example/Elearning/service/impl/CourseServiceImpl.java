@@ -22,7 +22,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import com.example.Elearning.repository.specification.CourseSpecifications;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -304,16 +308,28 @@ public class CourseServiceImpl implements CourseService {
             CourseSearchRequest searchRequest,
             Pageable pageable) {
 
-        // Gọi repository với các tham số filter
-        Page<Course> coursePage = courseRepository.searchAndFilter(
-                searchRequest.getKeyword(),
-                searchRequest.getCategoryId(),
-                searchRequest.getMinPrice(),
-                searchRequest.getMaxPrice(),
-                searchRequest.getInstructorId(),
-                CourseStatus.PUBLISHED, // Chỉ lấy course đã publish
-                pageable
+        // Build pageable from DTO
+        Sort.Direction direction = Sort.Direction.DESC;
+        if (searchRequest.getSortDirection() != null && searchRequest.getSortDirection().equalsIgnoreCase("ASC")) {
+            direction = Sort.Direction.ASC;
+        }
+        String sortBy = searchRequest.getSortBy() != null ? searchRequest.getSortBy() : "createdAt";
+        
+        Pageable resolvedPageable = PageRequest.of(
+                searchRequest.getPageNo() != null ? searchRequest.getPageNo() : 0,
+                searchRequest.getPageSize() != null ? searchRequest.getPageSize() : 10,
+                Sort.by(direction, sortBy)
         );
+
+        // Tạo specification
+        Specification<Course> spec = CourseSpecifications.buildSpec(
+                searchRequest, 
+                CourseStatus.PUBLISHED, 
+                true // Chỉ lấy khóa học của giáo viên ACTIVE
+        );
+
+        // Gọi repository
+        Page<Course> coursePage = courseRepository.findAll(spec, resolvedPageable);
 
         // Convert sang DTO
         List<CourseResponse> courseResponses = coursePage.getContent()
@@ -337,15 +353,28 @@ public class CourseServiceImpl implements CourseService {
             CourseSearchRequest searchRequest,
             Pageable pageable) {
 
-        // Admin: lấy tất cả courses không filter theo status hay user status
-        Page<Course> coursePage = courseRepository.searchAndFilterAdmin(
-                searchRequest.getKeyword(),
-                searchRequest.getCategoryId(),
-                searchRequest.getMinPrice(),
-                searchRequest.getMaxPrice(),
-                searchRequest.getInstructorId(),
-                pageable
+        // Build pageable from DTO
+        Sort.Direction direction = Sort.Direction.DESC;
+        if (searchRequest.getSortDirection() != null && searchRequest.getSortDirection().equalsIgnoreCase("ASC")) {
+            direction = Sort.Direction.ASC;
+        }
+        String sortBy = searchRequest.getSortBy() != null ? searchRequest.getSortBy() : "createdAt";
+        
+        Pageable resolvedPageable = PageRequest.of(
+                searchRequest.getPageNo() != null ? searchRequest.getPageNo() : 0,
+                searchRequest.getPageSize() != null ? searchRequest.getPageSize() : 10,
+                Sort.by(direction, sortBy)
         );
+
+        // Tạo specification cho admin (không lọc theo status hay trạng thái giáo viên)
+        Specification<Course> spec = CourseSpecifications.buildSpec(
+                searchRequest, 
+                null, 
+                false
+        );
+
+        // Gọi repository
+        Page<Course> coursePage = courseRepository.findAll(spec, resolvedPageable);
 
         // Convert sang DTO
         List<CourseResponse> courseResponses = coursePage.getContent()

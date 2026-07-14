@@ -115,44 +115,10 @@ public class CourseController {
     // THÊM ENDPOINT MỚI
     @GetMapping("/search")
     ApiResponse<PageResponse<CourseResponse>> searchAndFilterCourses(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String categoryId,
-            @RequestParam(required = false) String minPrice,  // ← Đổi sang String
-            @RequestParam(required = false) String maxPrice,  // ← Đổi sang String
-            @RequestParam(required = false) String instructorId,
-            Pageable pageable) {
-
-        // Convert String sang BigDecimal
-        BigDecimal minPriceValue = null;
-        BigDecimal maxPriceValue = null;
-
-        if (minPrice != null && !minPrice.isEmpty()) {
-            try {
-                minPriceValue = new BigDecimal(minPrice);
-            } catch (NumberFormatException e) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR);
-            }
-        }
-
-        if (maxPrice != null && !maxPrice.isEmpty()) {
-            try {
-                maxPriceValue = new BigDecimal(maxPrice);
-            } catch (NumberFormatException e) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR);
-            }
-        }
-
-        // Tạo search request từ params
-        CourseSearchRequest searchRequest = CourseSearchRequest.builder()
-                .keyword(keyword)
-                .categoryId(categoryId)
-                .minPrice(minPriceValue)
-                .maxPrice(maxPriceValue)
-                .instructorId(instructorId)
-                .build();
+            @ModelAttribute CourseSearchRequest searchRequest) {
 
         return ApiResponse.ok(
-                courseService.searchAndFilterCourses(searchRequest, pageable),
+                courseService.searchAndFilterCourses(searchRequest, null),
                 SuccessCode.GET_COURSE_SUCCESS
         );
     }
@@ -160,42 +126,10 @@ public class CourseController {
     // Admin endpoint - no status filter
     @GetMapping("/search/admin")
     ApiResponse<PageResponse<CourseResponse>> searchAndFilterCoursesAdmin(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String categoryId,
-            @RequestParam(required = false) String minPrice,
-            @RequestParam(required = false) String maxPrice,
-            @RequestParam(required = false) String instructorId,
-            Pageable pageable) {
-
-        BigDecimal minPriceValue = null;
-        BigDecimal maxPriceValue = null;
-
-        if (minPrice != null && !minPrice.isEmpty()) {
-            try {
-                minPriceValue = new BigDecimal(minPrice);
-            } catch (NumberFormatException e) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR);
-            }
-        }
-
-        if (maxPrice != null && !maxPrice.isEmpty()) {
-            try {
-                maxPriceValue = new BigDecimal(maxPrice);
-            } catch (NumberFormatException e) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR);
-            }
-        }
-
-        CourseSearchRequest searchRequest = CourseSearchRequest.builder()
-                .keyword(keyword)
-                .categoryId(categoryId)
-                .minPrice(minPriceValue)
-                .maxPrice(maxPriceValue)
-                .instructorId(instructorId)
-                .build();
+            @ModelAttribute CourseSearchRequest searchRequest) {
 
         return ApiResponse.ok(
-                courseService.searchAndFilterCoursesAdmin(searchRequest, pageable),
+                courseService.searchAndFilterCoursesAdmin(searchRequest, null),
                 SuccessCode.GET_COURSE_SUCCESS
         );
     }

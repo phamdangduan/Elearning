@@ -24,9 +24,17 @@ public class CourseSearchRequest {
     // Filter theo instructor
     String instructorId;
 
-    // Sort theo field nào (title, price, createdAt)
-    String sortBy; // Ví dụ: "price", "createdAt", "title"
+    // Phân trang & Sắp xếp
+    @Builder.Default
+    Integer pageNo = 0;
 
-    // Sort tăng dần hay giảm dần
-    String sortDirection; // "ASC" hoặc "DESC"
+    @Builder.Default
+    Integer pageSize = 10;
+
+    @Builder.Default
+    String sortBy = "createdAt";
+
+    @Builder.Default
+    String sortDirection = "DESC";
 }
+

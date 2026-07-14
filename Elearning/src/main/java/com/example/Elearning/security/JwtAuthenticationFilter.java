@@ -19,12 +19,18 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.context.annotation.Lazy;
+
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, @Lazy org.springframework.security.core.userdetails.UserDetailsService userDetailsService) {
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

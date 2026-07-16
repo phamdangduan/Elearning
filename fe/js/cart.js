@@ -209,6 +209,18 @@
 
     // Inject UI elements (Cart Icon, Drawer, Overlay)
     function injectUI() {
+        // Chỉ hiển thị giỏ hàng khi đã đăng nhập
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (!token) {
+            return;
+        }
+
+        // Không hiển thị giỏ hàng ở trang chủ (fe/index.html)
+        const pathname = window.location.pathname.toLowerCase();
+        if (pathname.endsWith('index.html') || pathname.endsWith('/fe/') || pathname.endsWith('/')) {
+            return;
+        }
+
         // 1. Inject Cart Icon into Nav Actions
         const navActions = document.querySelector('.nav-actions');
         if (navActions && !document.getElementById('navCart')) {
@@ -396,6 +408,14 @@
 
     // Add Course to Cart
     window.addToCart = function(id, title, price, thumbnail, instructor) {
+        // Kiểm tra đăng nhập
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (!token) {
+            alert("Vui lòng đăng nhập để thêm khóa học vào giỏ hàng!");
+            window.location.href = pathPrefix + 'login.html';
+            return;
+        }
+
         // Prevent adding if already in cart
         if (cart.some(item => item.id === id)) {
             showToast("Khóa học đã có sẵn trong giỏ hàng!");

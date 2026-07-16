@@ -1,7 +1,6 @@
 package com.example.Elearning.service;
 
 import com.example.Elearning.dto.PageResponse;
-import com.example.Elearning.dto.request.CourseSearchRequest;
 import com.example.Elearning.dto.request.CreatedCourseRequest;
 import com.example.Elearning.dto.request.UpdateCourseRequest;
 import com.example.Elearning.dto.request.UploadThumbnailRequest;
@@ -26,15 +25,15 @@ public interface CourseService {
     Void deleteCourse (String courseId,String instructorId);
 
 
-    // THÊM METHOD MỚI
+    // Tìm kiếm động Generic cho người dùng (chỉ lấy PUBLISHED và ACTIVE instructor)
     PageResponse<CourseResponse> searchAndFilterCourses(
-            CourseSearchRequest searchRequest,
+            String[] filter,
             Pageable pageable
     );
 
-    // Admin search - no status or user status filter
+    // Tìm kiếm động Generic cho admin
     PageResponse<CourseResponse> searchAndFilterCoursesAdmin(
-            CourseSearchRequest searchRequest,
+            String[] filter,
             Pageable pageable
     );
 }

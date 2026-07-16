@@ -1,0 +1,217 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6",
+		"name": "Elearning - Dynamic Search & Filter Tests",
+		"description": "Bộ sưu tập các câu test mẫu cho hệ thống tìm kiếm động Generic Specification của dự án Elearning",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Tìm kiếm theo từ khóa trong tiêu đề (title LIKE '%java%')",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=title~java",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "title~java",
+							"description": "Tìm các khóa học có tiêu đề chứa chữ 'java'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Lọc theo giá tiền lớn hơn hoặc bằng (price >= 500,000đ)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=price>=500000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "price>=500000",
+							"description": "Lọc các khóa học có giá từ 500k trở lên"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Lọc theo khoảng giá (price BETWEEN 200,000đ AND 1,000,000đ)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=price#200000,1000000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "price#200000,1000000",
+							"description": "Toán tử # đại diện cho BETWEEN"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Tìm kiếm từ khóa chứa Wildcard (title CONTAINS 'Spring')",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=title:*Spring*",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "title:*Spring*",
+							"description": "Dấu * ở cả hai đầu dịch thành toán tử CONTAINS"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Lọc theo ID Giảng viên liên kết (user.id = 'instructor_uuid')",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=user.id:Thay_UUID_Giang_Vien_Vao_Day",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "user.id:Thay_UUID_Giang_Vien_Vao_Day",
+							"description": "Nhập mã ID UUID thực tế của giảng viên dưới Database của anh vào đây để test"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Tìm kiếm kết hợp phép OR (giá <= 300k HOẶC giá >= 1tr5)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=price<=300000&filter='price>=1500000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "price<=300000"
+						},
+						{
+							"key": "filter",
+							"value": "'price>=1500000",
+							"description": "Dấu nháy đơn ' ở đầu báo hiệu phép kết hợp OR"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Phân trang & Sắp xếp giảm dần theo giá",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/course/search?filter=price>=0&page=0&size=3&sort=price,desc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"course",
+						"search"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "price>=0"
+						},
+						{
+							"key": "page",
+							"value": "0",
+							"description": "Trang đầu tiên"
+						},
+						{
+							"key": "size",
+							"value": "3",
+							"description": "Lấy tối đa 3 bản ghi"
+						},
+						{
+							"key": "sort",
+							"value": "price,desc",
+							"description": "Sắp xếp theo giá giảm dần"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -2,7 +2,6 @@ package com.example.Elearning.controller;
 
 import com.example.Elearning.dto.ApiResponse;
 import com.example.Elearning.dto.PageResponse;
-import com.example.Elearning.dto.request.CourseSearchRequest;
 import com.example.Elearning.dto.request.CreatedCourseRequest;
 import com.example.Elearning.dto.request.UpdateCourseRequest;
 import com.example.Elearning.dto.request.UploadThumbnailRequest;
@@ -115,10 +114,11 @@ public class CourseController {
     // THÊM ENDPOINT MỚI
     @GetMapping("/search")
     ApiResponse<PageResponse<CourseResponse>> searchAndFilterCourses(
-            @ModelAttribute CourseSearchRequest searchRequest) {
+            @RequestParam(required = false) String[] filter,
+            Pageable pageable) {
 
         return ApiResponse.ok(
-                courseService.searchAndFilterCourses(searchRequest, null),
+                courseService.searchAndFilterCourses(filter, pageable),
                 SuccessCode.GET_COURSE_SUCCESS
         );
     }
@@ -126,10 +126,11 @@ public class CourseController {
     // Admin endpoint - no status filter
     @GetMapping("/search/admin")
     ApiResponse<PageResponse<CourseResponse>> searchAndFilterCoursesAdmin(
-            @ModelAttribute CourseSearchRequest searchRequest) {
+            @RequestParam(required = false) String[] filter,
+            Pageable pageable) {
 
         return ApiResponse.ok(
-                courseService.searchAndFilterCoursesAdmin(searchRequest, null),
+                courseService.searchAndFilterCoursesAdmin(filter, pageable),
                 SuccessCode.GET_COURSE_SUCCESS
         );
     }

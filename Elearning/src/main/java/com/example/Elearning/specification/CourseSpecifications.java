@@ -1,6 +1,5 @@
-package com.example.Elearning.repository.specification;
+package com.example.Elearning.specification;
 
-import com.example.Elearning.dto.request.CourseSearchRequest;
 import com.example.Elearning.entity.Category;
 import com.example.Elearning.entity.Course;
 import com.example.Elearning.enums.CourseStatus;
@@ -75,38 +74,4 @@ public class CourseSpecifications {
         };
     }
 
-    public static Specification<Course> buildSpec(CourseSearchRequest request, CourseStatus status, boolean filterActiveInstructor) {
-        return (root, query, criteriaBuilder) -> {
-            // Apply distinct to avoid duplicate records due to joins (like categories)
-            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
-                query.distinct(true);
-            }
-
-            Specification<Course> spec = Specification.where(null);
-
-            if (status != null) {
-                spec = spec.and(hasStatus(status));
-            }
-            if (filterActiveInstructor) {
-                spec = spec.and(hasActiveInstructor());
-            }
-
-            if (request != null) {
-                if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
-                    spec = spec.and(hasKeyword(request.getKeyword()));
-                }
-                if (request.getCategoryId() != null && !request.getCategoryId().trim().isEmpty()) {
-                    spec = spec.and(hasCategory(request.getCategoryId()));
-                }
-                if (request.getMinPrice() != null || request.getMaxPrice() != null) {
-                    spec = spec.and(hasPriceBetween(request.getMinPrice(), request.getMaxPrice()));
-                }
-                if (request.getInstructorId() != null && !request.getInstructorId().trim().isEmpty()) {
-                    spec = spec.and(hasInstructor(request.getInstructorId()));
-                }
-            }
-
-            return spec.toPredicate(root, query, criteriaBuilder);
-        };
-    }
 }

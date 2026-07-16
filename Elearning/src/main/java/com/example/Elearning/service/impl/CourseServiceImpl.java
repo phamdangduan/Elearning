@@ -1,7 +1,6 @@
 package com.example.Elearning.service.impl;
 
 import com.example.Elearning.dto.PageResponse;
-import com.example.Elearning.dto.request.CourseSearchRequest;
 import com.example.Elearning.dto.request.CreatedCourseRequest;
 import com.example.Elearning.dto.request.UpdateCourseRequest;
 import com.example.Elearning.dto.request.UploadThumbnailRequest;
@@ -26,7 +25,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import com.example.Elearning.repository.specification.CourseSpecifications;
+import com.example.Elearning.specification.CourseSpecifications;
+import com.example.Elearning.specification.helper.SpecificationHelper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -302,42 +302,30 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-    // THÊM METHOD MỚI
     @Override
     public PageResponse<CourseResponse> searchAndFilterCourses(
-            CourseSearchRequest searchRequest,
+            String[] filter,
             Pageable pageable) {
 
-        // Build pageable from DTO
-        Sort.Direction direction = Sort.Direction.DESC;
-        if (searchRequest.getSortDirection() != null && searchRequest.getSortDirection().equalsIgnoreCase("ASC")) {
-            direction = Sort.Direction.ASC;
-        }
-        String sortBy = searchRequest.getSortBy() != null ? searchRequest.getSortBy() : "createdAt";
-        
-        Pageable resolvedPageable = PageRequest.of(
-                searchRequest.getPageNo() != null ? searchRequest.getPageNo() : 0,
-                searchRequest.getPageSize() != null ? searchRequest.getPageSize() : 10,
-                Sort.by(direction, sortBy)
-        );
+        // 1. Dựng Generic Specification từ mảng filter gửi lên
+        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter);
 
-        // Tạo specification
-        Specification<Course> spec = CourseSpecifications.buildSpec(
-                searchRequest, 
-                CourseStatus.PUBLISHED, 
-                true // Chỉ lấy khóa học của giáo viên ACTIVE
-        );
+        // 2. Dựng bộ lọc trạng thái bắt buộc cho học viên (chỉ lấy PUBLISHED và giáo viên ACTIVE)
+        Specification<Course> statusSpec = CourseSpecifications.hasStatus(CourseStatus.PUBLISHED)
+                .and(CourseSpecifications.hasActiveInstructor());
 
-        // Gọi repository
-        Page<Course> coursePage = courseRepository.findAll(spec, resolvedPageable);
+        // 3. Kết hợp các bộ lọc
+        Specification<Course> finalSpec = Specification.where(genericSpec).and(statusSpec);
 
-        // Convert sang DTO
+        // 4. Gọi repository truy vấn dữ liệu phân trang tối ưu
+        Page<Course> coursePage = courseRepository.findAll(finalSpec, pageable);
+
+        // Convert kết quả sang DTO Response
         List<CourseResponse> courseResponses = coursePage.getContent()
                 .stream()
                 .map(courseMapper::toResponse)
                 .collect(Collectors.toList());
 
-        // Trả về PageResponse
         return PageResponse.<CourseResponse>builder()
                 .content(courseResponses)
                 .pageNo(coursePage.getNumber())
@@ -350,39 +338,21 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PageResponse<CourseResponse> searchAndFilterCoursesAdmin(
-            CourseSearchRequest searchRequest,
+            String[] filter,
             Pageable pageable) {
 
-        // Build pageable from DTO
-        Sort.Direction direction = Sort.Direction.DESC;
-        if (searchRequest.getSortDirection() != null && searchRequest.getSortDirection().equalsIgnoreCase("ASC")) {
-            direction = Sort.Direction.ASC;
-        }
-        String sortBy = searchRequest.getSortBy() != null ? searchRequest.getSortBy() : "createdAt";
-        
-        Pageable resolvedPageable = PageRequest.of(
-                searchRequest.getPageNo() != null ? searchRequest.getPageNo() : 0,
-                searchRequest.getPageSize() != null ? searchRequest.getPageSize() : 10,
-                Sort.by(direction, sortBy)
-        );
+        // 1. Dựng Generic Specification từ mảng filter
+        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter);
 
-        // Tạo specification cho admin (không lọc theo status hay trạng thái giáo viên)
-        Specification<Course> spec = CourseSpecifications.buildSpec(
-                searchRequest, 
-                null, 
-                false
-        );
+        // 2. Gọi repository truy vấn dữ liệu phân trang (không lọc trạng thái cho admin)
+        Page<Course> coursePage = courseRepository.findAll(genericSpec, pageable);
 
-        // Gọi repository
-        Page<Course> coursePage = courseRepository.findAll(spec, resolvedPageable);
-
-        // Convert sang DTO
+        // Convert kết quả sang DTO Response
         List<CourseResponse> courseResponses = coursePage.getContent()
                 .stream()
                 .map(courseMapper::toResponse)
                 .collect(Collectors.toList());
 
-        // Trả về PageResponse
         return PageResponse.<CourseResponse>builder()
                 .content(courseResponses)
                 .pageNo(coursePage.getNumber())

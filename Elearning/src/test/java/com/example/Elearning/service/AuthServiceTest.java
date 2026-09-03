@@ -45,6 +45,9 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -67,18 +70,18 @@ class AuthServiceTest {
 
     @Test
     void login_Success() {
-        // Arrange (Chuẩn bị dữ liệu và định nghĩa giả lập Mock)
+        // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123", false);
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches("password123", "encoded_password")).thenReturn(true);
-        when(jwtUtil.generateToken(anyString(), anyString(), anyString())).thenReturn("mock_access_token");
-        when(jwtUtil.generateRefreshToken(anyString())).thenReturn("mock_refresh_token");
+        when(jwtUtil.generateAccessToken(mockUser)).thenReturn("mock_access_token");
+        when(refreshTokenService.createRefreshToken(anyString())).thenReturn("mock_refresh_token");
 
-        // Act (Gọi phương thức nghiệp vụ thực tế)
+        // Act
         AuthResponse response = authService.login(request);
 
-        // Assert (So sánh kết quả đầu ra với mong đợi)
+        // Assert
         assertNotNull(response);
         assertTrue(response.isSuccess());
         assertEquals("mock_access_token", response.getToken());
@@ -89,13 +92,13 @@ class AuthServiceTest {
 
     @Test
     void login_WrongPassword_ThrowsException() {
-        // Arrange (Mật khẩu nhập sai)
+        // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "wrong_password", false);
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches("wrong_password", "encoded_password")).thenReturn(false);
 
-        // Act & Assert (Gọi hàm và kiểm tra xem có ném ra đúng Exception hay không)
+        // Act & Assert
         AuthException exception = assertThrows(AuthException.class, () -> authService.login(request));
         assertEquals("Email hoặc mật khẩu không chính xác", exception.getMessage());
         assertEquals("INVALID_CREDENTIALS", exception.getCode());
@@ -103,15 +106,16 @@ class AuthServiceTest {
 
     @Test
     void login_LockedUser_ThrowsException() {
-        // Arrange (Người dùng bị khóa tài khoản)
-        mockUser.setStatus(UserStatus.LOCKED);
+        // Arrange
+        mockUser.setStatus(UserStatus.BANNED);
         LoginRequest request = new LoginRequest("test@example.com", "password123", false);
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("password123", "encoded_password")).thenReturn(true);
 
-        // Act & Assert (Gọi hàm và kiểm tra xem có ném ra đúng lỗi khóa tài khoản)
+        // Act & Assert
         AuthException exception = assertThrows(AuthException.class, () -> authService.login(request));
-        assertEquals("Tài khoản đã bị khóa", exception.getMessage());
+        assertEquals("Tài khoản đã bị khóa hoặc bị vô hiệu hóa", exception.getMessage());
         assertEquals("ACCOUNT_LOCKED", exception.getCode());
     }
 }

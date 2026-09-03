@@ -1,152 +1,153 @@
 package com.example.Elearning.config;
 
-import com.example.Elearning.security.JwtAuthenticationFilter;
-import com.example.Elearning.repository.UserRepository;
-import com.example.Elearning.dto.ApiResponse;
-import com.example.Elearning.exception.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.Elearning.security.CustomAccessDeniedHandler;
+import com.example.Elearning.security.CustomJwtDecoder;
+import com.example.Elearning.security.JwtAuthConverter;
+import com.example.Elearning.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.List;
 
+/**
+ * Spring Security configuration.
+ *
+ * Authentication strategy: OAuth2 Resource Server with custom JWT decoder (HS512).
+ * No manual JwtAuthenticationFilter — Spring Security handles token extraction
+ * and SecurityContext population automatically via the resource server setup.
+ *
+ * Authorization strategy:
+ *  - Public endpoints: permitted without token
+ *  - Role-based endpoints: ROLE_STUDENT, ROLE_INSTRUCTOR, ROLE_TEACHER, ROLE_ADMIN
+ *  - All other requests: must be authenticated
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserRepository userRepository;
+    private final CustomJwtDecoder customJwtDecoder;
+    private final JwtAuthConverter jwtAuthConverter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Password Encoder
+    // ─────────────────────────────────────────────────────────────────────────
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // CORS
+    // ─────────────────────────────────────────────────────────────────────────
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*")); // Changed from setAllowedOrigins to support credentials
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "X-Requested-With"));
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true); // Enable credentials
-        config.setMaxAge(3600L); // Cache preflight response for 1 hour
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Security Filter Chain
+    // ─────────────────────────────────────────────────────────────────────────
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Stateless REST API — no CSRF, no session
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
-                .requestMatchers("/api/auth/**", "/api/debug/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/category/**", "/course/**", "/profile/**", "/section/course/**", "/review/get-reviewsForCourse", "/instructor/stats").permitAll()
-                
-                // Profile management - authenticated users can update their own profile
-                .requestMatchers(HttpMethod.PUT, "/profile/update").authenticated()
+
+                // ── Public ─────────────────────────────────────────────────────────
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/category/**",
+                    "/course/**",
+                    "/profile/**",
+                    "/section/course/**",
+                    "/review/get-reviewsForCourse",
+                    "/instructor/stats"
+                ).permitAll()
+
+                // ── Profile management (any authenticated user) ────────────────────
+                .requestMatchers(HttpMethod.PUT,  "/profile/update").authenticated()
                 .requestMatchers(HttpMethod.POST, "/profile/upload-avatar").authenticated()
-                
-                // Profile admin operations - only ADMIN can delete users and change status
+                .requestMatchers(HttpMethod.POST, "/profile/change-password").authenticated()
+
+                // ── Profile admin operations ───────────────────────────────────────
                 .requestMatchers(HttpMethod.DELETE, "/profile/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/profile/*/status").hasAuthority("ROLE_ADMIN")
-                
-                // Instructor enrollment endpoints
+
+                // ── Student endpoints ──────────────────────────────────────────────
+                .requestMatchers("/student/**", "/lessonprogess/**").hasAuthority("ROLE_STUDENT")
+                .requestMatchers("/enrollment/my-enrollment").hasAuthority("ROLE_STUDENT")
+                .requestMatchers(HttpMethod.POST, "/enrollment").hasAuthority("ROLE_STUDENT")
+                .requestMatchers("/enrollment/status").authenticated()
+
+                // ── Instructor endpoints ───────────────────────────────────────────
                 .requestMatchers("/enrollment/instructor-students").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER", "ROLE_ADMIN")
-                
-                // Student endpoints
-                .requestMatchers("/student/**", "/enrollment/**", "/lessonprogess/**").hasAuthority("ROLE_STUDENT")
-                
-                // Instructor endpoints
                 .requestMatchers("/instructor/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
-                
-                // Course, Section, Lesson management
-                .requestMatchers(HttpMethod.POST, "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
-                .requestMatchers(HttpMethod.PUT, "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
-                .requestMatchers(HttpMethod.PATCH, "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
+
+                // ── Course / Section / Lesson write operations ─────────────────────
+                .requestMatchers(HttpMethod.POST,   "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
+                .requestMatchers(HttpMethod.PUT,    "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
+                .requestMatchers(HttpMethod.PATCH,  "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
                 .requestMatchers(HttpMethod.DELETE, "/course/**", "/section/**", "/lesson/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
-                
-                // Admin endpoints
+
+                // ── Admin endpoints ────────────────────────────────────────────────
                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                
-                // Payment requests
+
+                // ── Payment requests ───────────────────────────────────────────────
                 .requestMatchers("/payment-requests/**").hasAnyAuthority("ROLE_STUDENT", "ROLE_ADMIN", "ROLE_TEACHER", "ROLE_INSTRUCTOR")
-                
-                // All other requests require authentication
+
+                // ── Everything else requires authentication ────────────────────────
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(customAuthenticationEntryPoint())
-                .accessDeniedHandler(customAccessDeniedHandler())
+
+            // OAuth2 Resource Server — JWT via custom decoder + converter
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .decoder(customJwtDecoder)
+                    .jwtAuthenticationConverter(jwtAuthConverter)
+                )
+                .authenticationEntryPoint(authenticationEntryPoint)
             )
-            .authenticationProvider(authenticationProvider());
-            
+
+            // Exception handling
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
+            );
+
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email)
-                .map(com.example.Elearning.security.CustomUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationEntryPoint customAuthenticationEntryPoint() {
-        return (request, response, authException) -> {
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            
-            ObjectMapper mapper = new ObjectMapper();
-            ApiResponse<Object> apiResponse = ApiResponse.error(ErrorCode.AUTHENTICATION_FAILED);
-            response.getWriter().write(mapper.writeValueAsString(apiResponse));
-        };
-    }
-
-    @Bean
-    public AccessDeniedHandler customAccessDeniedHandler() {
-        return (request, response, accessDeniedException) -> {
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            
-            ObjectMapper mapper = new ObjectMapper();
-            ApiResponse<Object> apiResponse = ApiResponse.error(ErrorCode.UNAUTHORIZED);
-            response.getWriter().write(mapper.writeValueAsString(apiResponse));
-        };
     }
 }

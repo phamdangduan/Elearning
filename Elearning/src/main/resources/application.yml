@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -38,19 +38,15 @@ file:
 
 # ===== JWT =====
 jwt:
-  token:
-    expiryHour: 1
-    expiryDay: 14
-    accessKey: bidu-access-secret-123456
-    refreshKey: bidu-refresh-secret-654321
-  secret: your-secret-key-must-be-at-least-256-bits-long-for-HS256-algorithm-security-purpose-only-production-use
-  expiration: 86400000
-  refresh:
-    expiration: 604800000
+  # Min 64 chars (512 bits) for HS512 — override via env var JWT_SIGNER_KEY in production
+  signer-key: "elearning-super-secret-key-for-hs512-algorithm-must-be-at-least-64-characters-long-2024"
+  access-token-expiry: 3600        # 1 hour (seconds)
+  refresh-token-expiry: 1209600    # 14 days (seconds)
+  issuer: elearning-app
 
 # ===== LOGGING =====
 logging:
   level:
     com.example.Elearning.security: INFO
     com.example.Elearning.service.AuthService: INFO
-    org.springframework.security: DEBUG
+    org.springframework.security: WARN

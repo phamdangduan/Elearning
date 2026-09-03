@@ -4,10 +4,13 @@ import com.example.Elearning.dto.request.LoginRequest;
 import com.example.Elearning.dto.request.RegisterRequest;
 import com.example.Elearning.dto.response.AuthResponse;
 import com.example.Elearning.entity.Profile;
+import com.example.Elearning.entity.RefreshToken;
 import com.example.Elearning.entity.Role;
 import com.example.Elearning.entity.User;
 import com.example.Elearning.enums.UserStatus;
+import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.AuthException;
+import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.repository.ProfileRepository;
 import com.example.Elearning.repository.RoleRepository;
 import com.example.Elearning.repository.UserRepository;
@@ -32,12 +35,14 @@ public class AuthService {
     private final ProfileRepository profileRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
-    /**
-     * Login user
-     */
+    // ─────────────────────────────────────────────────────────────────────────
+    // Login
+    // ─────────────────────────────────────────────────────────────────────────
+
     public AuthResponse login(LoginRequest request) {
-        log.info("Attempting to login user with email: {}", request.getEmail());
+        log.info("Login attempt for: {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthException("Email hoặc mật khẩu không chính xác", "INVALID_CREDENTIALS"));
@@ -47,33 +52,19 @@ public class AuthService {
         }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new AuthException("Tài khoản đã bị khóa", "ACCOUNT_LOCKED");
+            throw new AuthException("Tài khoản đã bị khóa hoặc bị vô hiệu hóa", "ACCOUNT_LOCKED");
         }
 
-        // Get user's role and normalize to uppercase
-        String role = user.getRoles().stream()
-                .map(Role::getName)
-                .findFirst()
-                .orElse("STUDENT");
-        
-        // Ensure role is uppercase
-        role = role.toUpperCase();
+        String accessToken  = jwtUtil.generateAccessToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
+        String role         = getPrimaryRole(user);
+        String fullName     = resolveFullName(user);
 
-        // Get user's name from profile or use userName
-        String fullName = user.getUserName();
-        if (user.getProfile() != null) {
-            fullName = user.getProfile().getFirstName() + " " + user.getProfile().getLastName();
-        }
-
-        // Generate tokens with uppercase role
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), role);
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
-
-        log.info("User {} logged in successfully with role {}", request.getEmail(), role);
+        log.info("Login successful: {} ({})", request.getEmail(), role);
 
         return AuthResponse.builder()
                 .userId(user.getId())
-                .token(token)
+                .token(accessToken)
                 .refreshToken(refreshToken)
                 .role(role)
                 .email(user.getEmail())
@@ -83,28 +74,25 @@ public class AuthService {
                 .build();
     }
 
-    /**
-     * Register new user
-     */
-    public AuthResponse register(RegisterRequest request) {
-        log.info("Attempting to register user with email: {}", request.getEmail());
+    // ─────────────────────────────────────────────────────────────────────────
+    // Register
+    // ─────────────────────────────────────────────────────────────────────────
 
-        // Validate
+    public AuthResponse register(RegisterRequest request) {
+        log.info("Register attempt for: {}", request.getEmail());
+
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new AuthException("Mật khẩu xác nhận không khớp", "PASSWORD_MISMATCH");
         }
 
-        // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AuthException("Email đã được sử dụng", "EMAIL_ALREADY_EXISTS");
         }
 
-        // Get or create role - ensure role name is uppercase
         String roleName = request.getRole().toUpperCase();
         Role userRole = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new AuthException("Vai trò không hợp lệ", "INVALID_ROLE"));
+                .orElseThrow(() -> new AuthException("Vai trò không hợp lệ: " + roleName, "INVALID_ROLE"));
 
-        // Create new user
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(request.getEmail());
@@ -113,16 +101,10 @@ public class AuthService {
         user.setStatus(UserStatus.ACTIVE);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setRoles(new HashSet<>(Set.of(userRole)));
 
-        // Set roles
-        Set<Role> roles = new HashSet<>();
-        roles.add(userRole);
-        user.setRoles(roles);
-
-        // Save user
         User savedUser = userRepository.save(user);
 
-        // Create profile for the new user
         Profile profile = Profile.builder()
                 .profileId(UUID.randomUUID().toString())
                 .userId(savedUser.getId())
@@ -130,94 +112,120 @@ public class AuthService {
                 .lastName(request.getLastName())
                 .fullName(request.getFirstName() + " " + request.getLastName())
                 .phone(request.getPhone())
-                .avatar("https://ui-avatars.com/api/?name=" + request.getFirstName() + "+" + request.getLastName() + "&background=4F46E5&color=fff")
+                .avatar("https://ui-avatars.com/api/?name="
+                        + request.getFirstName() + "+" + request.getLastName()
+                        + "&background=4F46E5&color=fff")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        
         profileRepository.save(profile);
 
-        log.info("User {} registered successfully with profile", request.getEmail());
+        String accessToken  = jwtUtil.generateAccessToken(savedUser);
+        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getEmail());
 
-        // Generate tokens - use uppercase role name
-        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail(), roleName);
-        String refreshToken = jwtUtil.generateRefreshToken(savedUser.getId());
+        log.info("Register successful: {} ({})", request.getEmail(), roleName);
 
         return AuthResponse.builder()
                 .userId(savedUser.getId())
-                .token(token)
+                .token(accessToken)
                 .refreshToken(refreshToken)
                 .role(roleName)
                 .email(savedUser.getEmail())
                 .name(request.getFirstName() + " " + request.getLastName())
                 .success(true)
-                .message("Đăng kí thành công")
+                .message("Đăng ký thành công")
                 .build();
     }
 
-    /**
-     * Validate token
-     */
-    public boolean validateToken(String token) {
-        return jwtUtil.validateToken(token);
-    }
+    // ─────────────────────────────────────────────────────────────────────────
+    // Refresh Token (with Rotation)
+    // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Get user ID from token
-     */
-    public String getUserIdFromToken(String token) {
-        return jwtUtil.getUserIdFromToken(token);
-    }
+    public AuthResponse refreshToken(String tokenStr) {
+        log.info("Token refresh attempt");
 
-    /**
-     * Refresh token
-     */
-    public AuthResponse refreshToken(String refreshToken) {
-        log.info("Attempting to refresh token");
+        // Verify includes reuse-attack detection
+        RefreshToken oldToken = refreshTokenService.verifyRefreshToken(tokenStr);
 
-        if (!jwtUtil.validateToken(refreshToken)) {
-            throw new AuthException("Refresh token không hợp lệ", "INVALID_REFRESH_TOKEN");
-        }
+        // Rotate: revoke old, issue new
+        refreshTokenService.revokeToken(oldToken);
 
-        String userId = jwtUtil.getUserIdFromToken(refreshToken);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AuthException("Người dùng không tồn tại", "USER_NOT_FOUND"));
+        User user = userRepository.findByEmail(oldToken.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // Get and normalize role to uppercase
-        String role = user.getRoles().stream()
-                .map(Role::getName)
-                .findFirst()
-                .orElse("STUDENT");
-        
-        role = role.toUpperCase();
+        String newAccessToken  = jwtUtil.generateAccessToken(user);
+        String newRefreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-        String newToken = jwtUtil.generateToken(user.getId(), user.getEmail(), role);
-        String newRefreshToken = jwtUtil.generateRefreshToken(user.getId());
+        log.info("Token rotated for: {}", user.getEmail());
 
         return AuthResponse.builder()
                 .userId(user.getId())
-                .token(newToken)
+                .token(newAccessToken)
                 .refreshToken(newRefreshToken)
-                .role(role)
+                .role(getPrimaryRole(user))
                 .email(user.getEmail())
                 .success(true)
-                .message("Token được làm mới")
+                .message("Token đã được làm mới")
                 .build();
     }
 
-    /**
-     * Generate unique username from email
-     */
-    private String generateUserName(String email) {
-        String baseUserName = email.substring(0, email.indexOf('@'));
-        String userName = baseUserName;
-        int counter = 1;
+    // ─────────────────────────────────────────────────────────────────────────
+    // Logout
+    // ─────────────────────────────────────────────────────────────────────────
 
-        while (userRepository.existsByUserName(userName)) {
-            userName = baseUserName + counter;
-            counter++;
+    public void logout(String tokenStr) {
+        RefreshToken token = refreshTokenService.verifyRefreshToken(tokenStr);
+        refreshTokenService.revokeToken(token);
+        log.info("User logged out: {}", token.getUsername());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Change Password (revokes all tokens to force re-login on all devices)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public void changePassword(String userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
 
-        return userName;
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Revoke all refresh tokens — force re-login on all devices
+        refreshTokenService.revokeAllTokensForUser(user.getEmail());
+        log.info("Password changed and all sessions revoked for: {}", user.getEmail());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private String getPrimaryRole(User user) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) return "STUDENT";
+        return user.getRoles().stream()
+                .map(Role::getName)
+                .findFirst()
+                .orElse("STUDENT")
+                .toUpperCase();
+    }
+
+    private String resolveFullName(User user) {
+        if (user.getProfile() != null) {
+            return user.getProfile().getFirstName() + " " + user.getProfile().getLastName();
+        }
+        return user.getUserName();
+    }
+
+    private String generateUserName(String email) {
+        String base = email.substring(0, email.indexOf('@'));
+        String candidate = base;
+        int counter = 1;
+        while (userRepository.existsByUserName(candidate)) {
+            candidate = base + counter++;
+        }
+        return candidate;
     }
 }

@@ -57,6 +57,10 @@ public enum ErrorCode {
     PROFILE_NOT_FOUND(1100, "Profile not found", HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1101, "Email already exists", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1102, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
+
+    // Token Error Codes (1200-1210)
+    REFRESH_TOKEN_REVOKED(1200, "Refresh token đã bị thu hồi, vui lòng đăng nhập lại", HttpStatus.UNAUTHORIZED),
+    ROUTE_NOT_FOUND(1201, "Không tìm thấy đường dẫn này", HttpStatus.NOT_FOUND),
     ;
 
     private final int status;

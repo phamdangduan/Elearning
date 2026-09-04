@@ -20,6 +20,8 @@ import com.example.Elearning.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -102,6 +104,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "courses", key = "#courseId")
     public CourseDetailResponse getCourseDetail(String courseId) {
         Course course = courseRepository.findCourseDetailsById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -255,6 +258,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
+    @CacheEvict(value = "courses", key = "#courseId")
     public CourseResponse uploadThumbnail(String courseId,String instructorId, UploadThumbnailRequest request) {
         var course = this.getCourseById(courseId);
         if (!course.getUser().getId().equals(instructorId)) {
@@ -266,6 +270,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @CacheEvict(value = "courses", key = "#courseId")
     public CourseResponse updateCourse(String courseId,String instructorId, UpdateCourseRequest request) {
         var course = this.getCourseById(courseId);
         if (!course.getUser().getId().equals(instructorId)) {
@@ -281,6 +286,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @CacheEvict(value = "courses", key = "#courseId")
     public CourseResponse publishCourse(String courseId,String instructorId) {
         var course = this.getCourseById(courseId);
         if (!course.getUser().getId().equals(instructorId)) {
@@ -292,6 +298,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @CacheEvict(value = "courses", key = "#courseId")
     public Void deleteCourse(String courseId,String instructorId) {
         var course = this.getCourseById(courseId);
         if (!course.getUser().getId().equals(instructorId)) {

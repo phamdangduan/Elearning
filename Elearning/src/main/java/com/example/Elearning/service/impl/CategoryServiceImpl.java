@@ -13,6 +13,8 @@ import com.example.Elearning.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +30,9 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
     FileStorageService fileStorageService;
+
     @Override
+    @Cacheable(value = "categories", key = "'all'")
     public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categoryMapper.toResponseList(categories);
@@ -45,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse createCategory(CategoryRequest request, String id , MultipartFile iconFile) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
@@ -66,6 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public CategoryResponse updateCategory(String id, CategoryRequest request, MultipartFile iconFile) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -87,6 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public Void deleteCategory(String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));

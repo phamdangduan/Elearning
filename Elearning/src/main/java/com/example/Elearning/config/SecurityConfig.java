@@ -90,7 +90,9 @@ public class SecurityConfig {
                 // ── Public ─────────────────────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET,
+                    "/category",
                     "/category/**",
+                    "/course",
                     "/course/**",
                     "/profile/**",
                     "/section/course/**",

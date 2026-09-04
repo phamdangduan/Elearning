@@ -12,6 +12,7 @@ import com.example.Elearning.repository.PaymentRequestRepository;
 import com.example.Elearning.mapper.CourseMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class AdminCourseController {
     CourseMapper courseMapper;
 
     @PutMapping("/{id}/approve")
+    @CacheEvict(value = "courses", key = "#id")
     public ApiResponse<CourseResponse> approveCourse(@PathVariable String id) {
         var course = courseRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -38,6 +40,7 @@ public class AdminCourseController {
     }
 
     @PutMapping("/{id}/reject")
+    @CacheEvict(value = "courses", key = "#id")
     public ApiResponse<CourseResponse> rejectCourse(@PathVariable String id, @RequestBody Map<String, String> body) {
         var course = courseRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -48,6 +51,7 @@ public class AdminCourseController {
     }
 
     @PatchMapping("/{id}")
+    @CacheEvict(value = "courses", key = "#id")
     public ApiResponse<CourseResponse> patchCourse(@PathVariable String id, @RequestBody Map<String, Object> body) {
         var course = courseRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -62,6 +66,7 @@ public class AdminCourseController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @CacheEvict(value = "courses", key = "#id")
     public ApiResponse<Void> deleteCourse(@PathVariable String id) {
         var course = courseRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));

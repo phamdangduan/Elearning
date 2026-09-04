@@ -5,6 +5,7 @@ import com.example.Elearning.dto.request.LoginRequest;
 import com.example.Elearning.dto.request.LogoutRequest;
 import com.example.Elearning.dto.request.RefreshTokenRequest;
 import com.example.Elearning.dto.request.RegisterRequest;
+import com.example.Elearning.dto.request.ResetPasswordRequest;
 import com.example.Elearning.dto.response.AuthResponse;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.AuthException;
@@ -120,6 +121,48 @@ public class AuthController {
             return ResponseEntity.ok(buildSuccess("Đăng xuất thành công"));
         } catch (Exception e) {
             log.error("Unexpected error during logout", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(buildError("Lỗi hệ thống. Vui lòng thử lại!", "SERVER_ERROR"));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Forgot Password - Step 1: Gửi mã OTP qua Redis
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @PostMapping("/forgot-password/send-otp")
+    public ResponseEntity<?> sendForgotPasswordOtp(@RequestParam String email) {
+        log.info("Yêu cầu gửi OTP quên mật khẩu cho: {}", email);
+        try {
+            authService.sendForgotPasswordOtp(email);
+            return ResponseEntity.ok(buildSuccess("Mã OTP đã được tạo và gửi thành công (hiệu lực 5 phút)"));
+        } catch (AuthException e) {
+            log.warn("Gửi OTP thất bại cho {}: {}", email, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(buildError(e.getMessage(), e.getCode()));
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi OTP", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(buildError("Lỗi hệ thống. Vui lòng thử lại!", "SERVER_ERROR"));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Forgot Password - Step 2: Xác nhận OTP & Đổi mật khẩu mới
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @PostMapping("/forgot-password/reset")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        log.info("Yêu cầu đổi mật khẩu bằng OTP cho: {}", request.getEmail());
+        try {
+            authService.resetPasswordWithOtp(request);
+            return ResponseEntity.ok(buildSuccess("Đổi mật khẩu thành công! Vui lòng đăng nhập lại bằng mật khẩu mới."));
+        } catch (AuthException e) {
+            log.warn("Đổi mật khẩu thất bại cho {}: {}", request.getEmail(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(buildError(e.getMessage(), e.getCode()));
+        } catch (Exception e) {
+            log.error("Lỗi khi đổi mật khẩu", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(buildError("Lỗi hệ thống. Vui lòng thử lại!", "SERVER_ERROR"));
         }

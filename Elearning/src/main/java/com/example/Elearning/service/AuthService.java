@@ -2,6 +2,7 @@ package com.example.Elearning.service;
 
 import com.example.Elearning.dto.request.LoginRequest;
 import com.example.Elearning.dto.request.RegisterRequest;
+import com.example.Elearning.dto.request.ResetPasswordRequest;
 import com.example.Elearning.dto.response.AuthResponse;
 import com.example.Elearning.entity.Profile;
 import com.example.Elearning.entity.RefreshToken;
@@ -36,6 +37,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final OtpService otpService;
 
     // ─────────────────────────────────────────────────────────────────────────
     // Login
@@ -197,6 +199,51 @@ public class AuthService {
         // Revoke all refresh tokens — force re-login on all devices
         refreshTokenService.revokeAllTokensForUser(user.getEmail());
         log.info("Password changed and all sessions revoked for: {}", user.getEmail());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Forgot Password with Redis OTP
+    // ─────────────────────────────────────────────────────────────────────────
+
+    public void sendForgotPasswordOtp(String email) {
+        String cleanEmail = email.toLowerCase().trim();
+        User user = userRepository.findByEmail(cleanEmail)
+                .orElseThrow(() -> new AuthException("Email này chưa đăng ký tài khoản!", "USER_NOT_FOUND"));
+
+        String otp = otpService.generateOtp(cleanEmail);
+
+        log.info("\n------------------------------------------------------------\n"
+                + "📧 GỬI EMAIL XÁC THỰC TỚI: {}\n"
+                + "🔑 MÃ OTP CỦA BẠN LÀ: [ {} ]\n"
+                + "⏰ Hiệu lực trong 5 phút. Vui lòng không chia sẻ cho ai!\n"
+                + "------------------------------------------------------------", cleanEmail, otp);
+    }
+
+    public void resetPasswordWithOtp(ResetPasswordRequest request) {
+        String cleanEmail = request.getEmail().toLowerCase().trim();
+
+        // 1. Kiểm tra OTP trên Redis
+        boolean isValid = otpService.validateOtp(cleanEmail, request.getOtp());
+        if (!isValid) {
+            throw new AuthException("Mã OTP không chính xác hoặc đã hết hạn!", "INVALID_OTP");
+        }
+
+        // 2. Tìm User
+        User user = userRepository.findByEmail(cleanEmail)
+                .orElseThrow(() -> new AuthException("Không tìm thấy tài khoản người dùng!", "USER_NOT_FOUND"));
+
+        // 3. Cập nhật mật khẩu mới (BCrypt)
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        // 4. Hủy mọi refresh token cũ (bắt đăng nhập lại trên mọi thiết bị)
+        refreshTokenService.revokeAllTokensForUser(cleanEmail);
+
+        // 5. Xóa OTP trong Redis ngay lập tức (chống dùng lại)
+        otpService.deleteOtp(cleanEmail);
+
+        log.info("Đổi mật khẩu thành công qua OTP cho: {}", cleanEmail);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

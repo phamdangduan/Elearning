@@ -9,10 +9,10 @@ import com.example.Elearning.dto.response.CourseDetailResponse;
 import com.example.Elearning.dto.response.CourseResponse;
 import com.example.Elearning.dto.response.CreatedCourseResponse;
 import com.example.Elearning.dto.response.FileUploadResponse;
-import com.example.Elearning.entity.Course;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.CourseService;
 import com.example.Elearning.service.FileStorageService;
 import jakarta.validation.Valid;
@@ -24,8 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -34,10 +32,7 @@ import java.math.BigDecimal;
 public class CourseController {
     CourseService courseService;
     FileStorageService fileStorageService;
-    com.example.Elearning.repository.CourseRepository courseRepository;
-    com.example.Elearning.repository.ReviewRepository reviewRepository;
-    com.example.Elearning.mapper.CourseMapper courseMapper;
-    
+
     @GetMapping("/get")
     ApiResponse<PageResponse<CourseResponse>> getCourseWithStatusByUser(@RequestParam String userId, Pageable pageable){
         return ApiResponse.ok(courseService.getCourseWithStatusByUserId(userId, pageable), SuccessCode.GET_MY_COURSE_SUCCESS);
@@ -49,7 +44,8 @@ public class CourseController {
     }
 
     @GetMapping("/teacher")
-    ApiResponse<PageResponse<CourseResponse>> getCourseMy(@RequestParam String userId,Pageable pageable){
+    ApiResponse<PageResponse<CourseResponse>> getCourseMy(@RequestParam(required = false) String userId,Pageable pageable){
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(courseService.getCourseMy(userId,pageable), SuccessCode.GET_MY_COURSE_SUCCESS);
     }
 
@@ -61,38 +57,44 @@ public class CourseController {
     @GetMapping("/{courseId}/student")
     ApiResponse<CourseDetailResponse> getCourseDetailForStudent(
             @PathVariable String courseId,
-            @RequestParam String studentId) {
+            @RequestParam(required = false) String studentId) {
+        studentId = CurrentUser.resolve(studentId);
         return ApiResponse.ok(courseService.getCourseDetailForStudent(courseId, studentId), SuccessCode.GET_COURSE_DETAIL_SUCCESS);
     }
 
     @PostMapping("/create")
-    public ApiResponse<CreatedCourseResponse> createCourse(@RequestParam String userId, @Valid @RequestBody CreatedCourseRequest request) {
+    public ApiResponse<CreatedCourseResponse> createCourse(@RequestParam(required = false) String userId, @Valid @RequestBody CreatedCourseRequest request) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(courseService.createCourse(userId, request), SuccessCode.CREATED_COURSE);
     }
 
     @PatchMapping("/{courseId}/thumbnail")
     ApiResponse<CourseResponse> uploadThumbnail(@PathVariable String courseId,
-                                                @RequestParam String instructorId,
+                                                @RequestParam(required = false) String instructorId,
                                                 @Valid @RequestBody UploadThumbnailRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(courseService.uploadThumbnail(courseId, instructorId ,request), SuccessCode.UPDATED_COURSE);
     }
 
     @PutMapping("/{courseId}/update")
     ApiResponse<CourseResponse> updateCourse(@PathVariable String courseId,
-                                             @RequestParam String instructorId,
+                                             @RequestParam(required = false) String instructorId,
                                              @Valid @RequestBody UpdateCourseRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(courseService.updateCourse(courseId,instructorId, request), SuccessCode.UPDATED_COURSE);
     }
 
     @PatchMapping("/{courseId}/publish")
     ApiResponse<CourseResponse> publishCourse(@PathVariable String courseId,
-                                              @RequestParam String instructorId) {
+                                              @RequestParam(required = false) String instructorId) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(courseService.publishCourse(courseId,instructorId), SuccessCode.UPDATED_COURSE);
     }
 
     @DeleteMapping("/{courseId}")
     ApiResponse<Void> deleteCourse(@PathVariable String courseId,
-                                   @RequestParam String instructorId) {
+                                   @RequestParam(required = false) String instructorId) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(courseService.deleteCourse(courseId,instructorId), SuccessCode.DELETED_COURSE);
     }
 
@@ -100,7 +102,8 @@ public class CourseController {
     @PostMapping(value = "/upload-thumbnail", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<FileUploadResponse> uploadThumbnail(
             @RequestPart("image") MultipartFile imageFile,
-            @RequestParam String instructorId) {
+            @RequestParam(required = false) String instructorId) {
+        instructorId = CurrentUser.resolve(instructorId);
 
         if (instructorId == null || instructorId.isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -133,35 +136,5 @@ public class CourseController {
                 courseService.searchAndFilterCoursesAdmin(filter, pageable),
                 SuccessCode.GET_COURSE_SUCCESS
         );
-    }
-    
-    // Manual update rating endpoint for debugging
-    @PostMapping("/{courseId}/refresh-rating")
-    ApiResponse<CourseResponse> refreshCourseRating(@PathVariable String courseId) {
-        log.info("Manually refreshing rating for course: {}", courseId);
-        
-        // Get course
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-        
-        // Calculate rating from reviews
-        Double avgRating = reviewRepository.calculateAverageRating(courseId);
-        Long totalReviews = reviewRepository.countReviewsByCourseId(courseId);
-        
-        log.info("Found avgRating: {}, totalReviews: {}", avgRating, totalReviews);
-        
-        if (avgRating != null && avgRating > 0) {
-            course.setAverageRating(BigDecimal.valueOf(avgRating).setScale(2, java.math.RoundingMode.HALF_UP));
-        } else {
-            course.setAverageRating(BigDecimal.ZERO);
-        }
-        
-        course.setTotalReviews(totalReviews.intValue());
-        Course savedCourse = courseRepository.save(course);
-        
-        log.info("Updated course - averageRating: {}, totalReviews: {}", 
-                savedCourse.getAverageRating(), savedCourse.getTotalReviews());
-        
-        return ApiResponse.ok(courseMapper.toResponse(savedCourse), SuccessCode.UPDATED_COURSE);
     }
 }

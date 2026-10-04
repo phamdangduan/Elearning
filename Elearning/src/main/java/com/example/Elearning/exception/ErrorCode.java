@@ -50,6 +50,8 @@ public enum ErrorCode {
     PAYMENT_NOT_PENDING(904, "Payment request is not in pending status", HttpStatus.BAD_REQUEST),
     ALREADY_ENROLLED(905, "Already enrolled in this course", HttpStatus.BAD_REQUEST),
     COURSE_PRICE_ZERO(906, "Course is free, no payment required", HttpStatus.BAD_REQUEST),
+    COURSE_PRICE_REQUIRED(907, "Khóa học có phí, vui lòng thanh toán để đăng ký", HttpStatus.BAD_REQUEST),
+    NOT_ENROLLED(908, "Bạn chưa đăng ký khóa học này", HttpStatus.FORBIDDEN),
 
     // Notification Error Codes (1000-1010)
     NOTIFICATION_NOT_FOUND(1000, "Không tìm thấy thông báo", HttpStatus.NOT_FOUND),

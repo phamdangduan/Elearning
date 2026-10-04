@@ -10,7 +10,6 @@ import java.util.List;
 public interface ProfileService {
     ProfileResponse getMyProfile(String userId);
     ProfileResponse updateProfile (ProfileUpdateRequest request, String userId);
-    void deleteAll();
     List<ProfileResponse> getAll();
     List<ProfileResponse> getAllInstructors();
     String uploadAvatar(MultipartFile avatar, String userId);

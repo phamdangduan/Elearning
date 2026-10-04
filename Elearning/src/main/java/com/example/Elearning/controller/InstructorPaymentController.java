@@ -6,6 +6,7 @@ import com.example.Elearning.dto.request.RejectPaymentRequest;
 import com.example.Elearning.dto.response.PaymentRequestResponse;
 import com.example.Elearning.enums.PaymentStatus;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.PaymentRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,43 +24,23 @@ public class InstructorPaymentController {
 
     @GetMapping
     public ApiResponse<List<PaymentRequestResponse>> getInstructorPaymentRequests(
-            @RequestParam String userId,
+            @RequestParam(required = false) String userId,
             @RequestParam(required = false) PaymentStatus status
     ) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(
                 paymentRequestService.getInstructorPaymentRequests(userId, status),
                 SuccessCode.GET_PAYMENT_REQUESTS_SUCCESS
         );
     }
 
-    @GetMapping("/debug-revenue")
-    public ApiResponse<?> debugInstructorRevenue(@RequestParam String instructorId) {
-        List<PaymentRequestResponse> allPayments = paymentRequestService.getInstructorPaymentRequests(instructorId, null);
-        List<PaymentRequestResponse> confirmedPayments = paymentRequestService.getInstructorPaymentRequests(instructorId, PaymentStatus.CONFIRMED);
-        
-        java.math.BigDecimal totalConfirmed = confirmedPayments.stream()
-                .map(p -> p.getAmount())
-                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
-        
-        return ApiResponse.ok(
-                java.util.Map.of(
-                        "instructorId", instructorId,
-                        "totalPayments", allPayments.size(),
-                        "confirmedPayments", confirmedPayments.size(),
-                        "totalConfirmedRevenue", totalConfirmed,
-                        "allPayments", allPayments,
-                        "confirmedPaymentsList", confirmedPayments
-                ),
-                SuccessCode.GET_PAYMENT_REQUESTS_SUCCESS
-        );
-    }
-
     @PutMapping("/{paymentRequestId}/confirm")
     public ApiResponse<PaymentRequestResponse> confirmPaymentRequest(
-            @RequestParam String userId,
+            @RequestParam(required = false) String userId,
             @PathVariable String paymentRequestId,
             @Valid @RequestBody ConfirmPaymentRequest request
     ) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(
                 paymentRequestService.confirmPaymentRequest(userId, paymentRequestId, request),
                 SuccessCode.PAYMENT_CONFIRMED
@@ -68,10 +49,11 @@ public class InstructorPaymentController {
 
     @PutMapping("/{paymentRequestId}/reject")
     public ApiResponse<PaymentRequestResponse> rejectPaymentRequest(
-            @RequestParam String userId,
+            @RequestParam(required = false) String userId,
             @PathVariable String paymentRequestId,
             @Valid @RequestBody RejectPaymentRequest request
     ) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(
                 paymentRequestService.rejectPaymentRequest(userId, paymentRequestId, request),
                 SuccessCode.PAYMENT_REJECTED

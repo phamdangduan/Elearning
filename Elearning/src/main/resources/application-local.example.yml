@@ -1,0 +1,19 @@
+# Mẫu cấu hình bí mật. Cách dùng:
+#   1. Copy file này thành application-local.yml (cùng thư mục)
+#   2. Điền giá trị thật
+# application-local.yml đã nằm trong .gitignore nên sẽ không bị commit.
+# Khi deploy (Docker/server) có thể dùng biến môi trường thay cho file này:
+#   DB_PASSWORD, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, JWT_SIGNER_KEY
+
+spring:
+  datasource:
+    password: your-mysql-password
+
+cloudinary:
+  cloud-name: your-cloud-name
+  api-key: your-api-key
+  api-secret: your-api-secret
+
+jwt:
+  # Tối thiểu 64 ký tự cho HS512
+  signer-key: "change-me-to-a-random-string-at-least-64-characters-long-xxxxxxxxxxxxxxxx"

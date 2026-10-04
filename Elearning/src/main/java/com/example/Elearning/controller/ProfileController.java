@@ -5,6 +5,7 @@ import com.example.Elearning.dto.request.ProfileUpdateRequest;
 import com.example.Elearning.dto.request.ChangePasswordRequest;
 import com.example.Elearning.dto.response.ProfileResponse;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,21 +25,16 @@ public class ProfileController {
     ProfileService profileService;
 
     @GetMapping("/me")
-    ApiResponse<ProfileResponse> getMyProfile(@RequestParam String userId) {
+    ApiResponse<ProfileResponse> getMyProfile(@RequestParam(required = false) String userId) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(profileService.getMyProfile(userId), SuccessCode.GET_PROFILE_SUCCESS);
     }
 
     @PutMapping("/update")
-    ApiResponse<ProfileResponse> updateProfile(@RequestBody ProfileUpdateRequest request,@RequestParam String userId) {
+    ApiResponse<ProfileResponse> updateProfile(@RequestBody ProfileUpdateRequest request,@RequestParam(required = false) String userId) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(profileService.updateProfile(request,userId), SuccessCode.PROFILE_UPDATED);
     }
-
-    @DeleteMapping("/delete/profiles")
-    public ApiResponse<String> deleteAll() {
-        profileService.deleteAll();
-        return ApiResponse.ok("Delete all success", SuccessCode.DELETE_ALL_SUCCESS);
-    }
-
 
     @GetMapping("/getAll")
     public ApiResponse<List<ProfileResponse>> getAll() {
@@ -53,7 +49,8 @@ public class ProfileController {
     @PostMapping("/upload-avatar")
     public ApiResponse<String> uploadAvatar(
             @RequestParam("avatar") MultipartFile avatar,
-            @RequestParam String userId) {
+            @RequestParam(required = false) String userId) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(profileService.uploadAvatar(avatar, userId), SuccessCode.PROFILE_UPDATED);
     }
 
@@ -82,8 +79,9 @@ public class ProfileController {
 
     @PostMapping("/change-password")
     public ApiResponse<Void> changePassword(
-            @RequestParam String userId,
+            @RequestParam(required = false) String userId,
             @Valid @RequestBody ChangePasswordRequest request) {
+        userId = CurrentUser.resolve(userId);
         profileService.changePassword(userId, request.getOldPassword(), request.getNewPassword());
         return ApiResponse.ok(null, SuccessCode.PROFILE_UPDATED);
     }

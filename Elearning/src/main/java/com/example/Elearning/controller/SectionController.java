@@ -6,6 +6,7 @@ import com.example.Elearning.dto.request.UpdateSectionRequest;
 import com.example.Elearning.dto.response.CreatedSectionResponse;
 import com.example.Elearning.dto.response.SectionResponse;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.SectionService;
 import com.example.Elearning.service.impl.SectionServiceImpl;
 import jakarta.validation.Valid;
@@ -31,22 +32,25 @@ public class SectionController {
 
     @PostMapping("/created/{courseId}")
     ApiResponse<CreatedSectionResponse> createSection(@PathVariable String courseId,
-                                                      @RequestParam String instructorId,
+                                                      @RequestParam(required = false) String instructorId,
                                                       @Valid @RequestBody CreatedSectionRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(sectionService.createdSection(courseId,instructorId, request), SuccessCode.CREATED_SECTION);
     }
 
     @PutMapping("/update/{sectionId}")
     ApiResponse<CreatedSectionResponse> updateSection(@PathVariable String sectionId,
-                                                      @RequestParam String instructorId,
+                                                      @RequestParam(required = false) String instructorId,
                                                       @Valid @RequestBody UpdateSectionRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(sectionService.updateSection(sectionId,instructorId, request), SuccessCode.UPDATED_SECTION);
     }
 
     @DeleteMapping("/{sectionId}/delete")
     ApiResponse<Void> deleteSection(@PathVariable String sectionId,
-                                    @RequestParam String instructorId
+                                    @RequestParam(required = false) String instructorId
                                     ) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(sectionService.deleteSection(sectionId,instructorId), SuccessCode.DELETED_SECTION);
     }
 }

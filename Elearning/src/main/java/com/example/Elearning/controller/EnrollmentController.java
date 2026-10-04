@@ -7,6 +7,7 @@ import com.example.Elearning.dto.response.EnrollmentResponse;
 import com.example.Elearning.dto.response.EnrollmentStatusResponse;
 import com.example.Elearning.dto.response.MyEnrollmentResponse;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.impl.EnrollmentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -26,18 +27,21 @@ public class EnrollmentController {
 
     @PostMapping
     public ApiResponse<EnrollmentResponse> createEnrollment(@RequestBody @Valid EnrollmentRequest enrollmentRequest) {
+        enrollmentRequest.setUserId(CurrentUser.resolve(enrollmentRequest.getUserId()));
         return ApiResponse.ok(enrollmentService.createEnrollment(enrollmentRequest), SuccessCode.ENROLLMENT_SUCCESS);
     }
 
     @GetMapping("/my-enrollment")
-    ApiResponse<PageResponse<MyEnrollmentResponse>> getMyEnrollments(@RequestParam String userId, Pageable pageable) {
+    ApiResponse<PageResponse<MyEnrollmentResponse>> getMyEnrollments(@RequestParam(required = false) String userId, Pageable pageable) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(enrollmentService.getMyEnrollments(userId,pageable), SuccessCode.GET_MY_ENROLLMENT_SUCCESS);
     }
 
     @GetMapping("/instructor-students")
     ApiResponse<PageResponse<MyEnrollmentResponse>> getInstructorStudents(
-            @RequestParam String instructorId, 
+            @RequestParam(required = false) String instructorId, 
             Pageable pageable) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(
                 enrollmentService.getInstructorStudents(instructorId, pageable), 
                 SuccessCode.GET_MY_ENROLLMENT_SUCCESS
@@ -45,7 +49,8 @@ public class EnrollmentController {
     }
 
     @GetMapping("/status")
-    ApiResponse<EnrollmentStatusResponse> getEnrollmentStatus(@RequestParam String userId, @RequestParam String courseId) {
+    ApiResponse<EnrollmentStatusResponse> getEnrollmentStatus(@RequestParam(required = false) String userId, @RequestParam String courseId) {
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(enrollmentService.getEnrollmentStatus(userId,courseId), SuccessCode.ENROLLMENT_SUCCESS);
     }
 }

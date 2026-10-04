@@ -2,10 +2,15 @@ server:
   port: 8080
 
 spring:
+  # Secret thật nằm trong application-local.yml (không commit) hoặc biến môi trường.
+  # Xem mẫu: application-local.example.yml
+  config:
+    import: optional:classpath:application-local.yml
+
   datasource:
     url: jdbc:mysql://localhost:3306/elearning_db1
     username: root
-    password: 123456
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -29,9 +34,9 @@ spring:
 
 # ===== CLOUDINARY =====
 cloudinary:
-  cloud-name: dfyiboei9
-  api-key: 388458427626422
-  api-secret: VSBI8cZ2jpqEDVwMb2zxHq7uu3Q
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}
 
 # ===== FILE UPLOAD =====
 file:
@@ -44,8 +49,8 @@ file:
 
 # ===== JWT =====
 jwt:
-  # Min 64 chars (512 bits) for HS512 — override via env var JWT_SIGNER_KEY in production
-  signer-key: "elearning-super-secret-key-for-hs512-algorithm-must-be-at-least-64-characters-long-2024"
+  # Min 64 chars (512 bits) for HS512 — set in application-local.yml or env var JWT_SIGNER_KEY
+  signer-key: ${JWT_SIGNER_KEY:}
   access-token-expiry: 3600        # 1 hour (seconds)
   refresh-token-expiry: 1209600    # 14 days (seconds)
   issuer: elearning-app

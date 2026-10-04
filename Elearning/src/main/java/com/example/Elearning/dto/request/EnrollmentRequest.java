@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnrollmentRequest {
-    @NotBlank(message = "User ID không được để trống")
+    // Server tự điền từ JWT (EnrollmentController), client không cần gửi
     private String userId;
 
     @NotBlank(message = "Course ID không được để trống")

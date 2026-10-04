@@ -71,11 +71,6 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void deleteAll() {
-        profileRepository.deleteAll();
-    }
-
-    @Override
     public List<ProfileResponse> getAll() {
         return profileRepository.findAll()
                 .stream()

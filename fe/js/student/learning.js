@@ -94,11 +94,16 @@ let currentSectionId = null;
 async function loadLearningData(courseId, userId, token) {
     const API_BASE = typeof window.API_BASE !== 'undefined' ? window.API_BASE : 'http://localhost:8080';
     try {
-        // Fetch course info & syllabus
-        const resCourse = await fetch(`${API_BASE}/course/${courseId}`, {
+        // Fetch course info & syllabus (endpoint /student trả link video, BE kiểm tra đã đăng ký)
+        const resCourse = await fetch(`${API_BASE}/course/${courseId}/student?studentId=${userId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
+        if (resCourse.status === 403) {
+            alert("Bạn chưa đăng ký khóa học này.");
+            window.location.href = `course-detail.html?id=${courseId}`;
+            return;
+        }
         if (!resCourse.ok) throw new Error("Course info not found");
         const jsonCourse = await resCourse.json();
         currentCourseData = jsonCourse.result;

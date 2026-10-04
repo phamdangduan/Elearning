@@ -5,6 +5,7 @@ import com.example.Elearning.dto.request.CompleteLessonRequest;
 import com.example.Elearning.dto.request.EnrollmentRequest;
 import com.example.Elearning.dto.response.ProgressResponse;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.impl.LessonProgressServiceImpl;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -20,13 +21,15 @@ public class LessonProgressController {
     LessonProgressServiceImpl lessonProgressService;
 
     @PostMapping("/complete-lesson")
-    ApiResponse<Void> completeLesson(@RequestParam String userId, @RequestBody @Valid CompleteLessonRequest completeLessonRequest){
+    ApiResponse<Void> completeLesson(@RequestParam(required = false) String userId, @RequestBody @Valid CompleteLessonRequest completeLessonRequest){
+        userId = CurrentUser.resolve(userId);
         lessonProgressService.completeLesson(userId,completeLessonRequest);
         return ApiResponse.ok(null, SuccessCode.COMPLETE_LESSON_SUCCESS);
     }
 
     @GetMapping
-    ApiResponse<ProgressResponse> getCourseProgress(@RequestParam String courseId, @RequestParam String userId){
+    ApiResponse<ProgressResponse> getCourseProgress(@RequestParam String courseId, @RequestParam(required = false) String userId){
+        userId = CurrentUser.resolve(userId);
         return ApiResponse.ok(lessonProgressService.getCourseProgress(courseId,userId), SuccessCode.GET_COURSE_PROGRESS_SUCCESS);
     }
 

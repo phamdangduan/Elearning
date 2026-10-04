@@ -15,6 +15,7 @@ import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.mapper.PaymentRequestMapper;
 import com.example.Elearning.repository.*;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.CourseEnrollmentService;
 import com.example.Elearning.service.NotificationService;
 import com.example.Elearning.service.PaymentRequestService;
@@ -241,6 +242,14 @@ public class PaymentRequestServiceImpl implements PaymentRequestService {
     public PaymentRequestDetailResponse getPaymentRequestDetail(String paymentRequestId) {
         var payment = paymentRequestRepository.findByIdWithDetails(paymentRequestId)
                 .orElseThrow(() -> new AppException(ErrorCode.PAYMENT_REQUEST_NOT_FOUND));
+
+        // Chỉ học viên của giao dịch, giảng viên nhận tiền hoặc admin được xem
+        String currentUserId = CurrentUser.getUserId();
+        if (!currentUserId.equals(payment.getStudentId())
+                && !currentUserId.equals(payment.getInstructorId())
+                && !CurrentUser.isAdmin()) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
         return paymentRequestMapper.toDetailResponse(payment);
     }

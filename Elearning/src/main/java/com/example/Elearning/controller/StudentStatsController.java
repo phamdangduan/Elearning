@@ -3,6 +3,7 @@ package com.example.Elearning.controller;
 import com.example.Elearning.dto.ApiResponse;
 import com.example.Elearning.dto.response.StudentStatsResponse;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.StudentStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,8 +21,9 @@ public class StudentStatsController {
 
     @GetMapping
     public ApiResponse<StudentStatsResponse> getStudentStats(
-            @RequestParam String studentId
+            @RequestParam(required = false) String studentId
     ) {
+        studentId = CurrentUser.resolve(studentId);
         return ApiResponse.ok(
                 studentStatsService.getStudentStats(studentId),
                 SuccessCode.GET_STUDENT_STATS_SUCCESS

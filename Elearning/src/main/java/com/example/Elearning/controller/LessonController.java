@@ -8,6 +8,7 @@ import com.example.Elearning.dto.response.FileUploadResponse;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.exception.SuccessCode;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.FileStorageService;
 import com.example.Elearning.service.LessonService;
 import jakarta.validation.Valid;
@@ -27,29 +28,33 @@ public class LessonController {
 
     @PostMapping("/create/{sectionId}")
     ApiResponse<CreatedLessonResponse> createdLesson(@PathVariable String sectionId,
-                                                     @RequestParam String instructorId,
+                                                     @RequestParam(required = false) String instructorId,
                                                      @Valid @RequestBody CreatedLessonRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(lessonService.createdLesson(sectionId,instructorId, request), SuccessCode.CREATED_LESSON);
     }
 
     @DeleteMapping("/{lessonId}/delete")
     ApiResponse<Void> deleteLesson(@PathVariable String lessonId,
-                                   @RequestParam String instructorId) {
+                                   @RequestParam(required = false) String instructorId) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(lessonService.deleteLesson(lessonId,instructorId), SuccessCode.DELETED_LESSON);
 
     }
 
     @PutMapping("/update/{lessonId}")
     ApiResponse<CreatedLessonResponse> updateLesson(@PathVariable String lessonId,
-                                                    @RequestParam String instructorId,
+                                                    @RequestParam(required = false) String instructorId,
                                                     @Valid @RequestBody UpdateLessonRequest request) {
+        instructorId = CurrentUser.resolve(instructorId);
         return ApiResponse.ok(lessonService.updateLesson(lessonId,instructorId ,request), SuccessCode.UPDATED_LESSON);
     }
 
     @PostMapping(value = "/upload-video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<FileUploadResponse> uploadVideo(
             @RequestPart("video") MultipartFile videoFile,
-            @RequestParam String instructorId) {
+            @RequestParam(required = false) String instructorId) {
+        instructorId = CurrentUser.resolve(instructorId);
 
         if (instructorId == null || instructorId.isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);

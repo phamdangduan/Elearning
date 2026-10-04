@@ -9,6 +9,7 @@ import com.example.Elearning.dto.response.MyEnrollmentResponse;
 import com.example.Elearning.entity.Course;
 import com.example.Elearning.entity.Enrollment;
 import com.example.Elearning.entity.User;
+import com.example.Elearning.enums.CourseStatus;
 import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.mapper.EnrollmentMapper;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Course course = courseRepository.findById(enrollmentRequest.getCourseId())
                 .orElseThrow(() ->
                         new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        // Chỉ khóa học đã publish mới được đăng ký
+        if (course.getStatus() != CourseStatus.PUBLISHED) {
+            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+        }
+        // Khóa có phí chỉ được ghi danh khi giảng viên xác nhận thanh toán
+        // (PaymentRequestServiceImpl.confirmPaymentRequest), không qua endpoint này
+        if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            throw new AppException(ErrorCode.COURSE_PRICE_REQUIRED);
+        }
 
         Enrollment enrollment = enrollmentMapper.toEntity(enrollmentRequest);
 

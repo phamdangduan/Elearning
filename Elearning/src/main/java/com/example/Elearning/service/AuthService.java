@@ -31,6 +31,8 @@ import java.util.*;
 @Transactional
 public class AuthService {
 
+    private static final Set<String> SELF_REGISTER_ROLES = Set.of("STUDENT", "TEACHER");
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ProfileRepository profileRepository;
@@ -92,6 +94,10 @@ public class AuthService {
         }
 
         String roleName = request.getRole().toUpperCase();
+        // Chỉ cho tự đăng ký STUDENT/TEACHER; ADMIN phải được tạo trực tiếp trong DB
+        if (!SELF_REGISTER_ROLES.contains(roleName)) {
+            throw new AuthException("Vai trò không hợp lệ: " + roleName, "INVALID_ROLE");
+        }
         Role userRole = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new AuthException("Vai trò không hợp lệ: " + roleName, "INVALID_ROLE"));
 
@@ -149,11 +155,16 @@ public class AuthService {
         // Verify includes reuse-attack detection
         RefreshToken oldToken = refreshTokenService.verifyRefreshToken(tokenStr);
 
-        // Rotate: revoke old, issue new
-        refreshTokenService.revokeToken(oldToken);
-
         User user = userRepository.findByEmail(oldToken.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Tài khoản bị khóa (BANNED/INACTIVE) không được cấp token mới
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new AppException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        // Rotate: revoke old, issue new
+        refreshTokenService.revokeToken(oldToken);
 
         String newAccessToken  = jwtUtil.generateAccessToken(user);
         String newRefreshToken = refreshTokenService.createRefreshToken(user.getEmail());

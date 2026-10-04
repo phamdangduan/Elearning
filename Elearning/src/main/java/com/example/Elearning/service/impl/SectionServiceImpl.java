@@ -10,6 +10,7 @@ import com.example.Elearning.exception.AppException;
 import com.example.Elearning.exception.ErrorCode;
 import com.example.Elearning.mapper.SectionMapper;
 import com.example.Elearning.repository.SectionRepository;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.CourseService;
 import com.example.Elearning.service.SectionService;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +90,11 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     public List<SectionResponse> getSectionsByCourseId(String courseId) {
+        // Danh sách này chứa link video của mọi bài học → chỉ chủ khóa học hoặc admin được xem
+        var course = courseService.getCourseById(courseId);
+        if (!course.getUser().getId().equals(CurrentUser.getUserId()) && !CurrentUser.isAdmin()) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
         List<Section> sections = sectionRepository.findByCourseIdOrderByOrderIndexAsc(courseId);
         

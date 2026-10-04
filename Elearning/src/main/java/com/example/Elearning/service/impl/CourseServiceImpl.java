@@ -16,6 +16,7 @@ import com.example.Elearning.repository.CourseRepository;
 import com.example.Elearning.repository.EnrollmentRepository;
 import com.example.Elearning.repository.ReviewRepository;
 import com.example.Elearning.repository.UserRepository;
+import com.example.Elearning.security.CurrentUser;
 import com.example.Elearning.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -109,14 +110,15 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findCourseDetailsById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        // Kiểm tra nếu instructor bị khóa và course không published
-        // thì không cho xem (trừ khi là học sinh đã đăng ký - dùng getCourseDetailForStudent)
-        if (course.getUser().getStatus() != com.example.Elearning.enums.UserStatus.ACTIVE 
-            && course.getStatus() != com.example.Elearning.enums.CourseStatus.PUBLISHED) {
+        // API công khai: chỉ hiện khóa học đã PUBLISHED của giảng viên đang hoạt động.
+        // Học viên đã đăng ký / chủ khóa học xem qua getCourseDetailForStudent.
+        if (course.getUser().getStatus() != com.example.Elearning.enums.UserStatus.ACTIVE
+            || course.getStatus() != com.example.Elearning.enums.CourseStatus.PUBLISHED) {
             throw new AppException(ErrorCode.COURSE_NOT_FOUND);
         }
 
         CourseDetailResponse response = courseMapper.toCourseDetailResponse(course);
+        hideContentExceptPreview(response);
 
         Integer totalEnrollments = enrollmentRepository.countByCourse_Id(courseId);
         response.setTotalEnrollments(totalEnrollments);
@@ -153,20 +155,39 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    // Ẩn link nội dung của mọi bài học, chỉ giữ bài đầu tiên của chương đầu tiên làm bài học thử
+    private void hideContentExceptPreview(CourseDetailResponse response) {
+        if (response.getSections() == null) {
+            return;
+        }
+        boolean isPreviewLesson = true;
+        for (SectionResponse section : response.getSections()) {
+            if (section.getLessons() == null) {
+                continue;
+            }
+            for (LessonResponse lesson : section.getLessons()) {
+                if (!isPreviewLesson) {
+                    lesson.setContentUrl(null);
+                }
+                isPreviewLesson = false;
+            }
+        }
+    }
+
     @Override
     public CourseDetailResponse getCourseDetailForStudent(String courseId, String studentId) {
         Course course = courseRepository.findCourseDetailsById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        // Kiểm tra xem học sinh đã đăng ký chưa
+        // API này trả đầy đủ link video → chỉ học viên đã đăng ký, chủ khóa học hoặc admin được xem.
+        // studentId đã được CourseController lấy từ JWT (CurrentUser.resolve).
         boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(studentId, courseId);
-        
-        // Nếu chưa đăng ký và instructor bị khóa, không cho xem
-        if (!isEnrolled && course.getUser().getStatus() != com.example.Elearning.enums.UserStatus.ACTIVE) {
-            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+        boolean isOwner = course.getUser().getId().equals(studentId);
+        if (!isEnrolled && !isOwner && !CurrentUser.isAdmin()) {
+            throw new AppException(ErrorCode.NOT_ENROLLED);
         }
 
-        // Nếu đã đăng ký, cho phép xem dù instructor bị khóa
+        // Đã đăng ký thì vẫn được học dù giảng viên bị khóa hoặc khóa học đã ẩn
         CourseDetailResponse response = courseMapper.toCourseDetailResponse(course);
 
         Integer totalEnrollments = enrollmentRepository.countByCourse_Id(courseId);

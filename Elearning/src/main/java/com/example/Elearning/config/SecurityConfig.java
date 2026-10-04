@@ -87,18 +87,40 @@ public class SecurityConfig {
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
 
-                // ── Public ─────────────────────────────────────────────────────────
+                // Spring Security dùng rule ĐẦU TIÊN khớp → rule cụ thể phải đứng trước rule chung
+
+                // ── Auth ───────────────────────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
+
+                // ── Course: các GET cần đăng nhập/quyền, đặt trước rule public "/course/**" ──
+                .requestMatchers(HttpMethod.GET, "/course/search/admin").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/course/*/student", "/course/teacher").authenticated()
+
+                // ── Profile: "/profile/me" và "/profile/getAll" cũng khớp "/profile/*" nên phải đứng trước ──
+                .requestMatchers(HttpMethod.GET, "/profile/me").authenticated()
+                .requestMatchers(HttpMethod.GET, "/profile/getAll").hasAuthority("ROLE_ADMIN")
+
+                // ── Public ─────────────────────────────────────────────────────────
                 .requestMatchers(HttpMethod.GET,
                     "/category",
                     "/category/**",
                     "/course",
                     "/course/**",
-                    "/profile/**",
-                    "/section/course/**",
+                    "/profile/*",
                     "/review/get-reviewsForCourse",
                     "/instructor/stats"
                 ).permitAll()
+
+                // ── Category: chỉ admin được tạo/sửa/xóa ─────────────────────────────
+                .requestMatchers(HttpMethod.POST,   "/category/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/category/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/category/**").hasAuthority("ROLE_ADMIN")
+
+                // ── Section list (kèm link video) chỉ cho giảng viên/admin; service kiểm tra chủ khóa học ──
+                .requestMatchers(HttpMethod.GET, "/section/course/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER", "ROLE_ADMIN")
+
+                // ── Tài khoản ngân hàng: chỉ giảng viên ──────────────────────────────
+                .requestMatchers("/bank-account/**").hasAnyAuthority("ROLE_INSTRUCTOR", "ROLE_TEACHER")
 
                 // ── Profile management (any authenticated user) ────────────────────
                 .requestMatchers(HttpMethod.PUT,  "/profile/update").authenticated()
@@ -129,6 +151,7 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
                 // ── Payment requests ───────────────────────────────────────────────
+                .requestMatchers("/payment-requests/all", "/payment-requests/stats").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/payment-requests/**").hasAnyAuthority("ROLE_STUDENT", "ROLE_ADMIN", "ROLE_TEACHER", "ROLE_INSTRUCTOR")
 
                 // ── Everything else requires authentication ────────────────────────

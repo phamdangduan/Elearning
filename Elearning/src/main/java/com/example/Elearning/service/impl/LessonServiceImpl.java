@@ -35,7 +35,9 @@ public class LessonServiceImpl implements LessonService {
         lesson.setSection(section);
         var orderIndex = lessonRepository.countBySectionId(sectionId);
         lesson.setOrderIndex(orderIndex);
-        return lessonMapper.toResponse(lessonRepository.save(lesson));
+        var saved = lessonRepository.save(lesson);
+        sectionService.evictCourseCache(section.getCourse().getId());
+        return lessonMapper.toResponse(saved);
     }
 
     @Override
@@ -45,7 +47,9 @@ public class LessonServiceImpl implements LessonService {
         if (!lesson.getSection().getCourse().getUser().getId().equals(instructorId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+        String courseId = lesson.getSection().getCourse().getId();
         lessonRepository.delete(lesson);
+        sectionService.evictCourseCache(courseId);
         return null;
     }
 
@@ -56,7 +60,9 @@ public class LessonServiceImpl implements LessonService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         lesson.setTitle(request.getTitle());
-        return lessonMapper.toResponse(lessonRepository.save(lesson));
+        var saved = lessonRepository.save(lesson);
+        sectionService.evictCourseCache(lesson.getSection().getCourse().getId());
+        return lessonMapper.toResponse(saved);
     }
 
     private Lesson getLessonById(String lessonId) {

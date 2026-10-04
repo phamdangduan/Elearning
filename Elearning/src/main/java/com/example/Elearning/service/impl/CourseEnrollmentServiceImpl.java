@@ -10,6 +10,7 @@ import com.example.Elearning.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     EnrollmentRepository enrollmentRepository;
 
     @Override
+    @CacheEvict(value = "courses", key = "#courseId")
     public void updateCourseEnrollmentCount(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));

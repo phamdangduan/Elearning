@@ -15,6 +15,8 @@ import com.example.Elearning.service.SectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,10 +30,19 @@ public class SectionServiceImpl implements SectionService {
     SectionMapper sectionMapper;
     SectionRepository sectionRepository;
     CourseServiceImpl courseService;
+    CacheManager cacheManager;
 
     protected Section getSectionById(String sectionId) {
         return sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
+    }
+
+    // Xóa cache chi tiết khóa học (CourseServiceImpl.getCourseDetail) khi chương/bài học thay đổi
+    protected void evictCourseCache(String courseId) {
+        Cache cache = cacheManager.getCache("courses");
+        if (cache != null) {
+            cache.evict(courseId);
+        }
     }
 
 
@@ -47,7 +58,9 @@ public class SectionServiceImpl implements SectionService {
         Integer maxOrderIndex = sectionRepository.findMaxOrderIndexByCourseId(courseId);
         section.setOrderIndex(maxOrderIndex != null ? maxOrderIndex + 1 : 0);
 
-        return sectionMapper.toResponse(sectionRepository.save(section));
+        var saved = sectionRepository.save(section);
+        evictCourseCache(courseId);
+        return sectionMapper.toResponse(saved);
     }
 
     @Override
@@ -57,7 +70,9 @@ public class SectionServiceImpl implements SectionService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         sectionMapper.updateEntity(section, request);
-        return sectionMapper.toResponse(sectionRepository.save(section));
+        var saved = sectionRepository.save(section);
+        evictCourseCache(section.getCourse().getId());
+        return sectionMapper.toResponse(saved);
     }
 
     @Override
@@ -66,7 +81,9 @@ public class SectionServiceImpl implements SectionService {
         if (!section.getCourse().getUser().getId().equals(instructorId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+        String courseId = section.getCourse().getId();
         sectionRepository.delete(section);
+        evictCourseCache(courseId);
         return null;
     }
 

@@ -1034,7 +1034,7 @@ async function saveCourse() {
     if (editingCourseId) {
         result = await apiPut(`/course/${editingCourseId}/update?instructorId=${TEACHER_ID}`, body);
         // Update thumbnail separately if changed
-        if (result?.result && thumbnailUrl && thumbnailUrl !== result.result.thumbnailUrl) {
+        if (result?.ok && result.result && thumbnailUrl && thumbnailUrl !== result.result.thumbnailUrl) {
             await apiPatch(`/course/${editingCourseId}/thumbnail?instructorId=${TEACHER_ID}`, { thumbnailUrl });
         }
     } else {
@@ -1049,7 +1049,7 @@ async function saveCourse() {
     console.log('Response message:', result?.message);
     console.log('Response result:', result?.result);
     
-    if (result && (result.status === 200 || result.status === 201 || result.status === 202)) {
+    if (result?.ok) {
         showToast(editingCourseId ? 'Cập nhật khóa học thành công!' : 'Tạo khóa học thành công!', 'success');
         closeModal('courseModal');
         await loadCourses();
@@ -1067,11 +1067,11 @@ async function publishCourse(courseId, currentStatus) {
         if (!confirm('Gỡ publish khóa học này?')) return;
     }
     const res = await apiPatch(`/course/${courseId}/publish?instructorId=${TEACHER_ID}`);
-    if (res) {
+    if (res?.ok) {
         showToast(currentStatus === 'PUBLISHED' ? 'Đã gỡ publish' : 'Đã publish khóa học!', 'success');
         await loadCourses();
     } else {
-        showToast('Không thể thay đổi trạng thái', 'error');
+        showToast('Không thể thay đổi trạng thái: ' + (res?.message || 'Lỗi'), 'error');
     }
 }
 
@@ -1089,13 +1089,13 @@ document.addEventListener('click', e => {
 async function deleteCourseConfirmed() {
     if (!deleteCourseId) return;
     const res = await apiDelete(`/course/${deleteCourseId}?instructorId=${TEACHER_ID}`);
-    if (res) {
+    if (res?.ok) {
         showToast('Đã xóa khóa học', 'success');
         closeModal('deleteModal');
         deleteCourseId = null;
         await loadCourses();
     } else {
-        showToast('Không thể xóa khóa học', 'error');
+        showToast('Không thể xóa khóa học: ' + (res?.message || 'Lỗi'), 'error');
     }
 }
 
@@ -1193,22 +1193,22 @@ async function createSection() {
     if (!title) { showToast('Vui lòng nhập tên chương', 'warning'); return; }
 
     const data = await apiPost(`/section/created/${currentCurriculumCourseId}?instructorId=${TEACHER_ID}`, { title, orderIndex: 1 });
-    if (data?.result || data?.status) {
+    if (data?.ok) {
         showToast('Đã tạo chương mới!', 'success');
         document.getElementById('addSectionForm').style.display = 'none';
         await loadSections(currentCurriculumCourseId);
     } else {
-        showToast('Không thể tạo chương', 'error');
+        showToast('Không thể tạo chương: ' + (data?.message || 'Lỗi'), 'error');
     }
 }
 
 async function deleteSection(sectionId) {
     if (!confirm('Xóa chương này và tất cả bài học?')) return;
     const res = await apiDelete(`/section/${sectionId}/delete?instructorId=${TEACHER_ID}`);
-    if (res) {
+    if (res?.ok) {
         showToast('Đã xóa chương', 'success');
         await loadSections(currentCurriculumCourseId);
-    } else { showToast('Không thể xóa', 'error'); }
+    } else { showToast('Không thể xóa: ' + (res?.message || 'Lỗi'), 'error'); }
 }
 
 /* ─── Lesson ─── */
@@ -1333,7 +1333,7 @@ document.getElementById('saveLessonBtn')?.addEventListener('click', async () => 
     console.log('Creating lesson with video URL:', videoUrl);
     
     const data = await apiPost(`/lesson/create/${currentSectionId}?instructorId=${TEACHER_ID}`, body);
-    if (data?.result || data?.status) {
+    if (data?.ok) {
         showToast('Đã thêm bài học!', 'success');
         
         // Reload sections to show new lesson
@@ -1363,16 +1363,16 @@ document.getElementById('saveLessonBtn')?.addEventListener('click', async () => 
         
         // Focus on title input for quick next lesson entry
         document.getElementById('lessonTitle')?.focus();
-    } else { showToast('Không thể thêm bài học', 'error'); }
+    } else { showToast('Không thể thêm bài học: ' + (data?.message || 'Lỗi'), 'error'); }
 });
 
 async function deleteLesson(lessonId) {
     if (!confirm('Xóa bài học này?')) return;
     const res = await apiDelete(`/lesson/${lessonId}/delete?instructorId=${TEACHER_ID}`);
-    if (res) {
+    if (res?.ok) {
         showToast('Đã xóa bài học', 'success');
         await loadSections(currentCurriculumCourseId);
-    } else { showToast('Không thể xóa', 'error'); }
+    } else { showToast('Không thể xóa: ' + (res?.message || 'Lỗi'), 'error'); }
 }
 
 /* ─── View toggle ─── */

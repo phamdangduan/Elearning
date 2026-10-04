@@ -40,6 +40,15 @@ async function apiGet(path) {
   }
 }
 
+// Gắn cờ ok theo HTTP status để nơi gọi phân biệt thành công/thất bại
+// (body lỗi của BE vẫn có field "status" nên không thể dùng data.status để kiểm tra)
+async function toApiResult(res) {
+  const json = await res.json().catch(() => ({}));
+  return { ...json, ok: res.ok };
+}
+
+const NETWORK_ERROR = { ok: false, message: "Không kết nối được máy chủ" };
+
 async function apiPost(path, body) {
   try {
     const token = localStorage.getItem('token');
@@ -51,10 +60,10 @@ async function apiPost(path, body) {
       headers,
       body: JSON.stringify(body),
     });
-    return await res.json();
+    return await toApiResult(res);
   } catch (e) {
     console.error("[API POST]", e.message);
-    return null;
+    return { ...NETWORK_ERROR };
   }
 }
 
@@ -69,10 +78,10 @@ async function apiPut(path, body = {}) {
       headers,
       body: JSON.stringify(body),
     });
-    return await res.json();
+    return await toApiResult(res);
   } catch (e) {
     console.error("[API PUT]", e.message);
-    return null;
+    return { ...NETWORK_ERROR };
   }
 }
 
@@ -87,10 +96,10 @@ async function apiPatch(path, body = {}) {
       headers,
       body: JSON.stringify(body),
     });
-    return await res.json();
+    return await toApiResult(res);
   } catch (e) {
     console.error("[API PATCH]", e.message);
-    return null;
+    return { ...NETWORK_ERROR };
   }
 }
 
@@ -102,12 +111,12 @@ async function apiDelete(path) {
     
     const res = await fetch(API_BASE + path, { 
       method: "DELETE",
-      headers 
+      headers
     });
-    return await res.json();
+    return await toApiResult(res);
   } catch (e) {
     console.error("[API DELETE]", e.message);
-    return null;
+    return { ...NETWORK_ERROR };
   }
 }
 

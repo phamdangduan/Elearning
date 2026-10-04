@@ -418,7 +418,7 @@ document.getElementById('doConfirmBtn')?.addEventListener('click', async () => {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận nhận tiền';
 
-    if (data?.result || data?.status) {
+    if (data?.ok) {
         showToast('✅ Xác nhận thành công! Học viên đã được enroll.', 'success');
         closeModal('confirmModal');
         await loadPayments();
@@ -447,18 +447,18 @@ document.getElementById('doRejectBtn')?.addEventListener('click', async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
 
     const data = await apiPut(`/instructor/payment-requests/${pendingActionId}/reject?userId=${TEACHER_ID}`, {
-        reason
+        instructorNote: reason
     });
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-times"></i> Từ chối';
 
-    if (data?.result || data?.status) {
+    if (data?.ok) {
         showToast('Đã từ chối yêu cầu', 'warning');
         closeModal('rejectModal');
         await loadPayments();
     } else {
-        showToast('Có lỗi xảy ra', 'error');
+        showToast('Có lỗi xảy ra: ' + (data?.message || 'Unknown'), 'error');
     }
 });
 

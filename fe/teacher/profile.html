@@ -734,7 +734,7 @@ async function saveProfile() {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-save"></i> Lưu thay đổi';
 
-    if (res?.result || res?.status) {
+    if (res?.ok) {
         showToast('✅ Cập nhật hồ sơ thành công!', 'success');
         await loadProfile();
     } else {

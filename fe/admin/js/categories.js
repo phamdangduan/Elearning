@@ -159,18 +159,26 @@ async function saveCategory() {
     }
     
     const categoryData = { name, description, icon };
-    
+    // Không đặt Content-Type: trình duyệt tự thêm boundary cho multipart/form-data
+    const authHeaders = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+
     try {
         if (id) {
             // Edit - Backend expects multipart/form-data
             const formData = new FormData();
             formData.append('category', new Blob([JSON.stringify(categoryData)], { type: 'application/json' }));
-            
-            await fetch(`${API_BASE}/category/${id}/update`, {
+
+            const response = await fetch(`${API_BASE}/category/${id}/update`, {
                 method: 'PUT',
+                headers: authHeaders,
                 body: formData
             });
-            
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                showToast('Không thể cập nhật danh mục: ' + (result.message || `Lỗi HTTP ${response.status}`), 'error');
+                return;
+            }
+
             // Update local state
             const c = allCategories.find(x => x.id === id);
             if (c) {
@@ -190,11 +198,16 @@ async function saveCategory() {
             
             const response = await fetch(`${API_BASE}/category/create?id=${userId}`, {
                 method: 'POST',
+                headers: authHeaders,
                 body: formData
             });
-            
-            const result = await response.json();
-            
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                showToast('Không thể tạo danh mục: ' + (result.message || `Lỗi HTTP ${response.status}`), 'error');
+                return;
+            }
+
             if (result.result) {
                 allCategories.push({
                     id: result.result.id,
@@ -236,10 +249,16 @@ async function deleteCategory(id) {
     if (!confirm('Xóa danh mục này? Khóa học thuộc danh mục sẽ chuyển sang "Chưa phân loại".')) return;
     
     try {
-        await fetch(`${API_BASE}/category/${id}`, {
-            method: 'DELETE'
+        const response = await fetch(`${API_BASE}/category/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            showToast('Không thể xóa danh mục: ' + (result.message || `Lỗi HTTP ${response.status}`), 'error');
+            return;
+        }
+
         allCategories = allCategories.filter(c => c.id !== id);
         updateStats();
         renderGrid();

@@ -122,7 +122,7 @@ function updateStats() {
     const total = allUsers.length;
     const students = allUsers.filter(u => u.role === 'STUDENT').length;
     const teachers = allUsers.filter(u => u.role === 'TEACHER').length;
-    const locked = allUsers.filter(u => u.status === 'LOCKED' || u.status === 'INACTIVE').length;
+    const locked = allUsers.filter(u => ['LOCKED', 'INACTIVE', 'BANNED'].includes(u.status)).length;
     
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statStudents').textContent = students;
@@ -219,7 +219,7 @@ function render() {
             ADMIN: 'Admin' 
         };
         
-        const isLocked = u.status === 'LOCKED' || u.status === 'INACTIVE';
+        const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(u.status);
         const statusClass = isLocked ? 'status-locked' : 'status-active';
         const statusLabel = isLocked ? '🔒 Bị khoá' : '✅ Hoạt động';
         
@@ -310,7 +310,7 @@ function viewUser(id) {
     const u = currentUser;
     const roleLabel = { STUDENT: 'Học viên', TEACHER: 'Giảng viên', ADMIN: 'Admin' };
     const roleMap = { STUDENT: 'role-student', TEACHER: 'role-teacher', ADMIN: 'role-admin' };
-    const isLocked = u.status === 'LOCKED' || u.status === 'INACTIVE';
+    const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(u.status);
     
     document.getElementById('userDetailBody').innerHTML = `
         <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:20px;background:var(--bg-primary);border-radius:var(--radius-lg)">
@@ -358,8 +358,8 @@ async function toggleLock(id) {
     const u = allUsers.find(x => x.id === id);
     if (!u) return;
     
-    const isLocked = u.status === 'LOCKED' || u.status === 'INACTIVE';
-    const newStatus = isLocked ? 'ACTIVE' : 'LOCKED';
+    const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(u.status);
+    const newStatus = isLocked ? 'ACTIVE' : 'BANNED';
     
     try {
         const token = localStorage.getItem('token');

@@ -61,6 +61,11 @@ public enum ErrorCode {
     // Token Error Codes (1200-1210)
     REFRESH_TOKEN_REVOKED(1200, "Refresh token đã bị thu hồi, vui lòng đăng nhập lại", HttpStatus.UNAUTHORIZED),
     ROUTE_NOT_FOUND(1201, "Không tìm thấy đường dẫn này", HttpStatus.NOT_FOUND),
+
+    // Generic request/data errors (1300-1310)
+    DATA_CONFLICT(1300, "Dữ liệu đang được sử dụng, không thể thực hiện thao tác này", HttpStatus.CONFLICT),
+    INVALID_PARAMETER(1301, "Tham số không hợp lệ", HttpStatus.BAD_REQUEST),
+    METHOD_NOT_ALLOWED(1302, "Phương thức HTTP không được hỗ trợ cho đường dẫn này", HttpStatus.METHOD_NOT_ALLOWED),
     ;
 
     private final int status;

@@ -186,7 +186,7 @@ function renderGrid() {
     document.getElementById('instructorGrid').innerHTML = list.map(t => {
         const initials = (t.fullName || 'T')[0].toUpperCase();
         const stars = '★'.repeat(Math.round(t.rating || 0)) + '☆'.repeat(5 - Math.round(t.rating || 0));
-        const isLocked = t.status === 'LOCKED' || t.status === 'INACTIVE';
+        const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(t.status);
         
         return `
             <div class="instructor-card">
@@ -258,7 +258,7 @@ function renderTable() {
     
     document.getElementById('instructorTableBody').innerHTML = list.map((t, i) => {
         const initials = (t.fullName || 'T')[0].toUpperCase();
-        const isLocked = t.status === 'LOCKED' || t.status === 'INACTIVE';
+        const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(t.status);
         
         return `
             <tr>
@@ -311,7 +311,7 @@ function viewInstructor(id) {
     if (!t) return;
     
     const initials = (t.fullName || 'T')[0].toUpperCase();
-    const isLocked = t.status === 'LOCKED' || t.status === 'INACTIVE';
+    const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(t.status);
     
     document.getElementById('instructorModalBody').innerHTML = `
         <div style="display:flex;align-items:center;gap:20px;padding:20px;background:var(--bg-primary);border-radius:var(--radius-lg);margin-bottom:20px">
@@ -387,16 +387,21 @@ async function toggleLock(id) {
     const t = allInstructors.find(x => x.id === id);
     if (!t) return;
     
-    const isLocked = t.status === 'LOCKED' || t.status === 'INACTIVE';
-    const newStatus = isLocked ? 'ACTIVE' : 'LOCKED';
+    const isLocked = ['LOCKED', 'INACTIVE', 'BANNED'].includes(t.status);
+    const newStatus = isLocked ? 'ACTIVE' : 'BANNED';
     
     try {
         // Call backend API
-        await fetch(`${API_BASE}/profile/${id}/status?status=${newStatus}`, {
+        const res = await fetch(`${API_BASE}/profile/${id}/status?status=${newStatus}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            showToast('Không thể cập nhật trạng thái: ' + (result.message || `Lỗi HTTP ${res.status}`), 'error');
+            return;
+        }
+
         // Update local state
         t.status = newStatus;
         updateStats();

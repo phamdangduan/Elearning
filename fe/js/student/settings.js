@@ -84,10 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     const userId = localStorage.getItem('userId');
 
-    if (!token || !userId) {
-        window.location.href = '../login.html';
-        return;
-    }
+    // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
+    if (!Api.requireRole('STUDENT')) return;
 
     // ── Handle Change Password ──
     const passwordForm = document.getElementById('passwordForm');

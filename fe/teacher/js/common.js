@@ -14,8 +14,11 @@
     return;
   }
 
-  // Read teacher ID from localStorage, fallback to teacher-001 if not found
-  window.TEACHER_ID = localStorage.getItem('userId') || 'teacher-001';
+  // Chỉ giảng viên đã đăng nhập mới vào được các trang teacher/ (js/api.js)
+  Api.requireRole('TEACHER');
+
+  // BE lấy userId từ JWT; TEACHER_ID chỉ còn dùng để ghép URL cũ
+  window.TEACHER_ID = localStorage.getItem('userId') || '';
   window.API_BASE = "http://localhost:8080";
   
   console.log('Teacher common.js initialized with userId:', window.TEACHER_ID);
@@ -248,17 +251,7 @@ function initDropdowns() {
       .forEach((el) => el.classList.remove("show"));
   });
 
-  // Logout
-  ["logoutBtn", "dropdownLogout"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el)
-      el.addEventListener("click", () => {
-        if (confirm("Bạn có chắc muốn đăng xuất?")) {
-          localStorage.clear();
-          window.location.href = "../index.html";
-        }
-      });
-  });
+  // Logout: xử lý chung trong js/api.js
 
   // Mark all read
   const markBtn = document.getElementById("markAllRead");

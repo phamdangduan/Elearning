@@ -9,24 +9,6 @@ let filteredUsers = [];
 let currentPage = 0;
 let currentUser = null;
 
-const MOCK_USERS = [
-  { id: 'u1', fullName: 'Nguyễn Văn An', email: 'an.nv@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-01-15T08:00:00Z', phone: '0912345678', address: 'Hà Nội', bio: 'Giảng viên Web Dev' },
-  { id: 'u2', fullName: 'Trần Thị Bình', email: 'binh.tt@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-02-10T09:30:00Z', phone: '0987654321', address: 'Đà Nẵng', bio: 'Giảng viên Spring Boot' },
-  { id: 'u3', fullName: 'Lê Quốc Cường', email: 'cuong.lq@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-03-01T10:15:00Z', phone: '0905112233', address: 'TP. HCM', bio: 'Chuyên gia Machine Learning' },
-  { id: 'u4', fullName: 'Phạm Minh Đức', email: 'duc.pm@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-03-12T14:20:00Z', phone: '0934556677', address: 'Hải Phòng', bio: 'Kỹ sư DevOps' },
-  { id: 'u5', fullName: 'Hoàng Thị Em', email: 'em.ht@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-02-05T11:00:00Z', phone: '0977889900', address: 'Cần Thơ', bio: 'Giảng viên Java Core' },
-  { id: 'u6', fullName: 'Vũ Văn Phong', email: 'phong.vv@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-04-20T16:45:00Z', phone: '0911223344', address: 'Hà Nội' },
-  { id: 'u7', fullName: 'Đỗ Thị Giang', email: 'giang.dt@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-01-08T07:30:00Z', phone: '0944556677', address: 'Quảng Ninh' },
-  { id: 'u8', fullName: 'Ngô Đức Hùng', email: 'hung.nd@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-02-28T15:10:00Z', phone: '0966778899', address: 'Nghệ An' },
-  { id: 'u9', fullName: 'Đinh Thị Lan', email: 'lan.dt@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-02-20T08:50:00Z', phone: '0988990011', address: 'Thanh Hóa' },
-  { id: 'u10', fullName: 'Trương Văn Minh', email: 'minh.tv@example.com', roles: ['TEACHER'], status: 'ACTIVE', createdAt: '2026-04-25T13:40:00Z', phone: '0955667788', address: 'Bình Dương' },
-  { id: 'u11', fullName: 'Nguyễn Văn Học', email: 'hoc.nv@example.com', roles: ['STUDENT'], status: 'ACTIVE', createdAt: '2026-05-01T09:00:00Z', phone: '0912345001', address: 'Hà Nội', courseCount: 3 },
-  { id: 'u12', fullName: 'Trần Thị Viên', email: 'vien.tt@example.com', roles: ['STUDENT'], status: 'ACTIVE', createdAt: '2026-05-02T10:30:00Z', phone: '0987654002', address: 'Đà Nẵng', courseCount: 2 },
-  { id: 'u13', fullName: 'Lê Văn Sinh', email: 'sinh.lv@example.com', roles: ['STUDENT'], status: 'LOCKED', createdAt: '2026-05-03T11:15:00Z', phone: '0905112003', address: 'TP. HCM', courseCount: 1 },
-  { id: 'u14', fullName: 'Phạm Thị Mơ', email: 'mo.pt@example.com', roles: ['STUDENT'], status: 'ACTIVE', createdAt: '2026-05-04T14:20:00Z', phone: '0934556004', address: 'Huế', courseCount: 4 },
-  { id: 'u15', fullName: 'Hoàng Văn Tài', email: 'tai.hv@example.com', roles: ['STUDENT'], status: 'ACTIVE', createdAt: '2026-05-05T15:00:00Z', phone: '0977889005', address: 'Cần Thơ', courseCount: 0 },
-];
-
 /* ── Load Users ── */
 async function loadUsers() {
     showSkeleton();
@@ -37,10 +19,9 @@ async function loadUsers() {
         // Get all users from backend
         const data = await apiGet('/profile/getAll');
         rawUsers = data?.result || [];
-        if (!rawUsers.length) rawUsers = MOCK_USERS;
     } catch (error) {
         console.error('[Users] Error loading users:', error);
-        rawUsers = MOCK_USERS;
+        showToast('Không tải được danh sách người dùng', 'error');
     }
 
     try {
@@ -387,18 +368,7 @@ async function toggleLock(id) {
         );
     } catch (error) {
         console.error('[Toggle Lock] Error:', error);
-        // Fallback for Mock/Demo mode if connection fails (network error)
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('fetch')) {
-            u.status = newStatus;
-            updateStats();
-            applyFilter();
-            showToast(
-                isLocked ? 'Đã mở khóa tài khoản (Chế độ Demo)!' : 'Đã khóa tài khoản (Chế độ Demo)!', 
-                isLocked ? 'success' : 'warning'
-            );
-        } else {
             showToast('Không thể cập nhật trạng thái: ' + error.message, 'error');
-        }
     }
 }
 
@@ -429,15 +399,7 @@ async function deleteUser(id) {
         showToast('Đã xóa người dùng!', 'success');
     } catch (error) {
         console.error('[Delete User] Error:', error);
-        // Fallback for Mock/Demo mode if connection fails (network error)
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('fetch')) {
-            allUsers = allUsers.filter(u => u.id !== id);
-            updateStats();
-            applyFilter();
-            showToast('Đã xóa người dùng (Chế độ Demo)!', 'warning');
-        } else {
             showToast('Không thể xóa người dùng: ' + error.message, 'error');
-        }
     }
 }
 

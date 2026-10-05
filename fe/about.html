@@ -16,6 +16,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="css/common/landing.css">
     <link rel="stylesheet" href="css/common/about.css">
+    <script src="js/api.js"></script>
 </head>
 <body>
 
@@ -411,11 +412,6 @@
             });
 
             // Logout
-            document.getElementById('landingLogoutBtn')?.addEventListener('click', () => {
-                localStorage.clear();
-                location.reload();
-            });
-
             // Newsletter submit
             document.querySelector('.newsletter-form')?.addEventListener('submit', (e) => {
                 e.preventDefault();

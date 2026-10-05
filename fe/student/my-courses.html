@@ -16,6 +16,7 @@
     <!-- Landing CSS -->
     <link rel="stylesheet" href="../css/common/landing.css">
     <link rel="stylesheet" href="../css/student/my-courses.css">
+    <script src="../js/api.js"></script>
 </head>
 <body style="background: #f8fafc;">
 
@@ -158,12 +159,6 @@
         });
         
         const API_BASE = 'http://localhost:8080';
-        document.getElementById('logoutBtn')?.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '../login.html';
-        });
-
         const token = localStorage.getItem('token') || localStorage.getItem('authToken');
         const guest = document.getElementById('navGuestActions');
         const logged = document.getElementById('navLoggedIn');

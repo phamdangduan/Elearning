@@ -188,32 +188,11 @@ async function loadCourseDetail(courseId) {
         const data = json.result || json;
         renderCourse(data);
     } catch (error) {
-        console.error("API Error, using dummy data:", error);
-        // DUMMY FALLBACK DATA
-        const dummyData = {
-            title: "Khóa học Lập trình Web Fullstack với Spring Boot và React",
-            description: "Học cách xây dựng các ứng dụng web phức tạp từ con số không. Khóa học bao gồm cả phần Frontend hiện đại và Backend mạnh mẽ.",
-            thumbnail: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80",
-            price: 599000,
-            teacherName: "Nguyễn Văn A",
-            sections: [
-                {
-                    title: "Giới thiệu khóa học",
-                    lessons: [
-                        { title: "Giới thiệu chung" },
-                        { title: "Cài đặt môi trường" }
-                    ]
-                },
-                {
-                    title: "Kiến trúc hệ thống",
-                    lessons: [
-                        { title: "RESTful API là gì?" },
-                        { title: "Phân tích Database" }
-                    ]
-                }
-            ]
-        };
-        renderCourse(dummyData);
+        console.error("Không tải được khóa học:", error);
+        document.getElementById('courseTitle').textContent = 'Không tìm thấy khóa học';
+        document.getElementById('courseDescShort').textContent = 'Khóa học không tồn tại, chưa được xuất bản hoặc máy chủ đang lỗi.';
+        const enrollBtn = document.getElementById('enrollBtn');
+        if (enrollBtn) enrollBtn.style.display = 'none';
     }
 }
 
@@ -255,8 +234,6 @@ function renderCourse(data) {
         teacherName = data.instructor.userName;
     } else if (data.instructor && data.instructor.email) {
         teacherName = data.instructor.email.split('@')[0];
-    } else if (data.teacherName) {
-        teacherName = data.teacherName; // fallback for old dummy data
     }
     
     document.getElementById('instructorName').textContent = teacherName;
@@ -397,21 +374,9 @@ async function loadReviews(courseId) {
         }
     } catch (error) {
         console.error("Error loading reviews:", error);
-        // Fallback dummy reviews
         const reviewContainer = document.getElementById('courseReviewsList');
         if (reviewContainer) {
-            reviewContainer.innerHTML = `
-                <div class="cd-review-item">
-                    <div class="cd-review-header">
-                        <div class="cd-review-avatar">H</div>
-                        <div class="cd-review-meta">
-                            <div class="cd-review-name">Học viên ẩn danh <span class="cd-review-date">10/06/2026</span></div>
-                            <div class="cd-review-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                        </div>
-                    </div>
-                    <div class="cd-review-body">Khóa học rất hay và bổ ích, giảng viên siêu nhiệt tình!</div>
-                </div>
-            `;
+            reviewContainer.innerHTML = '<p style="color: #94a3b8; font-size: 14.5px;">Không tải được đánh giá.</p>';
         }
     }
 }

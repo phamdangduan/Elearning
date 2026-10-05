@@ -67,10 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     const userId = localStorage.getItem('userId');
     
-    if (!token || !userId) {
-        window.location.href = '../login.html';
-        return;
-    }
+    // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
+    if (!Api.requireRole('STUDENT')) return;
     
     loadMyCourses(userId, token, BASE_URL);
 });

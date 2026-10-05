@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '../login.html';
-        return;
-    }
+    // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
+    if (!Api.requireRole('STUDENT')) return;
 
     loadProfile(token);
 

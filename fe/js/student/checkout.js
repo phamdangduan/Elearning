@@ -72,11 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
-    if (!token || !userId) {
-        alert("Vui lòng đăng nhập để tiếp tục!");
-        window.location.href = '../login.html';
-        return;
-    }
+    // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
+    if (!Api.requireRole('STUDENT')) return;
     
     const userAvatar = document.getElementById('navUserAvatar');
     if (userAvatar) userAvatar.textContent = userName ? userName.charAt(0).toUpperCase() : 'U';

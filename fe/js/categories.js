@@ -6,36 +6,13 @@ const catVisuals = {
     'DevOps': 'fa-infinity'
 };
 
-const dummyCategories = `
-    <div class="category-card" onclick="location.href='catalog.html'">
-        <div class="cat-icon"><i class="fas fa-laptop-code"></i></div>
-        <h3>Frontend</h3>
-    </div>
-    <div class="category-card" onclick="location.href='catalog.html'">
-        <div class="cat-icon"><i class="fas fa-server"></i></div>
-        <h3>Backend</h3>
-    </div>
-    <div class="category-card" onclick="location.href='catalog.html'">
-        <div class="cat-icon"><i class="fas fa-mobile-alt"></i></div>
-        <h3>Mobile</h3>
-    </div>
-    <div class="category-card" onclick="location.href='catalog.html'">
-        <div class="cat-icon"><i class="fas fa-database"></i></div>
-        <h3>Database</h3>
-    </div>
-    <div class="category-card" onclick="location.href='catalog.html'">
-        <div class="cat-icon"><i class="fas fa-infinity"></i></div>
-        <h3>DevOps</h3>
-    </div>
-`;
-
 async function loadCategories() {
     const grid = document.getElementById('categoryGrid');
     try {
         const data = await fetch(`${API_BASE}/category`).then(r => r.json());
         const categories = (data?.result || []).slice(0, 5); // Take top 5
         if (!categories.length) {
-            grid.innerHTML = dummyCategories;
+            grid.innerHTML = Api.emptyHtml('Chưa có danh mục nào.');
             return;
         }
 
@@ -50,6 +27,6 @@ async function loadCategories() {
         }).join('');
     } catch (e) {
         console.error('Categories error:', e);
-        grid.innerHTML = dummyCategories;
+        grid.innerHTML = Api.errorHtml();
     }
 }

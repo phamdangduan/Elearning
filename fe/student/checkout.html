@@ -15,6 +15,7 @@
     <!-- Landing CSS -->
     <link rel="stylesheet" href="../css/common/landing.css">
     <link rel="stylesheet" href="../css/student/checkout.css">
+    <script src="../js/api.js"></script>
 </head>
 <body style="background-color: #f8fafc;">
 
@@ -232,11 +233,6 @@
             }
         });
         
-        document.getElementById('logoutBtn')?.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '../login.html';
-        });
         
         window.addEventListener('scroll', () => {
             document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);

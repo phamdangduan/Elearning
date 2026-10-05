@@ -58,13 +58,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function saveAuthData(token, userId, name, email, role) {
+    function saveAuthData(token, refreshToken, userId, name, email, role) {
         localStorage.setItem('authToken', token);
         localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', refreshToken || '');
         localStorage.setItem('userId', userId);
         localStorage.setItem('userName', name || email.split('@')[0]);
         localStorage.setItem('userEmail', email);
         localStorage.setItem('userRole', role || 'STUDENT');
+    }
+
+    // Trang cần quay lại sau khi đăng nhập (?redirect=student/course-detail.html?id=...).
+    // Chỉ nhận đường dẫn nội bộ dạng "thư-mục/trang.html" để tránh bị chuyển sang trang lạ,
+    // và chỉ khi khu vực (student/teacher/admin) khớp với vai trò của tài khoản.
+    function getSafeRedirect(role) {
+        const redirect = new URLSearchParams(window.location.search).get('redirect');
+        if (!redirect || !/^[\w\-]+(\/[\w\-]+)?\.html(\?.*)?$/.test(redirect)) return null;
+        const area = redirect.includes('/') ? redirect.split('/')[0] : null;
+        const areaRole = { student: 'STUDENT', teacher: 'TEACHER', admin: 'ADMIN' };
+        if (area && areaRole[area] !== role) return null;
+        return redirect;
     }
 
     // ── 1. LOGIN FORM LOGIC ──
@@ -138,10 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (response.ok && data.token) {
-                    saveAuthData(data.token, data.userId, data.name, data.email, data.role);
+                    saveAuthData(data.token, data.refreshToken, data.userId, data.name, data.email, data.role);
                     showSuccessOverlay("Đăng nhập thành công!");
                     setTimeout(() => {
-                        if (data.role === 'TEACHER') {
+                        const redirect = getSafeRedirect(data.role);
+                        if (redirect) {
+                            window.location.href = redirect;
+                        } else if (data.role === 'TEACHER') {
                             window.location.href = 'teacher/index.html';
                         } else if (data.role === 'ADMIN') {
                             window.location.href = 'admin/index.html';
@@ -160,22 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     shakeFormCard();
                 }
             } catch (error) {
-                console.warn("Backend server connection failed, falling back to Demo Mock login.", error);
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                const isTeacher = emailValue.toLowerCase().startsWith('teacher');
-                saveAuthData(
-                    'dummy_token_123',
-                    isTeacher ? 'teacher_1' : 'user_1',
-                    emailValue.split('@')[0],
-                    emailValue,
-                    isTeacher ? 'TEACHER' : 'STUDENT'
-                );
-
-                showSuccessOverlay("Đăng nhập thành công (Chế độ Demo)!");
-                setTimeout(() => {
-                    window.location.href = isTeacher ? 'teacher/index.html' : 'student/profile.html';
-                }, 1600);
+                console.error("Không kết nối được máy chủ khi đăng nhập", error);
+                hideLoadingOverlay();
+                showInputError(passwordInput, passwordError, "Không kết nối được máy chủ. Vui lòng thử lại sau.");
+                shakeFormCard();
             }
         });
     }
@@ -290,7 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const firstName = firstNameInput.value.trim();
             const lastName = lastNameInput.value.trim();
             const email = regEmailInput.value.trim();
-            const phone = phoneInput.value.trim();
+            // Bỏ khoảng trắng, gạch nối, ngoặc để kiểm tra và gửi cùng một giá trị
+            const phone = phoneInput.value.trim().replace(/[\s\-\(\)]/g, '');
             const role = roleSelect.value;
             const password = regPasswordInput.value;
             const confirmPassword = confirmPasswordInput.value;
@@ -317,13 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 isValid = false;
             }
 
-            // Phone check
-            const phoneRegex = /^[0-9]{9,11}$/;
+            // Phone check — cùng quy tắc với BE (RegisterRequest): 0xxxxxxxxx hoặc +84xxxxxxxxx
+            const phoneRegex = /^(\+?84|0)\d{9}$/;
             if (!phone) {
                 showInputError(phoneInput, phoneError, "Vui lòng nhập số điện thoại.");
                 isValid = false;
-            } else if (!phoneRegex.test(phone.replace(/[\s\-\+\(\)]/g, ''))) {
-                showInputError(phoneInput, phoneError, "Số điện thoại phải từ 9 đến 11 chữ số.");
+            } else if (!phoneRegex.test(phone)) {
+                showInputError(phoneInput, phoneError, "Số điện thoại gồm 10 số, bắt đầu bằng 0 (hoặc +84).");
                 isValid = false;
             }
 
@@ -406,13 +411,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     shakeFormCard();
                 }
             } catch (error) {
-                console.warn("Backend server connection failed, falling back to Demo Mock registration.", error);
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                showSuccessOverlay("Đăng ký tài khoản thành công (Chế độ Demo)!");
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                console.error("Không kết nối được máy chủ khi đăng ký", error);
+                hideLoadingOverlay();
+                alert("Không kết nối được máy chủ. Vui lòng thử lại sau.");
+                shakeFormCard();
             }
         });
     }

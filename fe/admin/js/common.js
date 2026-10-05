@@ -9,13 +9,8 @@
   window.ADMIN_ID = localStorage.getItem('adminId') || 'admin-001';
   console.log('[Admin] common.js initialized');
 
-  // Kiểm tra quyền truy cập Admin
-  const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-  const role = localStorage.getItem('userRole');
-  if (!token || role !== 'ADMIN') {
-    alert('Bạn không có quyền truy cập trang quản trị! Vui lòng đăng nhập bằng tài khoản Admin.');
-    window.location.href = '../login.html';
-  }
+  // Kiểm tra quyền truy cập Admin (js/api.js)
+  Api.requireRole('ADMIN');
 })();
 
 /* ── API Helpers ── */
@@ -189,20 +184,7 @@ function initDropdowns() {
   document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-menu.show, .noti-dropdown.show').forEach(el => el.classList.remove('show'));
   });
-  ['logoutBtn', 'dropdownLogout'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('click', () => {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('adminId');
-        localStorage.removeItem('adminName');
-        localStorage.removeItem('adminAvatar');
-        window.location.href = '../login.html';
-      }
-    });
-  });
+  // Nút đăng xuất: xử lý chung trong js/api.js
   const markBtn = document.getElementById('markAllRead');
   if (markBtn) markBtn.addEventListener('click', () => {
     document.querySelectorAll('.noti-item.unread').forEach(el => el.classList.remove('unread'));

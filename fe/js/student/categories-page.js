@@ -82,29 +82,6 @@ const catVisuals = {
     'Design': 'fa-palette'
 };
 
-const dummyPageCategories = `
-    <div class="cat-page-card" onclick="location.href='../catalog.html?categoryId=1'">
-        <div class="cat-page-icon"><i class="fas fa-laptop-code"></i></div>
-        <h3>Công nghệ thông tin</h3>
-        <p>120+ Khóa học</p>
-    </div>
-    <div class="cat-page-card" onclick="location.href='../catalog.html?categoryId=2'">
-        <div class="cat-page-icon"><i class="fas fa-chart-line"></i></div>
-        <h3>Kinh doanh & Khởi nghiệp</h3>
-        <p>85+ Khóa học</p>
-    </div>
-    <div class="cat-page-card" onclick="location.href='../catalog.html?categoryId=3'">
-        <div class="cat-page-icon"><i class="fas fa-palette"></i></div>
-        <h3>Thiết kế & Đồ họa</h3>
-        <p>64+ Khóa học</p>
-    </div>
-    <div class="cat-page-card" onclick="location.href='../catalog.html?categoryId=4'">
-        <div class="cat-page-icon"><i class="fas fa-bullhorn"></i></div>
-        <h3>Marketing & Truyền thông</h3>
-        <p>90+ Khóa học</p>
-    </div>
-`;
-
 async function loadPageCategories() {
     const grid = document.getElementById('categoryPageGrid');
     if(!grid) return;
@@ -113,7 +90,7 @@ async function loadPageCategories() {
         const data = await fetch(`${API_BASE}/category`).then(r => r.json());
         const cats = data?.result || [];
         if (!cats.length) {
-            grid.innerHTML = dummyPageCategories;
+            grid.innerHTML = Api.emptyHtml('Chưa có danh mục nào.');
             return;
         }
         grid.innerHTML = cats.map(cat => {
@@ -122,13 +99,13 @@ async function loadPageCategories() {
             <div class="cat-page-card" onclick="location.href='../catalog.html?categoryId=${cat.id}'">
                 <div class="cat-page-icon"><i class="fas ${icon}"></i></div>
                 <h3>${cat.name}</h3>
-                <p>${cat.courseCount || Math.floor(Math.random() * 50 + 10)} Khóa học</p>
+                <p>${cat.description || ''}</p>
             </div>
             `;
         }).join('');
     } catch (e) {
         console.error('Categories error:', e);
-        grid.innerHTML = dummyPageCategories;
+        grid.innerHTML = Api.errorHtml();
     }
 }
 

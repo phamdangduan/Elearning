@@ -96,11 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('navGuestActions').classList.toggle('mobile-open');
     });
 
-    // Logout
-    document.getElementById('landingLogoutBtn')?.addEventListener('click', () => {
-        localStorage.clear();
-        location.reload();
-    });
+    // Logout: xử lý chung trong js/api.js
 
     // Newsletter submit
     document.querySelector('.newsletter-form')?.addEventListener('submit', (e) => {

@@ -4,7 +4,8 @@
 ===================================================== */
 
 const API_BASE = 'http://localhost:8080';
-const USER_ID = localStorage.getItem('userId') || 'student-001';
+// BE lấy userId từ JWT; USER_ID chỉ còn dùng để ghép URL cũ
+const USER_ID = localStorage.getItem('userId') || '';
 
 // ── State Management ──
 const state = {
@@ -699,7 +700,8 @@ function setupNavbar() {
 // ── Initialize ──
 async function init() {
     console.log('Initializing review page...');
-    
+    if (!Api.requireRole('STUDENT')) return;
+
     // Load data
     await loadCourseData();
     

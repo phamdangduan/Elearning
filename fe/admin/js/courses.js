@@ -1,24 +1,11 @@
 /* ============================================================
    EduVN Admin - Courses Management
-   Duyệt và quản lý khóa học từ API backend hoặc mock data
+   Duyệt và quản lý khóa học từ API backend
 ============================================================ */
 
 const PAGE_SIZE = 15;
 let allCourses = [], filteredCourses = [], currentPage = 0;
 let activeStatus = '', rejectTargetId = null;
-
-const MOCK_COURSES = [
-  { id:'c1', title:'ReactJS từ cơ bản đến nâng cao', instructor:'Nguyễn Văn An', price:499000, enrollments:342, status:'PENDING', createdAt:'2026-04-28', thumbnail:null },
-  { id:'c2', title:'Spring Boot Microservices', instructor:'Trần Thị Bình', price:699000, enrollments:218, status:'PENDING', createdAt:'2026-04-29', thumbnail:null },
-  { id:'c3', title:'Python Machine Learning', instructor:'Lê Quốc Cường', price:599000, enrollments:501, status:'PUBLISHED', createdAt:'2026-04-01', thumbnail:null },
-  { id:'c4', title:'DevOps với Docker & Kubernetes', instructor:'Phạm Minh Đức', price:799000, enrollments:189, status:'PUBLISHED', createdAt:'2026-03-15', thumbnail:null },
-  { id:'c5', title:'Lập trình Java cơ bản', instructor:'Hoàng Thị Em', price:399000, enrollments:632, status:'PUBLISHED', createdAt:'2026-02-10', thumbnail:null },
-  { id:'c6', title:'Angular 17 Advanced', instructor:'Vũ Văn Phong', price:549000, enrollments:0, status:'DRAFT', createdAt:'2026-04-30', thumbnail:null },
-  { id:'c7', title:'Node.js & Express API', instructor:'Đỗ Thị Giang', price:449000, enrollments:87, status:'ARCHIVED', createdAt:'2026-01-20', thumbnail:null },
-  { id:'c8', title:'UI/UX Design Figma', instructor:'Ngô Đức Hùng', price:349000, enrollments:421, status:'PUBLISHED', createdAt:'2026-03-05', thumbnail:null },
-  { id:'c9', title:'SQL & Database Design', instructor:'Đinh Thị Lan', price:299000, enrollments:298, status:'PUBLISHED', createdAt:'2026-02-28', thumbnail:null },
-  { id:'c10', title:'Flutter Mobile App', instructor:'Trương Văn Minh', price:649000, enrollments:156, status:'PENDING', createdAt:'2026-04-27', thumbnail:null },
-];
 
 const STATUS_MAP = {
   PUBLISHED: { cls:'badge-success', txt:'✅ Published' },
@@ -40,24 +27,19 @@ async function loadCourses() {
       // API trả về PageResponse với structure: { status, message, result: { content: [], totalElements, ... } }
       allCourses = r.result.content || [];
       console.log('[Courses] Loaded from API:', allCourses.length, 'courses');
-      
-      if (allCourses.length === 0) {
-        console.warn('[Courses] API returned empty array, using MOCK_COURSES as fallback');
-        allCourses = MOCK_COURSES;
-      }
     } else if (r && r.status !== 200 && r.status !== 211) {
       console.error('[Courses] API error:', r.message, '- Status:', r.status);
       showToast(`Lỗi API: ${r.message || 'Không thể tải khóa học'}`, 'error');
-      allCourses = MOCK_COURSES;
+      allCourses = [];
     } else {
       console.error('[Courses] Invalid API response format:', r);
       showToast('Lỗi: Không nhận được dữ liệu từ server', 'error');
-      allCourses = MOCK_COURSES;
+      allCourses = [];
     }
   } catch (err) {
     console.error('[Courses] Exception:', err);
-    showToast('Lỗi kết nối: Đang dùng dữ liệu mẫu', 'warning');
-    allCourses = MOCK_COURSES;
+    showToast('Lỗi kết nối máy chủ', 'error');
+    allCourses = [];
   }
   updateStats();
   applyFilter();

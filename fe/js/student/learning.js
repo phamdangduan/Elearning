@@ -65,11 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     const userId = localStorage.getItem('userId');
     
-    if (!token || !userId) {
-        alert("Vui lòng đăng nhập để học.");
-        window.location.href = '../login.html';
-        return;
-    }
+    // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
+    if (!Api.requireRole('STUDENT')) return;
 
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get('courseId');
@@ -166,41 +163,12 @@ async function loadLearningData(courseId, userId, token) {
         }
 
     } catch (error) {
-        console.warn("API lỗi hoặc không tìm thấy course, dùng dữ liệu mẫu (Dummy data):", error);
-        
-        // Dummy Fallback Data
-        currentCourseData = {
-            title: "Dữ liệu mẫu: Khóa học Spring Boot",
-            sections: [
-                {
-                    title: "Giới thiệu khóa học",
-                    lessons: [
-                        { id: "les-1", title: "Giới thiệu Spring Boot", content: "Bài này giới thiệu về Spring Boot.", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4" },
-                        { id: "les-2", title: "Cài đặt môi trường", content: "Cách cài đặt Java và IDE.", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
-                    ]
-                },
-                {
-                    title: "Kiến trúc REST API",
-                    lessons: [
-                        { id: "les-3", title: "RESTful API là gì?", content: "Lý thuyết RESTful API.", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4" }
-                    ]
-                }
-            ]
-        };
-        
+        console.error("Không tải được khóa học:", error);
         const courseTitleHeader = document.getElementById('courseTitleHeader');
-        if (courseTitleHeader) {
-            courseTitleHeader.textContent = currentCourseData.title;
-        }
-        renderSyllabus(currentCourseData.sections, []);
-        const progressEl = document.getElementById('progressText');
-        if (progressEl) {
-            progressEl.textContent = "0% Hoàn thành";
-        }
-        
-        if (currentCourseData.sections.length > 0) {
-            playLesson(currentCourseData.sections[0].lessons[0], false);
-        }
+        if (courseTitleHeader) courseTitleHeader.textContent = 'Không tải được khóa học';
+        document.getElementById('lessonTitleDisplay').textContent = 'Không tải được nội dung khóa học. Vui lòng thử lại.';
+        document.getElementById('markCompleteBtn').style.display = 'none';
+        document.getElementById('syllabusContent').innerHTML = Api.errorHtml();
     }
 }
 

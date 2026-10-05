@@ -116,7 +116,7 @@
                             </div>
                             <span>Ghi nhớ đăng nhập</span>
                         </label>
-                        <a href="#" class="forgot-link" onclick="alert('Tính năng khôi phục mật khẩu đang được phát triển!')">Quên mật khẩu?</a>
+                        <a href="#" class="forgot-link" id="forgotPasswordLink">Quên mật khẩu?</a>
                     </div>
                     
                     <!-- Submit Button -->
@@ -171,6 +171,31 @@
                 </div>
             </div>
             <div class="auth-loading-text" style="color: #4caf50; margin-top: 24px;">Đăng nhập thành công!</div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD MODAL (bước 1: nhập email → bước 2: nhập OTP + mật khẩu mới) -->
+    <div class="forgot-modal-backdrop" id="forgotModal" hidden>
+        <div class="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+            <button type="button" class="forgot-close" id="forgotClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <h3 id="forgotTitle">Khôi phục mật khẩu</h3>
+
+            <form id="forgotStep1" novalidate>
+                <p class="forgot-desc">Nhập email đã đăng ký, hệ thống sẽ gửi mã OTP (hiệu lực 5 phút).</p>
+                <input type="email" id="forgotEmail" class="forgot-input" placeholder="name@domain.com" autocomplete="email">
+                <div class="forgot-msg" id="forgotMsg1"></div>
+                <button type="submit" class="btn-premium-submit" id="forgotSendBtn"><span>Gửi mã OTP</span></button>
+            </form>
+
+            <form id="forgotStep2" novalidate hidden>
+                <p class="forgot-desc">Mã OTP đã được gửi tới <strong id="forgotEmailShow"></strong>.</p>
+                <input type="text" id="forgotOtp" class="forgot-input" placeholder="Mã OTP 6 số" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+                <input type="password" id="forgotNewPwd" class="forgot-input" placeholder="Mật khẩu mới (ít nhất 6 ký tự)" autocomplete="new-password">
+                <input type="password" id="forgotConfirmPwd" class="forgot-input" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
+                <div class="forgot-msg" id="forgotMsg2"></div>
+                <button type="submit" class="btn-premium-submit" id="forgotResetBtn"><span>Đổi mật khẩu</span></button>
+                <button type="button" class="forgot-resend" id="forgotResend">Gửi lại mã</button>
+            </form>
         </div>
     </div>
 

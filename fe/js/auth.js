@@ -418,4 +418,172 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ── 3. FORGOT PASSWORD (OTP) ──
+    // BE chưa gửi email thật: mã OTP được in ra log của server Spring Boot.
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    const forgotModal = document.getElementById('forgotModal');
+    if (forgotLink && forgotModal) {
+        const step1 = document.getElementById('forgotStep1');
+        const step2 = document.getElementById('forgotStep2');
+        const emailEl = document.getElementById('forgotEmail');
+        const otpEl = document.getElementById('forgotOtp');
+        const newPwdEl = document.getElementById('forgotNewPwd');
+        const confirmPwdEl = document.getElementById('forgotConfirmPwd');
+        const msg1 = document.getElementById('forgotMsg1');
+        const msg2 = document.getElementById('forgotMsg2');
+        const sendBtn = document.getElementById('forgotSendBtn');
+        const resetBtn = document.getElementById('forgotResetBtn');
+        const resendBtn = document.getElementById('forgotResend');
+        const RESEND_SECONDS = 60; // khớp thời gian chờ gửi lại mã ở BE (OtpService)
+        let resendTimer = null;
+        let forgotEmail = '';
+
+        const setMsg = (el, text, ok = false) => {
+            el.textContent = text || '';
+            el.classList.toggle('ok', ok);
+        };
+
+        // Lỗi validate (@Valid) trả danh sách message trong result; lỗi nghiệp vụ trả message
+        const readError = (data, fallback) =>
+            (Array.isArray(data?.result) && data.result.join(' ')) || data?.message || fallback;
+
+        const setBusy = (btn, busy, label) => {
+            btn.disabled = busy;
+            btn.querySelector('span').textContent = busy ? 'Đang xử lý...' : label;
+        };
+
+        const startResendCountdown = () => {
+            clearInterval(resendTimer);
+            let left = RESEND_SECONDS;
+            resendBtn.disabled = true;
+            resendBtn.textContent = `Gửi lại mã (${left}s)`;
+            resendTimer = setInterval(() => {
+                left--;
+                if (left <= 0) {
+                    clearInterval(resendTimer);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Gửi lại mã';
+                } else {
+                    resendBtn.textContent = `Gửi lại mã (${left}s)`;
+                }
+            }, 1000);
+        };
+
+        const openModal = () => {
+            step1.hidden = false;
+            step2.hidden = true;
+            setMsg(msg1, '');
+            setMsg(msg2, '');
+            emailEl.value = document.getElementById('email')?.value.trim() || '';
+            forgotModal.hidden = false;
+            emailEl.focus();
+        };
+
+        const closeModal = () => {
+            forgotModal.hidden = true;
+            clearInterval(resendTimer);
+        };
+
+        const sendOtp = async () => {
+            const res = await fetch(`${API_BASE}/api/auth/forgot-password/send-otp?email=${encodeURIComponent(forgotEmail)}`, {
+                method: 'POST'
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(readError(data, 'Không gửi được mã OTP.'));
+            return data;
+        };
+
+        forgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+        });
+        document.getElementById('forgotClose').addEventListener('click', closeModal);
+        forgotModal.addEventListener('click', (e) => {
+            if (e.target === forgotModal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !forgotModal.hidden) closeModal();
+        });
+
+        // Bước 1: gửi OTP
+        step1.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailEl.value.trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setMsg(msg1, 'Vui lòng nhập email hợp lệ.');
+                return;
+            }
+            forgotEmail = email;
+            setBusy(sendBtn, true, 'Gửi mã OTP');
+            setMsg(msg1, '');
+            try {
+                await sendOtp();
+                document.getElementById('forgotEmailShow').textContent = email;
+                step1.hidden = true;
+                step2.hidden = false;
+                setMsg(msg2, 'Đã gửi mã OTP. Vui lòng kiểm tra email.', true);
+                startResendCountdown();
+                otpEl.focus();
+            } catch (err) {
+                setMsg(msg1, err.message || 'Không kết nối được máy chủ.');
+            } finally {
+                setBusy(sendBtn, false, 'Gửi mã OTP');
+            }
+        });
+
+        // Gửi lại mã
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            try {
+                await sendOtp();
+                setMsg(msg2, 'Đã gửi lại mã OTP mới.', true);
+                startResendCountdown();
+            } catch (err) {
+                setMsg(msg2, err.message || 'Không kết nối được máy chủ.');
+                resendBtn.disabled = false;
+            }
+        });
+
+        // Bước 2: xác nhận OTP + đặt mật khẩu mới
+        step2.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = otpEl.value.trim();
+            const newPassword = newPwdEl.value;
+            if (!/^\d{6}$/.test(otp)) {
+                setMsg(msg2, 'Mã OTP gồm 6 chữ số.');
+                return;
+            }
+            if (newPassword.length < 6) {
+                setMsg(msg2, 'Mật khẩu mới phải có ít nhất 6 ký tự.');
+                return;
+            }
+            if (newPassword !== confirmPwdEl.value) {
+                setMsg(msg2, 'Mật khẩu nhập lại không khớp.');
+                return;
+            }
+
+            setBusy(resetBtn, true, 'Đổi mật khẩu');
+            setMsg(msg2, '');
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/forgot-password/reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, otp, newPassword })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(readError(data, 'Đổi mật khẩu thất bại.'));
+
+                closeModal();
+                alert(data.message || 'Đổi mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.');
+                const loginEmail = document.getElementById('email');
+                if (loginEmail) loginEmail.value = forgotEmail;
+                document.getElementById('password')?.focus();
+            } catch (err) {
+                setMsg(msg2, err.message || 'Không kết nối được máy chủ.');
+            } finally {
+                setBusy(resetBtn, false, 'Đổi mật khẩu');
+            }
+        });
+    }
 });

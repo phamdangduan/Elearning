@@ -44,6 +44,7 @@ async function apiGet(path) {
     }
 }
 
+// Trả về body JSON kèm cờ ok theo HTTP status (để đọc được message lỗi của BE); null nếu mất kết nối
 async function apiPost(path, body) {
     try {
         const headers = { 'Content-Type': 'application/json' };
@@ -56,8 +57,8 @@ async function apiPost(path, body) {
             headers: headers,
             body: JSON.stringify(body)
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        const json = await res.json().catch(() => ({}));
+        return { ...json, ok: res.ok };
     } catch (err) {
         console.error('[API Error]', path, err);
         return null;
@@ -637,8 +638,9 @@ async function submitReview() {
     
     try {
         const result = await apiPost(`/review/create?userId=${USER_ID}`, requestData);
-        
-        if (result?.status === 200 || result?.code === 200) {
+        if (!result) throw new Error('Network error');
+
+        if (result.ok) {
             showToast('Đánh giá của bạn đã được gửi thành công!', 'success');
             
             // Redirect after 2 seconds
@@ -646,7 +648,7 @@ async function submitReview() {
                 window.location.href = `../course-detail.html?id=${state.courseId}#reviews`;
             }, 2000);
         } else {
-            const errorMsg = result?.message || 'Không thể gửi đánh giá';
+            const errorMsg = Api.errorMessage(result, 'Không thể gửi đánh giá');
             showToast(errorMsg, 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;

@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadCourseDetail(courseId);
             } else {
                 const err = await res.json();
-                alert("Lỗi gửi đánh giá: " + (err.message || "Không xác định"));
+                alert("Lỗi gửi đánh giá: " + Api.errorMessage(err, "Không xác định"));
                 btn.disabled = false;
                 btn.textContent = "Gửi đánh giá";
             }
@@ -417,8 +417,41 @@ async function checkEnrollmentStatus(courseId) {
 }
 
 async function enrollCourse(courseId, token) {
-    // Navigate to checkout page directly
-    window.location.href = `checkout.html?courseId=${courseId}`;
+    const price = window.currentCourseData ? Number(window.currentCourseData.price) || 0 : null;
+
+    // Khóa trả phí (hoặc chưa tải xong giá) → sang trang thanh toán
+    if (price === null || price > 0) {
+        window.location.href = `checkout.html?courseId=${courseId}`;
+        return;
+    }
+
+    // Khóa miễn phí → BE từ chối tạo thanh toán (COURSE_PRICE_ZERO), đăng ký trực tiếp
+    const btn = document.getElementById('enrollBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Đang đăng ký...';
+    }
+    try {
+        const res = await fetch(`${API_BASE}/enrollment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || token}`
+            },
+            body: JSON.stringify({ courseId })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.message || 'Đăng ký khóa học thất bại.');
+        }
+        window.location.href = `learning.html?courseId=${courseId}`;
+    } catch (e) {
+        alert(e.message || 'Lỗi kết nối khi đăng ký khóa học.');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Đăng ký học ngay';
+        }
+    }
 }
 
 function setEnrolledState(courseId) {

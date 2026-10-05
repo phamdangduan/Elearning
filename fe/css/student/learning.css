@@ -105,6 +105,44 @@ body.learning-mode {
     outline: none;
 }
 
+.lesson-document {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 24px;
+}
+
+.lesson-document[hidden] {
+    display: none;
+}
+
+.lesson-document iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+}
+
+.lesson-document i.doc-icon {
+    font-size: 48px;
+    color: #64748b;
+}
+
+.lesson-document .doc-open-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
 .video-controls {
     padding: 32px 40px;
     background: transparent;

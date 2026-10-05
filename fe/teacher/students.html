@@ -585,7 +585,7 @@ async function loadAllData() {
     const cData = await apiGet(`/course/teacher?userId=${TEACHER_ID}&page=0&size=100&sort=createdAt,desc`);
     allCourses = cData?.result?.content || [];
     if (!allCourses.length) {
-        const d2 = await apiGet(`/course/search?instructorId=${TEACHER_ID}&page=0&size=100`);
+        const d2 = await apiGet(`/course/search?filter=user.id:${TEACHER_ID}&page=0&size=100`);
         allCourses = d2?.result?.content || [];
     }
 

@@ -221,6 +221,10 @@ public class AuthService {
         User user = userRepository.findByEmail(cleanEmail)
                 .orElseThrow(() -> new AuthException("Email này chưa đăng ký tài khoản!", "USER_NOT_FOUND"));
 
+        if (otpService.isInCooldown(cleanEmail)) {
+            throw new AuthException("Vui lòng chờ 60 giây trước khi yêu cầu mã OTP mới!", "OTP_COOLDOWN");
+        }
+
         String otp = otpService.generateOtp(cleanEmail);
 
         log.info("\n------------------------------------------------------------\n"

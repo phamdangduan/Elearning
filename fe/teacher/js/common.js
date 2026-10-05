@@ -234,35 +234,16 @@ function initDropdowns() {
     });
   }
 
-  // Notification bell
-  const notiBell = document.getElementById("notiBell");
-  const notiDropdown = document.getElementById("notiDropdown");
-  if (notiBell && notiDropdown) {
-    notiBell.addEventListener("click", (e) => {
-      e.stopPropagation();
-      notiDropdown.classList.toggle("show");
-    });
-  }
+  // Chuông thông báo: xử lý chung trong js/api.js (initNotifications)
 
   // Close on outside click
   document.addEventListener("click", () => {
     document
-      .querySelectorAll(".dropdown-menu.show, .noti-dropdown.show")
+      .querySelectorAll(".dropdown-menu.show")
       .forEach((el) => el.classList.remove("show"));
   });
 
   // Logout: xử lý chung trong js/api.js
-
-  // Mark all read
-  const markBtn = document.getElementById("markAllRead");
-  if (markBtn)
-    markBtn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".noti-item.unread")
-        .forEach((el) => el.classList.remove("unread"));
-      const badge = document.getElementById("notiBadge");
-      if (badge) badge.style.display = "none";
-    });
 }
 
 // ── Sidebar active link ──────────────────────────────────

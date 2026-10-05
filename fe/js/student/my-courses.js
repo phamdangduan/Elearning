@@ -157,9 +157,12 @@ async function loadMyCourses(userId, token, baseUrl) {
                     
                     <div class="my-course-actions">
                         <a href="learning.html?courseId=${c.courseId}" class="btn btn-primary btn-sm w-100">Tiếp tục học</a>
-                        ${!isReviewed 
-                            ? `<button class="btn btn-outline btn-sm w-100 mt-2" onclick="window.location.href='review.html?courseId=${c.courseId}'">Đánh giá khóa học</button>` 
-                            : ''}
+                        ${isReviewed
+                            ? ''
+                            : progressVal >= 100
+                                // BE chỉ nhận đánh giá khi đã hoàn thành 100% khóa học
+                                ? `<button class="btn btn-outline btn-sm w-100 mt-2" onclick="window.location.href='review.html?courseId=${c.courseId}'">Đánh giá khóa học</button>`
+                                : `<button class="btn btn-outline btn-sm w-100 mt-2" disabled title="Hoàn thành 100% khóa học để đánh giá">Hoàn thành khóa học để đánh giá</button>`}
                     </div>
                 </div>
             `;

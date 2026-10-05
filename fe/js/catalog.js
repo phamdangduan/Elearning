@@ -88,15 +88,20 @@ async function searchCatalog(keyword = '', categoryId = '') {
     `;
 
     try {
+        // BE chỉ đọc tham số filter=<thuộc tính><toán tử><giá trị> (vd title~java, categories.id:<uuid>)
         let url = `${API_BASE}/course/search?page=0&size=20`;
         if (categoryId) {
-            url += `&categoryId=${categoryId}`;
+            url += `&filter=${encodeURIComponent('categories.id:' + categoryId)}`;
         }
         if (keyword) {
-            url += `&keyword=${encodeURIComponent(keyword)}`;
+            // Spring tách tham số mảng theo dấu phẩy; dấu ' ở đầu bị hiểu là điều kiện OR
+            const term = keyword.replace(/,/g, ' ').replace(/^'+/, '').trim();
+            if (term) url += `&filter=${encodeURIComponent('title~' + term)}`;
         }
 
-        const data = await fetch(url).then(r => r.json());
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
         const courses = data?.result?.content || [];
         
         if (!courses.length) {

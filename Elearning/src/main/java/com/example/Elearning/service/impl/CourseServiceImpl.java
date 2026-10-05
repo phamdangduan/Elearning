@@ -36,12 +36,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CourseServiceImpl implements CourseService {
+
+    // Thuộc tính được phép dùng trong ?filter= của /course/search (API công khai).
+    // Không có user.* (trừ id), sections.* → không dò được mật khẩu, email, link video.
+    static final Set<String> SEARCH_FILTER_KEYS = Set.of(
+            "title", "description", "price", "averageRating", "totalReviews", "totalEnrollments",
+            "status", "createdAt", "updatedAt", "categories.id", "categories.name", "user.id");
 
     CourseRepository courseRepository;
     EnrollmentRepository enrollmentRepository;
@@ -336,7 +343,7 @@ public class CourseServiceImpl implements CourseService {
             Pageable pageable) {
 
         // 1. Dựng Generic Specification từ mảng filter gửi lên
-        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter);
+        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter, SEARCH_FILTER_KEYS);
 
         // 2. Dựng bộ lọc trạng thái bắt buộc cho học viên (chỉ lấy PUBLISHED và giáo viên ACTIVE)
         Specification<Course> statusSpec = CourseSpecifications.hasStatus(CourseStatus.PUBLISHED)
@@ -370,7 +377,7 @@ public class CourseServiceImpl implements CourseService {
             Pageable pageable) {
 
         // 1. Dựng Generic Specification từ mảng filter
-        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter);
+        Specification<Course> genericSpec = SpecificationHelper.buildSpecification(filter, SEARCH_FILTER_KEYS);
 
         // 2. Gọi repository truy vấn dữ liệu phân trang (không lọc trạng thái cho admin)
         Page<Course> coursePage = courseRepository.findAll(genericSpec, pageable);

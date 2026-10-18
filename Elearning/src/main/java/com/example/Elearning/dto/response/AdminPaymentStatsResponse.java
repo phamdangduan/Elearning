@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminPaymentStatsResponse {
-    BigDecimal totalRevenue;       // Tổng doanh thu (chỉ CONFIRMED)
+    BigDecimal totalRevenue;       // Tổng tiền học viên đã trả (GMV, chỉ CONFIRMED)
+    BigDecimal platformRevenue;    // Doanh thu sàn = tổng hoa hồng giữ lại
     Long totalPayments;            // Tổng số giao dịch
     Long confirmedCount;           // Số giao dịch đã xác nhận
     Long pendingCount;             // Số giao dịch chờ xử lý

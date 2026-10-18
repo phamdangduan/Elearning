@@ -60,8 +60,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         if (course.getStatus() != CourseStatus.PUBLISHED) {
             throw new AppException(ErrorCode.COURSE_NOT_FOUND);
         }
-        // Khóa có phí chỉ được ghi danh khi giảng viên xác nhận thanh toán
-        // (PaymentRequestServiceImpl.confirmPaymentRequest), không qua endpoint này
+        // Khóa có phí chỉ được ghi danh khi thanh toán được xác nhận
+        // (PaymentSettlementService — webhook SePay hoặc admin), không qua endpoint này
         if (course.getPrice() != null && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
             throw new AppException(ErrorCode.COURSE_PRICE_REQUIRED);
         }

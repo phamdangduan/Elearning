@@ -3,7 +3,7 @@
 #   2. Điền giá trị thật
 # application-local.yml đã nằm trong .gitignore nên sẽ không bị commit.
 # Khi deploy (Docker/server) có thể dùng biến môi trường thay cho file này:
-#   DB_PASSWORD, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, JWT_SIGNER_KEY
+#   DB_PASSWORD, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, JWT_SIGNER_KEY, SEPAY_WEBHOOK_API_KEY
 
 spring:
   datasource:
@@ -17,3 +17,11 @@ cloudinary:
 jwt:
   # Tối thiểu 64 ký tự cho HS512
   signer-key: "change-me-to-a-random-string-at-least-64-characters-long-xxxxxxxxxxxxxxxx"
+
+payment:
+  webhook:
+    # Chuỗi bí mật tự đặt, phải trùng với "API Key" khi tạo webhook trên my.sepay.vn
+    api-key: your-sepay-webhook-api-key
+  platform:
+    # Tài khoản DUY NHẤT của sàn nhận tiền học viên (phải là tài khoản đã liên kết SePay)
+    account-number: "your-platform-account-number"

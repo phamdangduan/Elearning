@@ -56,6 +56,24 @@ jwt:
   refresh-token-expiry: 1209600    # 14 days (seconds)
   issuer: elearning-app
 
+# ===== PAYMENT (Platform Marketplace + SePay Webhook) =====
+payment:
+  expire-minutes: 15                 # Thời hạn thanh toán của 1 đơn
+  reference-prefix: "EDU"            # Prefix mã đối soát — cấu hình trùng prefix trong SePay
+  webhook:
+    # SePay gửi header: "Authorization: Apikey <api-key>". Đặt trong application-local.yml hoặc env SEPAY_WEBHOOK_API_KEY.
+    # Để trống → mọi webhook đều bị từ chối (fail closed).
+    api-key: ${SEPAY_WEBHOOK_API_KEY:}
+  platform:
+    commission-rate: 0.20            # Sàn giữ 20%, giảng viên nhận 80%
+    bank-name: "MBBank"
+    bank-code: "MB"                  # Mã ngân hàng theo VietQR (img.vietqr.io)
+    account-number: "9999999999"
+    account-name: "CONG TY ELEARNING EDUVN"
+  wallet:
+    hold-days: 7                     # Số ngày tạm giữ tiền trước khi được rút (0 = tắt)
+    min-withdrawal: 50000            # Số tiền rút tối thiểu (VND)
+
 # ===== LOGGING =====
 logging:
   level:

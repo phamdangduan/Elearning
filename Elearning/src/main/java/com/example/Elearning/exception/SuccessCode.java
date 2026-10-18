@@ -52,6 +52,14 @@ public enum SuccessCode {
     GET_PAYMENT_REQUESTS_SUCCESS(3006, "Get payment requests successfully", HttpStatus.OK),
     GET_PAYMENT_DETAIL_SUCCESS(3007, "Get payment detail successfully", HttpStatus.OK),
     GET_PAYMENT_INFO_SUCCESS(3008, "Get payment info successfully", HttpStatus.OK),
+    GET_PAYMENT_STATUS_SUCCESS(3009, "Get payment status successfully", HttpStatus.OK),
+
+    GET_WALLET_SUCCESS(7001, "Lấy thông tin ví thành công", HttpStatus.OK),
+    WITHDRAWAL_CREATED(7002, "Tạo yêu cầu rút tiền thành công", HttpStatus.CREATED),
+    GET_WITHDRAWALS_SUCCESS(7003, "Lấy danh sách yêu cầu rút tiền thành công", HttpStatus.OK),
+    WITHDRAWAL_APPROVED(7004, "Đã xác nhận chi tiền cho giảng viên", HttpStatus.OK),
+    WITHDRAWAL_REJECTED(7005, "Đã từ chối yêu cầu rút tiền", HttpStatus.OK),
+    WITHDRAWAL_CANCELLED(7006, "Đã hủy yêu cầu rút tiền", HttpStatus.OK),
 
     // Notification Success Codes (4001-4010)
     GET_NOTIFICATIONS_SUCCESS(4001, "Lấy danh sách thông báo thành công",HttpStatus.OK),

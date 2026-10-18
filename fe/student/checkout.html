@@ -16,6 +16,32 @@
     <link rel="stylesheet" href="../css/common/landing.css">
     <link rel="stylesheet" href="../css/student/checkout.css">
     <script src="../js/api.js"></script>
+    <style>
+        .pay-status-row { display: flex; gap: 16px; align-items: flex-start; }
+        .pay-status-spinner { font-size: 28px; color: var(--primary); line-height: 1; padding-top: 2px; }
+        .pay-status-card.is-expired .pay-status-spinner { color: #f59e0b; }
+        .pay-countdown {
+            margin-top: 16px; padding: 10px 14px; border-radius: 10px;
+            background: var(--primary-light); font-size: 14px; color: var(--text-dark);
+        }
+        .pay-countdown strong { font-variant-numeric: tabular-nums; }
+
+        .pay-success-overlay {
+            position: fixed; inset: 0; z-index: 1000; display: none;
+            align-items: center; justify-content: center; padding: 16px;
+            background: rgba(15, 23, 42, 0.55);
+        }
+        .pay-success-overlay.show { display: flex; }
+        .pay-success-box {
+            background: #fff; border-radius: 20px; padding: 36px 28px; max-width: 420px; width: 100%;
+            text-align: center; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+            animation: popIn 0.35s ease-out;
+        }
+        .pay-success-box .icon { font-size: 64px; color: #22c55e; margin-bottom: 16px; }
+        .pay-success-box h3 { font-size: 22px; margin-bottom: 8px; color: var(--text-dark); }
+        .pay-success-box p { color: var(--text-muted); margin-bottom: 24px; }
+        @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
 <body style="background-color: #f8fafc;">
 
@@ -139,24 +165,34 @@
                     </div>
                 </div>
 
-                <div class="upload-card mt-4">
-                    <h3 class="upload-title">Xác nhận thanh toán</h3>
-                    <p class="upload-desc">Sau khi chuyển khoản thành công, vui lòng tải lên ảnh chụp màn hình giao dịch (Bill).</p>
-                    
-                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('billInput').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Nhấn vào đây để chọn ảnh Bill</p>
-                        <input type="file" id="billInput" accept="image/*" style="display: none;">
+                <!-- Trạng thái thanh toán: cập nhật tự động qua polling, không cần upload bill -->
+                <div class="upload-card mt-4 pay-status-card" id="payStatusCard">
+                    <div class="pay-status-row">
+                        <div class="pay-status-spinner" id="payStatusIcon"><i class="fas fa-circle-notch fa-spin"></i></div>
+                        <div>
+                            <h3 class="upload-title" id="payStatusTitle">Đang chờ bạn chuyển khoản...</h3>
+                            <p class="upload-desc" id="payStatusDesc">Hệ thống tự động xác nhận ngay khi nhận được tiền. Không cần gửi ảnh bill.</p>
+                        </div>
                     </div>
-                    
-                    <div class="preview-zone" id="previewZone" style="display: none;">
-                        <img src="" id="billPreview" alt="Bill Preview">
-                        <button class="btn btn-sm btn-outline" onclick="removeBill()">Đổi ảnh khác</button>
+                    <div class="pay-countdown" id="payCountdownWrap">
+                        Mã thanh toán còn hiệu lực: <strong id="payCountdown">--:--</strong>
                     </div>
-
-                    <button class="btn btn-primary btn-block mt-4" id="confirmBtn" disabled>Xác nhận đã thanh toán</button>
+                    <button class="btn btn-primary btn-block mt-4" id="renewBtn" style="display:none" onclick="location.reload()">
+                        <i class="fas fa-redo"></i> Tạo mã thanh toán mới
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ══ POPUP THANH TOÁN THÀNH CÔNG ══ -->
+    <div class="pay-success-overlay" id="paySuccessOverlay">
+        <div class="pay-success-box">
+            <div class="icon"><i class="fas fa-check-circle"></i></div>
+            <h3>Chúc mừng! Thanh toán thành công 🎉</h3>
+            <p>Khóa học <strong id="paySuccessCourse"></strong> đã được kích hoạt.<br>
+               Tự động chuyển vào trang học sau <strong id="paySuccessCountdown">3</strong> giây...</p>
+            <a href="#" class="btn btn-primary" id="paySuccessGo">Vào học ngay</a>
         </div>
     </div>
 
@@ -232,7 +268,6 @@
                 dropdown.classList.remove('active');
             }
         });
-        
         
         window.addEventListener('scroll', () => {
             document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);

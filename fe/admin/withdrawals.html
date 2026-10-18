@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duyệt chi rút tiền - EduVN Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .wd-list { display: flex; flex-direction: column; gap: 16px; }
+    .wd-card {
+      display: grid; grid-template-columns: 1fr 220px; gap: 20px;
+      background: var(--bg-card, #fff); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 20px; box-shadow: var(--shadow-sm);
+    }
+    .wd-card.pending { border-left: 4px solid var(--teacher-orange, #f97316); }
+    .wd-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .wd-amount { font-size: 26px; font-weight: 900; color: var(--teacher-green, #10b981); font-variant-numeric: tabular-nums; }
+    .wd-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+    .wd-field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 2px; }
+    .wd-field span { font-size: 14px; font-weight: 600; color: var(--text-primary); word-break: break-word; }
+    .wd-field .mono { font-family: monospace; font-size: 15px; }
+    .copy-btn { border: none; background: none; color: var(--primary); cursor: pointer; padding: 0 4px; }
+    .wd-qr { text-align: center; }
+    .wd-qr img { width: 100%; max-width: 220px; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; }
+    .wd-qr .qr-caption { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .wd-qr .qr-missing { padding: 24px 12px; border: 1.5px dashed var(--border); border-radius: var(--radius); font-size: 12px; color: var(--text-muted); }
+    .wd-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .wd-note { grid-column: 1 / -1; background: var(--bg-primary); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--text-secondary); }
+    @media (max-width: 760px) {
+      .wd-card { grid-template-columns: 1fr; }
+      .wd-fields { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="../js/api.js"></script>
+</head>
+<body>
+<div class="teacher-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><i class="fas fa-shield-alt"></i></div>
+      <span class="sidebar-brand-name">Edu<span>VN</span></span>
+      <span class="sidebar-role admin-role">Admin</span>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Quản trị viên</div>
+        <div class="sidebar-user-role">Super Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Tổng quan</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Báo cáo & Thống kê</span></a>
+      <span class="nav-group-label">Quản lý</span>
+      <a href="users.html" class="nav-item"><i class="fas fa-users"></i><span>Người dùng</span></a>
+      <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Khóa học</span></a>
+      <a href="instructors.html" class="nav-item"><i class="fas fa-chalkboard-teacher"></i><span>Giảng viên</span></a>
+      <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a>
+      <a href="withdrawals.html" class="nav-item active"><i class="fas fa-hand-holding-usd"></i><span>Rút tiền GV</span></a>
+      <span class="nav-group-label">Hệ thống</span>
+      <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+    </div>
+  </aside>
+
+  <header class="topnav">
+    <div>
+      <div class="topnav-title">Duyệt chi rút tiền</div>
+      <div class="topnav-subtitle">Quét mã QR để chuyển khoản cho giảng viên, sau đó xác nhận duyệt chi</div>
+    </div>
+    <div class="topnav-right">
+      <div class="dropdown">
+        <div class="user-pill" id="userPillBtn">
+          <div class="user-pill-avatar" id="topNavAvatar">A</div>
+          <span class="user-pill-name" id="topNavUserName">Admin</span>
+          <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+        </div>
+        <div class="dropdown-menu" id="userDropdown">
+          <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-title">🏦 Duyệt chi rút tiền giảng viên</div>
+        <div class="page-subtitle">Mã QR được sinh từ số tài khoản + số tiền + nội dung, quét bằng app ngân hàng là đủ thông tin</div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-outline" onclick="loadWithdrawals()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card orange">
+        <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statPendingCount">–</div><div class="stat-label">Yêu cầu chờ chi</div></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon red"><i class="fas fa-coins"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statPendingAmount">–</div><div class="stat-label">Tổng tiền chờ chi</div></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon teal"><i class="fas fa-check-double"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statApprovedAmount">–</div><div class="stat-label">Đã chi (tất cả)</div></div>
+      </div>
+    </div>
+
+    <div class="tabs" id="statusTabs">
+      <button class="tab-btn active" onclick="switchTab(this,'PENDING')">⏳ Chờ chi</button>
+      <button class="tab-btn" onclick="switchTab(this,'APPROVED')">✅ Đã chi</button>
+      <button class="tab-btn" onclick="switchTab(this,'REJECTED')">❌ Từ chối</button>
+      <button class="tab-btn" onclick="switchTab(this,'CANCELLED')">🚫 GV đã hủy</button>
+      <button class="tab-btn" onclick="switchTab(this,'')">Tất cả</button>
+    </div>
+
+    <div class="wd-list" id="withdrawalList">
+      <div class="skeleton" style="height:220px;border-radius:var(--radius-lg)"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-overlay" id="approveModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-check-circle" style="color:var(--teacher-green)"></i> Xác nhận duyệt chi</h3>
+      <button class="modal-close" onclick="closeModal('approveModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;margin-bottom:16px">Xác nhận đã chuyển <strong id="approveAmount"></strong> cho <strong id="approveName"></strong>?
+        Số tiền sẽ bị <strong>trừ vĩnh viễn</strong> khỏi ví giảng viên.</p>
+      <div class="form-group">
+        <label class="form-label">Mã giao dịch ngân hàng (khuyến nghị)</label>
+        <input class="form-input" id="approveRef" maxlength="100" placeholder="VD: FT26290123456789">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ghi chú</label>
+        <textarea class="form-textarea" id="approveNote" rows="2" maxlength="500"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('approveModal')">Hủy</button>
+      <button class="btn btn-success" id="doApproveBtn"><i class="fas fa-check"></i> Đã chuyển tiền — Duyệt chi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-times-circle" style="color:var(--teacher-red)"></i> Từ chối yêu cầu rút tiền</h3>
+      <button class="modal-close" onclick="closeModal('rejectModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;margin-bottom:16px">Số tiền sẽ được hoàn lại số dư khả dụng của giảng viên.</p>
+      <div class="form-group">
+        <label class="form-label">Lý do từ chối <span style="color:var(--teacher-red)">*</span></label>
+        <textarea class="form-textarea" id="rejectReason" rows="3" maxlength="500" placeholder="VD: Tên chủ tài khoản không khớp hồ sơ giảng viên"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('rejectModal')">Hủy</button>
+      <button class="btn btn-danger" id="doRejectBtn"><i class="fas fa-times"></i> Từ chối</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/common.js?v=2"></script>
+<script src="js/withdrawals.js"></script>
+</body>
+</html>

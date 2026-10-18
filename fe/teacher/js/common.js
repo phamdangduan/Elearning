@@ -178,6 +178,7 @@ function timeAgo(str) {
 
 // ── Status helpers ───────────────────────────────────────
 const PAYMENT_STATUS = {
+  PENDING: { cls: "badge-warning", txt: "⏳ Chờ thanh toán" },
   PENDING_PROOF: { cls: "badge-warning", txt: "⏳ Chờ bill" },
   PROOF_UPLOADED: { cls: "badge-orange", txt: "📋 Chờ duyệt" },
   CONFIRMED: { cls: "badge-success", txt: "✅ Đã xác nhận" },

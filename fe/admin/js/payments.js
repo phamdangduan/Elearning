@@ -17,6 +17,12 @@ const STATUS_MAP = {
     EXPIRED: { cls: 'badge-danger', txt: '⌛ Hết hạn' },
 };
 
+/* Webhook SePay xác nhận tự động. Admin chỉ xác nhận/từ chối thủ công cho đơn chưa CONFIRMED
+   (webhook bị lỡ, học viên chuyển sai nội dung...). */
+function canManuallyConfirm(p) {
+    return ['PENDING', 'EXPIRED', 'REJECTED'].includes(p.status);
+}
+
 /* ── Load Payments ── */
 async function loadPayments() {
     showSkeleton();
@@ -51,7 +57,11 @@ async function loadPayments() {
                 proofUrl: p.paymentProofUrl,
                 note: p.studentNote || p.instructorNote,
                 referenceCode: p.referenceCode,
-                transferNote: p.transferNote
+                transferNote: p.transferNote,
+                paidAmount: p.paidAmount,
+                platformFee: p.platformFee,
+                instructorEarning: p.instructorEarning,
+                systemNote: p.instructorNote
             };
         });
         
@@ -83,6 +93,7 @@ async function updateStats() {
         if (stats) {
             const totalRevenue = parseFloat(stats.totalRevenue) || 0;
             document.getElementById('statRevenue').textContent = shortNum(totalRevenue) + 'đ';
+            document.getElementById('statPlatformRevenue').textContent = shortNum(parseFloat(stats.platformRevenue) || 0) + 'đ';
             document.getElementById('statConfirmed').textContent = stats.confirmedCount || 0;
             document.getElementById('statPending').textContent = stats.pendingCount || 0;
             document.getElementById('statRejected').textContent = (stats.rejectedCount || 0) + (stats.expiredCount || 0) + (stats.cancelledCount || 0);
@@ -187,7 +198,7 @@ function render() {
     document.getElementById('paymentTableBody').innerHTML = page.map((p, i) => {
         const s = STATUS_MAP[p.status] || { cls: 'badge-muted', txt: p.status };
         const initials = (p.studentName || 'U')[0].toUpperCase();
-        const canApprove = p.status === 'PENDING' && p.proofUrl;
+        const canApprove = canManuallyConfirm(p);
         
         return `
             <tr>
@@ -215,7 +226,7 @@ function render() {
                             <i class="fas fa-eye"></i>
                         </button>
                         ${canApprove ? `
-                            <button class="tbl-action success" title="Xác nhận" onclick="confirmPayment('${p.id}')">
+                            <button class="tbl-action success" title="Xác nhận thủ công (đã đối soát sao kê)" onclick="confirmPayment('${p.id}')">
                                 <i class="fas fa-check"></i>
                             </button>
                             <button class="tbl-action danger" title="Từ chối" onclick="rejectPayment('${p.id}')">
@@ -289,6 +300,19 @@ function viewPayment(id) {
             <div><label class="form-label">Giảng viên</label><p style="font-size:14px">${p.instructor || '–'}</p></div>
             <div><label class="form-label">Ngày tạo</label><p style="font-size:14px">${formatDate(p.createdAt)}</p></div>
         </div>
+        ${p.status === 'CONFIRMED' && p.platformFee != null ? `
+            <div class="form-row" style="margin-top:16px">
+                <div><label class="form-label">Học viên đã trả</label><p style="font-size:14px;font-weight:700">${formatMoney(p.paidAmount ?? p.amount)}</p></div>
+                <div><label class="form-label">Phí sàn</label><p style="font-size:14px;font-weight:700;color:var(--primary)">${formatMoney(p.platformFee)}</p></div>
+                <div><label class="form-label">Giảng viên nhận</label><p style="font-size:14px;font-weight:700;color:var(--teacher-green)">${formatMoney(p.instructorEarning)}</p></div>
+            </div>
+        ` : ''}
+        ${p.systemNote ? `
+            <div style="margin-top:16px">
+                <label class="form-label">Ghi chú xử lý</label>
+                <p style="font-size:14px">${p.systemNote}</p>
+            </div>
+        ` : ''}
         ${p.referenceCode ? `
             <div style="margin-top:16px">
                 <label class="form-label">Mã tham chiếu</label>
@@ -321,7 +345,7 @@ function viewPayment(id) {
         ` : ''}`;
     
     const footer = document.getElementById('payDetailFooter');
-    const canApprove = p.status === 'PENDING' && p.proofUrl;
+    const canApprove = canManuallyConfirm(p);
     
     footer.innerHTML = `
         <button class="btn btn-outline" onclick="closeModal('payDetailModal')">Đóng</button>
@@ -330,7 +354,7 @@ function viewPayment(id) {
                 <i class="fas fa-times"></i> Từ chối
             </button>
             <button class="btn btn-success" onclick="confirmPayment('${p.id}');closeModal('payDetailModal')">
-                <i class="fas fa-check"></i> Xác nhận
+                <i class="fas fa-check"></i> Xác nhận thủ công
             </button>
         ` : ''}`;
     
@@ -342,17 +366,19 @@ async function confirmPayment(id) {
     const p = allPayments.find(x => x.id === id);
     if (!p) return;
     
+    if (!confirm(`Xác nhận THỦ CÔNG đơn ${p.referenceCode || ''}?
+
+Chỉ dùng khi đã đối soát sao kê ngân hàng thấy tiền về nhưng webhook bị lỡ. Hệ thống sẽ ghi danh học viên và cộng tiền vào ví giảng viên.`)) return;
+    
     try {
-        // Call instructor payment API using apiPut (includes auth token)
         const result = await apiPut(
-            `/instructor/payment-requests/${id}/confirm?userId=${p.instructorId}`,
-            { instructorNote: 'Đã xác nhận bởi admin' }
+            `/admin/payment-requests/${id}/confirm`,
+            { instructorNote: 'Đã đối soát sao kê' }
         );
         
         console.log('[Confirm Payment] Result:', result);
         
-        if (result && result.result) {
-            // Reload data from server to get fresh state
+        if (result?.result?.id) {
             await loadPayments();
             showToast('Đã xác nhận thanh toán!', 'success');
         } else {
@@ -366,22 +392,20 @@ async function confirmPayment(id) {
 
 /* ── Reject Payment ── */
 async function rejectPayment(id) {
-    if (!confirm('Từ chối giao dịch này?')) return;
-    
     const p = allPayments.find(x => x.id === id);
     if (!p) return;
+    const reason = prompt('Lý do từ chối đơn này (học viên sẽ nhận được thông báo):');
+    if (!reason || !reason.trim()) return;
     
     try {
-        // Call instructor payment API using apiPut (includes auth token)
         const result = await apiPut(
-            `/instructor/payment-requests/${id}/reject?userId=${p.instructorId}`,
-            { instructorNote: 'Từ chối bởi admin' }
+            `/admin/payment-requests/${id}/reject`,
+            { instructorNote: reason.trim() }
         );
         
         console.log('[Reject Payment] Result:', result);
         
-        if (result && result.result) {
-            // Reload data from server to get fresh state
+        if (result?.result?.id) {
             await loadPayments();
             showToast('Đã từ chối thanh toán!', 'warning');
         } else {

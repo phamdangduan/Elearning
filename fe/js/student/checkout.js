@@ -15,12 +15,12 @@
                     }
                 } catch(e) {}
             }
-            
+
             const nameEl = document.getElementById('userNameDisplay') || document.getElementById('landingUserName');
             if(nameEl) nameEl.textContent = dispName;
-            
+
             const avatarEl = document.getElementById('navUserAvatar');
-            
+
             const renderAvatar = (url) => {
                 if (avatarEl) {
                     if (url) {
@@ -35,7 +35,7 @@
                 renderAvatar(avatarUrl);
             } else {
                 renderAvatar('');
-                
+
                 // Fetch trực tiếp từ DB để đồng bộ avatar
                 const API_BASE = 'http://localhost:8080';
                 fetch(`${API_BASE}/profile/me?userId=${userId}`, {
@@ -62,19 +62,28 @@
 })();
 
 const API_BASE = 'http://localhost:8080';
+const POLL_INTERVAL_MS = 2000;          // Đơn còn hạn: kiểm tra mỗi 2 giây
+const LATE_POLL_INTERVAL_MS = 5000;     // Đơn đã hết hạn: vẫn kiểm tra thưa hơn — tiền về muộn sẽ được "hồi sinh"
+const LATE_POLL_WINDOW_MS = 10 * 60 * 1000;
+
 let currentCourseId = null;
+let currentCourseTitle = '';
 let currentPaymentRequestId = null;
-let selectedBillFile = null;
-let rawPrice = 0;
+
+let pollTimer = null;
+let countdownTimer = null;
+let expiresAtMs = null;     // Mốc hết hạn theo đồng hồ client (đồng bộ từ timeRemainingSeconds của server)
+let expiredSinceMs = null;
+let pollStopped = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
-    
+
     // Chưa đăng nhập → về trang login (kèm redirect); sai vai trò → về trang chủ (js/api.js)
     if (!Api.requireRole('STUDENT')) return;
-    
+
     const userAvatar = document.getElementById('navUserAvatar');
     if (userAvatar) userAvatar.textContent = userName ? userName.charAt(0).toUpperCase() : 'U';
 
@@ -88,15 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadCheckoutData(currentCourseId, userId, token);
-    
-    // File input listener
-    document.getElementById('billInput').addEventListener('change', handleFileSelect);
-    document.getElementById('confirmBtn').addEventListener('click', confirmPayment);
+
+    // Tab ẩn thì ngừng polling cho đỡ tốn request; quay lại tab thì kiểm tra ngay
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && currentPaymentRequestId && !pollStopped) {
+            schedulePoll(0);
+        }
+    });
 });
 
 async function loadCheckoutData(courseId, userId, token) {
     try {
-        // 1. Fetch Course details to show summary
+        // 1. Thông tin khóa học
         const courseRes = await fetch(`${API_BASE}/course/${courseId}`);
         const courseDataJson = await courseRes.json();
         if (!courseRes.ok) {
@@ -105,134 +117,56 @@ async function loadCheckoutData(courseId, userId, token) {
             return;
         }
         const course = courseDataJson.result || courseDataJson;
-        
+        currentCourseTitle = course.title;
+
         document.getElementById('courseTitle').textContent = course.title;
         let thumbUrl = course.thumbnailUrl || course.thumbnail;
         if (thumbUrl && !thumbUrl.startsWith('http')) thumbUrl = `${API_BASE}/uploads/${thumbUrl}`;
         document.getElementById('courseThumb').src = thumbUrl;
-        
-        rawPrice = course.price;
-        const formattedPrice = rawPrice.toLocaleString('vi-VN');
+
+        const formattedPrice = Number(course.price).toLocaleString('vi-VN');
         document.getElementById('coursePrice').textContent = formattedPrice + ' đ';
         document.getElementById('totalPrice').textContent = formattedPrice + ' đ';
 
-        // 2. Fetch Payment Info (Bank details)
+        // 2. Thông tin tài khoản nhận tiền — tài khoản DUY NHẤT của sàn
         const paymentInfoRes = await fetch(`${API_BASE}/payment-requests/courses/${courseId}/payment-info`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         const infoJson = await paymentInfoRes.json();
         if (!paymentInfoRes.ok) {
-            let errMsg = infoJson.message || "Giảng viên chưa cấu hình tài khoản nhận tiền";
-            if (errMsg === "Primary bank account not found") {
-                errMsg = "Giảng viên sở hữu khóa học này chưa cấu hình tài khoản nhận tiền.";
-            }
-            alert("Lỗi lấy thông tin thanh toán: " + errMsg);
+            alert("Lỗi lấy thông tin thanh toán: " + (infoJson.message || 'Hệ thống bận'));
             return;
         }
         const info = infoJson.result || infoJson;
 
         document.getElementById('instructorName').textContent = info.instructorName;
         document.getElementById('bankName').textContent = info.bankName;
-        document.getElementById('bankAccount').innerHTML = `${info.accountNumber} <i class="far fa-copy" onclick="copyText('${info.accountNumber}')"></i>`;
+        setCopyable('bankAccount', info.accountNumber, info.accountNumber);
         document.getElementById('bankOwner').textContent = info.accountName;
-        document.getElementById('transferAmount').innerHTML = `${formattedPrice} <i class="far fa-copy" onclick="copyText('${rawPrice}')"></i>`;
 
-        // 3. Create Payment Request (PENDING) to get Reference Code
-        let createRes = await fetch(`${API_BASE}/payment-requests/create?userId=${userId}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ courseId: courseId })
-        });
-        
-        let paymentReq = null;
-        
-        if (!createRes.ok) {
-            const err = await createRes.json();
-            const errMsg = err.message || '';
-            const errCode = err.status || err.code;
-            
-            if (errCode === 905 || errMsg.includes("Already enrolled") || errMsg.includes("đã đăng ký")) {
-                alert("Bạn đã đăng ký và thanh toán thành công khóa học này rồi! Hệ thống sẽ chuyển hướng bạn về trang học tập.");
-                window.location.href = `learning.html?courseId=${courseId}`;
-                return;
-            }
-            
-            if (errCode === 901 || errMsg.includes("already exists") || errMsg.includes("đã có giao dịch")) {
-                // Fetch the existing pending request
-                const myPaymentsRes = await fetch(`${API_BASE}/payment-requests/my-payments?userId=${userId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (myPaymentsRes.ok) {
-                    const myPaymentsJson = await myPaymentsRes.json();
-                    const list = myPaymentsJson.result || myPaymentsJson || [];
-                    // Find the pending payment request for this course
-                    const pendingReq = list.find(r => r.courseId === courseId && r.status === 'PENDING');
-                    if (pendingReq) {
-                        paymentReq = pendingReq;
-                    }
-                }
-            }
-            
-            // If still no paymentReq found, alert the error
-            if (!paymentReq) {
-                alert("Lỗi tạo mã thanh toán: " + (err.message || 'Hệ thống bận'));
-                return;
-            }
-        } else {
-            const createJson = await createRes.json();
-            paymentReq = createJson.result || createJson;
-        }
-        
+        // 3. Tạo đơn PENDING (hoặc dùng lại đơn PENDING còn hạn) để lấy mã đối soát
+        const paymentReq = await createOrReusePaymentRequest(courseId, userId, token);
+        if (!paymentReq) return;
+
         currentPaymentRequestId = paymentReq.id;
         const refCode = paymentReq.referenceCode;
-        
-        document.getElementById('transferContent').innerHTML = `${refCode} <i class="far fa-copy" onclick="copyText('${refCode}')"></i>`;
+        const amount = Number(paymentReq.amount || course.price);
 
-        // Helper function to map common bank names to VietQR short codes
-        const getVietQrBankId = (name) => {
-            if (!name) return "";
-            const n = name.toLowerCase().replace(/[^a-z0-9]/g, "");
-            if (n.includes("mbbank") || n === "mb" || n.includes("quandoi")) return "MB";
-            if (n.includes("vietcombank") || n === "vcb" || n.includes("ngoaithuong")) return "VCB";
-            if (n.includes("vietinbank") || n === "vtb" || n === "icb" || n.includes("congthuong")) return "ICB";
-            if (n.includes("techcombank") || n === "tcb" || n.includes("kythuong")) return "TCB";
-            if (n.includes("bidv") || n.includes("dautu")) return "BIDV";
-            if (n.includes("acb") || n.includes("achau")) return "ACB";
-            if (n.includes("sacombank") || n.includes("saigonthuongtin")) return "STB";
-            if (n.includes("agribank") || n === "vba" || n.includes("nongnghiep")) return "VBA";
-            if (n.includes("tpbank") || n === "tpb" || n.includes("tienphong")) return "TPB";
-            if (n.includes("vpbank") || n === "vpb" || n.includes("thinhvuong")) return "VPB";
-            if (n.includes("msb") || n.includes("hanghai")) return "MSB";
-            if (n.includes("shb") || n.includes("saigonhanoi")) return "SHB";
-            if (n.includes("vib") || n.includes("quocte")) return "VIB";
-            if (n.includes("hdbank") || n === "hdb" || n.includes("phattrien")) return "HDB";
-            return name; // fallback
-        };
+        setCopyable('transferAmount', amount.toLocaleString('vi-VN'), String(amount));
+        setCopyable('transferContent', refCode, refCode);
 
-        document.getElementById('qrLoading').style.display = 'none';
+        // 4. VietQR động: STK sàn + số tiền + nội dung = mã đối soát
+        const qrUrl = `https://img.vietqr.io/image/${encodeURIComponent(info.bankCode)}-${encodeURIComponent(info.accountNumber)}-compact2.png`
+            + `?amount=${amount}&addInfo=${encodeURIComponent(refCode)}&accountName=${encodeURIComponent(info.accountName)}`;
         const qrImg = document.getElementById('bankQrCode');
-        
-        let qrUrl = "";
-        if (info.qrCodeUrl) {
-            qrUrl = info.qrCodeUrl;
-            if (!qrUrl.startsWith('http')) {
-                qrUrl = `${API_BASE}/uploads/${qrUrl}`;
-            }
-            console.log("Using instructor's uploaded QR code:", qrUrl);
-        } else {
-            // Fallback to VietQR API if no custom QR code uploaded
-            const bankId = getVietQrBankId(info.bankName);
-            qrUrl = `https://img.vietqr.io/image/${bankId}-${info.accountNumber}-compact2.jpg?amount=${rawPrice}&addInfo=${refCode}&accountName=${info.accountName}`;
-            console.log("Using generated VietQR:", qrUrl);
-        }
-        
+        qrImg.onload = () => { document.getElementById('qrLoading').style.display = 'none'; };
         qrImg.src = qrUrl;
         qrImg.style.display = 'block';
+
+        // 5. Bắt đầu đếm ngược + polling trạng thái
+        syncExpiry(paymentReq.timeRemainingSeconds);
+        startCountdown();
+        schedulePoll(POLL_INTERVAL_MS);
 
     } catch (error) {
         console.error(error);
@@ -240,100 +174,202 @@ async function loadCheckoutData(courseId, userId, token) {
     }
 }
 
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        selectedBillFile = file;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('billPreview').src = e.target.result;
-            document.getElementById('uploadZone').style.display = 'none';
-            document.getElementById('previewZone').style.display = 'block';
-            document.getElementById('confirmBtn').disabled = false;
+async function createOrReusePaymentRequest(courseId, userId, token) {
+    const createRes = await fetch(`${API_BASE}/payment-requests/create?userId=${userId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ courseId: courseId })
+    });
+
+    if (createRes.ok) {
+        const createJson = await createRes.json();
+        return createJson.result || createJson;
+    }
+
+    const err = await createRes.json().catch(() => ({}));
+    const errCode = err.status || err.code;
+
+    if (errCode === 905) { // ALREADY_ENROLLED
+        alert("Bạn đã sở hữu khóa học này! Hệ thống sẽ chuyển bạn vào trang học.");
+        window.location.href = `learning.html?courseId=${courseId}`;
+        return null;
+    }
+
+    if (errCode === 901) { // PAYMENT_ALREADY_EXISTS → dùng lại đơn PENDING còn hạn
+        const myPaymentsRes = await fetch(`${API_BASE}/payment-requests/my-payments?userId=${userId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (myPaymentsRes.ok) {
+            const myPaymentsJson = await myPaymentsRes.json();
+            const list = myPaymentsJson.result || [];
+            const pendingReq = list.find(r => r.courseId === courseId && r.status === 'PENDING');
+            if (pendingReq) return pendingReq;
         }
-        reader.readAsDataURL(file);
+    }
+
+    alert("Lỗi tạo mã thanh toán: " + (err.message || 'Hệ thống bận'));
+    return null;
+}
+
+/* ── Polling trạng thái đơn ─────────────────────────────── */
+
+function schedulePoll(delay) {
+    clearTimeout(pollTimer);
+    if (pollStopped) return;
+    pollTimer = setTimeout(pollPaymentStatus, delay);
+}
+
+async function pollPaymentStatus() {
+    if (pollStopped || !currentPaymentRequestId) return;
+
+    // Tab đang ẩn: không gọi API, chờ visibilitychange gọi lại
+    if (document.visibilityState === 'hidden') return;
+
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_BASE}/payment-requests/${currentPaymentRequestId}/status`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.status === 401) {
+            stopPolling();
+            setStatusUI('error', 'Phiên đăng nhập đã hết hạn',
+                'Nếu bạn đã chuyển khoản, khóa học vẫn được kích hoạt tự động. Vui lòng đăng nhập lại để kiểm tra.');
+            return;
+        }
+
+        if (res.ok) {
+            const json = await res.json();
+            const data = json.result || {};
+            syncExpiry(data.timeRemainingSeconds);
+
+            switch (data.status) {
+                case 'CONFIRMED':
+                    onPaymentConfirmed();
+                    return;
+                case 'EXPIRED':
+                    onPaymentExpired();
+                    break;
+                case 'CANCELLED':
+                case 'REJECTED':
+                    stopPolling();
+                    setStatusUI('expired', 'Đơn thanh toán đã bị hủy',
+                        'Vui lòng tạo mã thanh toán mới. Nếu đã chuyển khoản, liên hệ hỗ trợ để được kiểm tra.');
+                    return;
+            }
+        }
+    } catch (e) {
+        console.warn('[Checkout] Polling lỗi mạng, thử lại...', e);
+    }
+
+    if (expiredSinceMs) {
+        if (Date.now() - expiredSinceMs > LATE_POLL_WINDOW_MS) {
+            stopPolling();
+            return;
+        }
+        schedulePoll(LATE_POLL_INTERVAL_MS);
+    } else {
+        schedulePoll(POLL_INTERVAL_MS);
     }
 }
 
-function removeBill() {
-    selectedBillFile = null;
-    document.getElementById('billInput').value = '';
-    document.getElementById('uploadZone').style.display = 'block';
-    document.getElementById('previewZone').style.display = 'none';
-    document.getElementById('confirmBtn').disabled = true;
+function stopPolling() {
+    pollStopped = true;
+    clearTimeout(pollTimer);
+    clearInterval(countdownTimer);
+}
+
+function onPaymentConfirmed() {
+    stopPolling();
+    setStatusUI('success', 'Đã nhận được thanh toán!', 'Khóa học của bạn đã được kích hoạt.');
+
+    const target = `learning.html?courseId=${encodeURIComponent(currentCourseId)}`;
+    document.getElementById('paySuccessCourse').textContent = currentCourseTitle;
+    document.getElementById('paySuccessGo').href = target;
+    document.getElementById('paySuccessOverlay').classList.add('show');
+
+    let seconds = 3;
+    const counter = document.getElementById('paySuccessCountdown');
+    counter.textContent = seconds;
+    const t = setInterval(() => {
+        seconds -= 1;
+        counter.textContent = Math.max(seconds, 0);
+        if (seconds <= 0) {
+            clearInterval(t);
+            window.location.href = target;
+        }
+    }, 1000);
+}
+
+function onPaymentExpired() {
+    if (!expiredSinceMs) expiredSinceMs = Date.now();
+    clearInterval(countdownTimer);
+    document.getElementById('payCountdown').textContent = '00:00';
+    setStatusUI('expired', 'Mã thanh toán đã hết hạn',
+        'Nếu bạn ĐÃ chuyển khoản, đừng lo — hệ thống vẫn tự động kích hoạt khi tiền về. Nếu chưa, hãy tạo mã mới.');
+}
+
+/* ── Đếm ngược ──────────────────────────────────────────── */
+
+function syncExpiry(timeRemainingSeconds) {
+    if (timeRemainingSeconds == null) return;
+    expiresAtMs = Date.now() + Number(timeRemainingSeconds) * 1000;
+}
+
+function startCountdown() {
+    clearInterval(countdownTimer);
+    const el = document.getElementById('payCountdown');
+    const tick = () => {
+        if (expiresAtMs == null) return;
+        const remain = Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000));
+        const mm = String(Math.floor(remain / 60)).padStart(2, '0');
+        const ss = String(remain % 60).padStart(2, '0');
+        el.textContent = `${mm}:${ss}`;
+        if (remain === 0) {
+            onPaymentExpired();
+            schedulePoll(0); // Hỏi server ngay để chắc chắn (có thể tiền vừa về)
+        }
+    };
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+}
+
+/* ── UI helpers ─────────────────────────────────────────── */
+
+function setStatusUI(state, title, desc) {
+    const card = document.getElementById('payStatusCard');
+    const icon = document.getElementById('payStatusIcon');
+    card.classList.toggle('is-expired', state === 'expired' || state === 'error');
+    document.getElementById('payStatusTitle').textContent = title;
+    document.getElementById('payStatusDesc').textContent = desc;
+
+    const icons = {
+        waiting: '<i class="fas fa-circle-notch fa-spin"></i>',
+        success: '<i class="fas fa-check-circle" style="color:#22c55e"></i>',
+        expired: '<i class="fas fa-hourglass-end"></i>',
+        error: '<i class="fas fa-exclamation-circle"></i>'
+    };
+    icon.innerHTML = icons[state] || icons.waiting;
+
+    document.getElementById('renewBtn').style.display = (state === 'expired') ? 'block' : 'none';
+    document.getElementById('payCountdownWrap').style.display = (state === 'success') ? 'none' : 'block';
+}
+
+function setCopyable(elementId, displayText, copyValue) {
+    const el = document.getElementById(elementId);
+    el.textContent = displayText + ' ';
+    const icon = document.createElement('i');
+    icon.className = 'far fa-copy';
+    icon.style.cursor = 'pointer';
+    icon.addEventListener('click', () => copyText(copyValue));
+    el.appendChild(icon);
 }
 
 window.copyText = function(text) {
     navigator.clipboard.writeText(text).then(() => {
         alert("Đã copy: " + text);
     });
-}
-
-async function confirmPayment() {
-    if (!selectedBillFile || !currentPaymentRequestId) return;
-    
-    const btn = document.getElementById('confirmBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải ảnh lên...';
-
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('token');
-
-    try {
-        // Step 1: Upload Image
-        const formData = new FormData();
-        formData.append('image', selectedBillFile);
-        
-        const uploadRes = await fetch(`${API_BASE}/payment-requests/upload-proof-image`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-        });
-        
-        if (!uploadRes.ok) throw new Error("Upload ảnh thất bại");
-        const uploadJson = await uploadRes.json();
-        const fileUrl = uploadJson.result.url || uploadJson.result.fileUrl;
-
-        // Step 2: Link proof to payment request
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang hoàn tất...';
-        
-        const refElement = document.getElementById('transferContent').innerText.trim();
-        const refCode = refElement || "NO_REF";
-
-        const confirmRes = await fetch(`${API_BASE}/payment-requests/${currentPaymentRequestId}/upload-proof?userId=${userId}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                paymentProofUrl: fileUrl,
-                transferNote: refCode,
-                studentNote: "Tôi đã chuyển khoản thành công."
-            })
-        });
-
-        if (confirmRes.ok) {
-            btn.innerHTML = '<i class="fas fa-check"></i> Gửi thành công';
-            btn.className = 'btn btn-success btn-block mt-4';
-            
-            // Show Success Overlay
-            document.querySelector('.checkout-payment').innerHTML = `
-                <div style="text-align:center; padding: 40px 20px;">
-                    <i class="fas fa-check-circle" style="font-size: 60px; color: #22c55e; margin-bottom: 20px;"></i>
-                    <h3 style="font-size: 20px; margin-bottom: 10px;">Gửi hóa đơn thành công!</h3>
-                    <p style="color: #64748b; margin-bottom: 30px;">Hệ thống đã ghi nhận yêu cầu của bạn. Giảng viên sẽ kiểm tra và duyệt đăng ký trong thời gian sớm nhất.</p>
-                    <a href="../course-detail.html?id=${currentCourseId}" class="btn btn-primary">Quay lại trang khóa học</a>
-                </div>
-            `;
-        } else {
-            const err = await confirmRes.json();
-            throw new Error(err.message || "Lỗi cập nhật hóa đơn");
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Lỗi: " + error.message);
-        btn.disabled = false;
-        btn.innerHTML = 'Xác nhận đã thanh toán';
-    }
 }

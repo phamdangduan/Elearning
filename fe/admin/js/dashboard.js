@@ -138,7 +138,7 @@ function renderPendingPayments(payments) {
 
     el.innerHTML = payments.slice(0, 5).map(p => {
         const hasProof = !!p.paymentProofUrl;
-        const statusText = hasProof ? '📋 Chờ duyệt' : '⏳ Chờ bill';
+        const statusText = hasProof ? '📋 Chờ duyệt' : '⏳ Chờ thanh toán';
         const statusClass = hasProof ? 'badge-warning' : 'badge-secondary';
 
         return `

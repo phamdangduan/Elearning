@@ -4,3 +4,7 @@
 .vscode/
 *.iml
 *.log
+
+# Tài liệu ôn tập cá nhân (không thuộc dự án)
+study-guide.html
+payment-webhook-flow.html

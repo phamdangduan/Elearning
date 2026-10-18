@@ -52,6 +52,7 @@ public enum ErrorCode {
     COURSE_PRICE_ZERO(906, "Course is free, no payment required", HttpStatus.BAD_REQUEST),
     COURSE_PRICE_REQUIRED(907, "Khóa học có phí, vui lòng thanh toán để đăng ký", HttpStatus.BAD_REQUEST),
     NOT_ENROLLED(908, "Bạn chưa đăng ký khóa học này", HttpStatus.FORBIDDEN),
+    PAYMENT_CANNOT_CONFIRM(909, "Đơn hàng không thể xác nhận ở trạng thái hiện tại", HttpStatus.BAD_REQUEST),
 
     // Notification Error Codes (1000-1010)
     NOTIFICATION_NOT_FOUND(1000, "Không tìm thấy thông báo", HttpStatus.NOT_FOUND),
@@ -68,6 +69,14 @@ public enum ErrorCode {
     DATA_CONFLICT(1300, "Dữ liệu đang được sử dụng, không thể thực hiện thao tác này", HttpStatus.CONFLICT),
     INVALID_PARAMETER(1301, "Tham số không hợp lệ", HttpStatus.BAD_REQUEST),
     METHOD_NOT_ALLOWED(1302, "Phương thức HTTP không được hỗ trợ cho đường dẫn này", HttpStatus.METHOD_NOT_ALLOWED),
+
+    // Wallet & Withdrawal Error Codes (1400-1410)
+    INSUFFICIENT_BALANCE(1400, "Số dư khả dụng không đủ", HttpStatus.BAD_REQUEST),
+    WITHDRAWAL_AMOUNT_INVALID(1401, "Số tiền rút không hợp lệ hoặc thấp hơn mức tối thiểu", HttpStatus.BAD_REQUEST),
+    WITHDRAWAL_PENDING_EXISTS(1402, "Bạn đang có một yêu cầu rút tiền chờ xử lý", HttpStatus.BAD_REQUEST),
+    WITHDRAWAL_NOT_FOUND(1403, "Không tìm thấy yêu cầu rút tiền", HttpStatus.NOT_FOUND),
+    WITHDRAWAL_NOT_PENDING(1404, "Yêu cầu rút tiền không ở trạng thái chờ xử lý", HttpStatus.BAD_REQUEST),
+    BANK_ACCOUNT_INACTIVE(1405, "Tài khoản ngân hàng đã bị vô hiệu hóa", HttpStatus.BAD_REQUEST),
     ;
 
     private final int status;

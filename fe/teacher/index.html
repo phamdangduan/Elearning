@@ -366,8 +366,12 @@
           <span class="nav-group-label">Học viên</span>
           <a href="payments.html" class="nav-item">
             <i class="fas fa-credit-card"></i>
-            <span>Yêu cầu thanh toán</span>
+            <span>Đơn bán khóa học</span>
             <span class="nav-badge" id="pendingBadge">...</span>
+          </a>
+          <a href="wallet.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Ví doanh thu</span>
           </a>
           <a href="students.html" class="nav-item">
             <i class="fas fa-users"></i>
@@ -879,10 +883,10 @@
           return;
         }
         const statusMap = {
-          CONFIRMED: { cls: "badge-success", txt: "Đã duyệt" },
+          CONFIRMED: { cls: "badge-success", txt: "Đã bán" },
           CANCELLED: { cls: "badge-muted", txt: "Đã hủy" },
           EXPIRED: { cls: "badge-danger", txt: "Hết hạn" },
-          PENDING_PROOF: { cls: "badge-warning", txt: "Chờ bill" },
+          PENDING_PROOF: { cls: "badge-warning", txt: "Chờ thanh toán" },
           PROOF_UPLOADED: { cls: "badge-orange", txt: "Chờ duyệt" },
           REJECTED: { cls: "badge-danger", txt: "Từ chối" },
         };
@@ -927,7 +931,7 @@
             const dot = dots[r.status] || "";
             const msg =
               r.status === "CONFIRMED"
-                ? `<strong>${r.studentName}</strong> đã được xác nhận thanh toán khóa <strong>${r.courseTitle?.slice(0, 30)}</strong>`
+                ? `<strong>${r.studentName}</strong> đã mua khóa <strong>${r.courseTitle?.slice(0, 30)}</strong>`
                 : r.status === "PROOF_UPLOADED"
                   ? `<strong>${r.studentName}</strong> đã upload bill chờ duyệt — <strong>${r.courseTitle?.slice(0, 30)}</strong>`
                   : r.status === "CANCELLED"

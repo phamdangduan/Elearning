@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tài khoản nhận tiền - Giảng viên</title>
+    <title>Tài khoản nhận tiền rút - Giảng viên</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,13 @@
             <li>
                 <a href="payments.html" class="menu-item-link">
                     <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Duyệt học phí</span>
+                    <span>Đơn bán khóa học</span>
+                </a>
+            </li>
+            <li>
+                <a href="wallet.html" class="menu-item-link">
+                    <i class="fas fa-wallet"></i>
+                    <span>Ví doanh thu</span>
                 </a>
             </li>
             <li>
@@ -75,7 +81,7 @@
         <header class="main-header">
             <div class="header-title">
                 <h1>Tài khoản nhận tiền</h1>
-                <p>Quản lý các tài khoản ngân hàng nhận tiền chuyển khoản đăng ký học và mã QR quét nhanh của bạn.</p>
+                <p>Tài khoản ngân hàng để nhận tiền khi bạn rút doanh thu từ Ví. Học viên thanh toán vào tài khoản của sàn, không chuyển vào đây.</p>
             </div>
             <div style="display: flex; gap: 16px; align-items: center;">
                 <div class="user-meta-pill">
@@ -121,6 +127,13 @@
                         <option value="BIDV">BIDV</option>
                         <option value="Agribank">Agribank</option>
                         <option value="ACB">ACB</option>
+                        <option value="Sacombank">Sacombank (STB)</option>
+                        <option value="TPBank">TPBank</option>
+                        <option value="VPBank">VPBank</option>
+                        <option value="VIB">VIB</option>
+                        <option value="HDBank">HDBank</option>
+                        <option value="SHB">SHB</option>
+                        <option value="MSB">MSB</option>
                     </select>
                 </div>
 
@@ -138,7 +151,7 @@
 
                 <!-- QR upload preview -->
                 <div class="form-group">
-                    <label>Mã QR nhận tiền (Dùng để hiển thị cho sinh viên quét nhanh)</label>
+                    <label>Mã QR nhận tiền (tùy chọn — admin tham khảo khi chi tiền rút)</label>
                     <div style="display:flex; gap:16px;">
                         <div class="qr-upload-preview" id="qrUploadPreview">
                             <span id="qrPlaceholder" style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;"><i class="fas fa-qrcode" style="font-size:24px; margin-bottom:8px; display:block; color:var(--primary);"></i>Chọn ảnh QR</span>

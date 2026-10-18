@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 public class PaymentInfoResponse {
     String instructorName;
     String bankName;
+    String bankCode;      // Mã ngân hàng VietQR (MB, VCB...) để sinh ảnh QR
     String accountNumber;
     String accountName;
     String qrCodeUrl;

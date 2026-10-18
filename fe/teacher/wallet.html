@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví doanh thu - EduVN Teacher</title>
+    <meta name="description" content="Theo dõi doanh thu và rút tiền hoa hồng bán khóa học.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <style>
+        .wallet-hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white; border-radius: var(--radius-lg); padding: 28px; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+            box-shadow: var(--shadow-md);
+        }
+        .wallet-hero .label { font-size: 13px; opacity: 0.85; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .wallet-hero .amount { font-size: 40px; font-weight: 900; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .wallet-hero .hint { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+        .wallet-hero .btn { background: white; color: var(--primary); font-weight: 800; }
+        .wallet-hero .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .wallet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 1100px) { .wallet-grid { grid-template-columns: 1fr; } }
+
+        .ledger-amount { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .ledger-amount.plus { color: var(--teacher-green); }
+        .ledger-amount.minus { color: var(--teacher-red); }
+        .ledger-amount.neutral { color: var(--text-secondary); }
+        .muted-sm { font-size: 12px; color: var(--text-muted); }
+        .bank-pick { display: flex; flex-direction: column; gap: 10px; }
+        .bank-option {
+            display: flex; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer;
+            border: 1.5px solid var(--border); border-radius: var(--radius); transition: var(--transition-fast);
+        }
+        .bank-option:has(input:checked) { border-color: var(--primary); background: var(--primary-xlight); }
+        .bank-option input { accent-color: var(--primary); }
+        .quick-amounts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .quick-amounts button {
+            border: 1px solid var(--border); background: white; border-radius: var(--radius-full);
+            padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-secondary);
+        }
+        .quick-amounts button:hover { border-color: var(--primary); color: var(--primary); }
+    </style>
+    <script src="../js/api.js"></script>
+</head>
+<body>
+<div class="teacher-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><i class="fas fa-graduation-cap"></i></div>
+            <span class="sidebar-brand-name">Edu<span>VN</span></span>
+            <span class="sidebar-role">Giảng viên</span>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-avatar" id="sidebarAvatar">GV</div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name" id="sidebarName">Đang tải...</div>
+                <div class="sidebar-user-role">Giảng viên</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-group-label">Tổng quan</span>
+            <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <span class="nav-group-label">Khóa học</span>
+            <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Quản lý khóa học</span></a>
+            <a href="courses.html?action=create" class="nav-item"><i class="fas fa-plus-circle"></i><span>Tạo khóa học mới</span></a>
+            <span class="nav-group-label">Học viên</span>
+            <a href="payments.html" class="nav-item"><i class="fas fa-credit-card"></i><span>Đơn bán khóa học</span></a>
+            <a href="students.html" class="nav-item"><i class="fas fa-users"></i><span>Danh sách học viên</span></a>
+            <span class="nav-group-label">Tài chính</span>
+            <a href="wallet.html" class="nav-item active"><i class="fas fa-wallet"></i><span>Ví doanh thu</span></a>
+            <a href="bank-accounts.html" class="nav-item"><i class="fas fa-university"></i><span>Tài khoản nhận tiền</span></a>
+            <span class="nav-group-label">Cá nhân</span>
+            <a href="profile.html" class="nav-item"><i class="fas fa-user-circle"></i><span>Hồ sơ giảng viên</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="nav-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></div>
+        </div>
+    </aside>
+
+    <!-- TOP NAV -->
+    <header class="topnav">
+        <div>
+            <div class="topnav-title">Ví doanh thu</div>
+            <div class="topnav-subtitle">Doanh thu bán khóa học và yêu cầu rút tiền</div>
+        </div>
+        <div class="topnav-right">
+            <div class="dropdown">
+                <div class="user-pill" id="userPillBtn">
+                    <div class="user-pill-avatar" id="topNavAvatar">GV</div>
+                    <span class="user-pill-name" id="topNavUserName">...</span>
+                    <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-muted)"></i>
+                </div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="location.href='profile.html'"><i class="fas fa-user-circle"></i>Hồ sơ cá nhân</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item danger" id="dropdownLogout"><i class="fas fa-sign-out-alt"></i>Đăng xuất</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="page-title">💰 Ví doanh thu</div>
+                <div class="page-subtitle" id="commissionNote">Đang tải...</div>
+            </div>
+            <div class="page-header-actions">
+                <button class="btn btn-outline" onclick="loadAll()"><i class="fas fa-sync-alt"></i> Làm mới</button>
+            </div>
+        </div>
+
+        <!-- Số dư khả dụng -->
+        <div class="wallet-hero">
+            <div>
+                <div class="label">Số dư khả dụng — có thể rút</div>
+                <div class="amount" id="availableBalance">–</div>
+                <div class="hint" id="minWithdrawalHint"></div>
+            </div>
+            <button class="btn btn-lg" id="openWithdrawBtn" onclick="openWithdrawModal()" disabled>
+                <i class="fas fa-hand-holding-usd"></i> Rút tiền
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card orange">
+                <div class="stat-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-content"><div class="stat-value" id="pendingBalance">–</div><div class="stat-label" id="pendingLabel">Đang tạm giữ</div></div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-icon purple"><i class="fas fa-lock"></i></div>
+                <div class="stat-content"><div class="stat-value" id="lockedBalance">–</div><div class="stat-label">Đang chờ admin chi</div></div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-content"><div class="stat-value" id="totalEarned">–</div><div class="stat-label">Tổng thực nhận</div></div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-icon blue"><i class="fas fa-money-check-alt"></i></div>
+                <div class="stat-content"><div class="stat-value" id="totalWithdrawn">–</div><div class="stat-label">Đã rút về ngân hàng</div></div>
+            </div>
+        </div>
+
+        <div class="wallet-grid">
+            <!-- Yêu cầu rút tiền -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-file-invoice-dollar"></i> Yêu cầu rút tiền</div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Mã / Ngày</th><th>Số tiền</th><th>Tài khoản</th><th>Trạng thái</th><th></th></tr></thead>
+                        <tbody id="withdrawalBody"><tr><td colspan="5"><div class="skeleton" style="height:40px"></div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sổ cái -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-book"></i> Lịch sử biến động ví</div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Thời gian</th><th>Nội dung</th><th style="text-align:right">Số tiền</th></tr></thead>
+                        <tbody id="ledgerBody"><tr><td colspan="3"><div class="skeleton" style="height:40px"></div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ══ MODAL RÚT TIỀN ══ -->
+<div class="modal-overlay" id="withdrawModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-hand-holding-usd" style="color:var(--primary)"></i> Tạo yêu cầu rút tiền</h3>
+            <button class="modal-close" onclick="closeModal('withdrawModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Số tiền muốn rút (VND) <span class="req">*</span></label>
+                <input type="number" class="form-input" id="withdrawAmount" min="0" step="1000" placeholder="VD: 500000">
+                <div class="quick-amounts" id="quickAmounts"></div>
+                <div class="form-hint" id="withdrawHint"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nhận tiền vào tài khoản <span class="req">*</span></label>
+                <div class="bank-pick" id="bankPick"><div class="muted-sm">Đang tải...</div></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ghi chú (tùy chọn)</label>
+                <textarea class="form-textarea" id="withdrawNote" rows="2" maxlength="500"></textarea>
+            </div>
+            <div style="background:var(--teacher-yellow-light);border-radius:var(--radius-sm);padding:12px;font-size:13px;color:#92400e">
+                <i class="fas fa-info-circle"></i> Số tiền sẽ được trừ tạm khỏi số dư khả dụng. Nếu admin từ chối hoặc bạn hủy yêu cầu, tiền được hoàn lại ngay.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('withdrawModal')">Hủy</button>
+            <button class="btn btn-primary" id="submitWithdrawBtn"><i class="fas fa-paper-plane"></i> Gửi yêu cầu</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/common.js"></script>
+<script src="js/wallet.js"></script>
+</body>
+</html>

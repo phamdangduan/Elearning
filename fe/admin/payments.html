@@ -34,6 +34,7 @@
       <a href="courses.html" class="nav-item"><i class="fas fa-book-open"></i><span>Khóa học</span></a>
       <a href="instructors.html" class="nav-item"><i class="fas fa-chalkboard-teacher"></i><span>Giảng viên</span></a>
       <a href="payments.html" class="nav-item active"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a>
+      <a href="withdrawals.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Rút tiền GV</span></a>
       <span class="nav-group-label">Hệ thống</span>
       <a href="categories.html" class="nav-item"><i class="fas fa-tags"></i><span>Danh mục</span></a>
     </nav>
@@ -45,7 +46,7 @@
   <header class="topnav">
     <div>
       <div class="topnav-title">Quản lý Thanh toán</div>
-      <div class="topnav-subtitle">Theo dõi toàn bộ giao dịch và duyệt thanh toán</div>
+      <div class="topnav-subtitle">Thanh toán tự động qua SePay — admin chỉ xử lý ngoại lệ</div>
     </div>
     <div class="topnav-right">
       <div style="position:relative">
@@ -84,7 +85,11 @@
     <div class="stats-grid">
       <div class="stat-card green">
         <div class="stat-icon teal"><i class="fas fa-money-bill-wave"></i></div>
-        <div class="stat-content"><div class="stat-value" id="statRevenue">–</div><div class="stat-label">Tổng doanh thu</div></div>
+        <div class="stat-content"><div class="stat-value" id="statRevenue">–</div><div class="stat-label">Tổng tiền học viên trả (GMV)</div></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon teal"><i class="fas fa-percentage"></i></div>
+        <div class="stat-content"><div class="stat-value" id="statPlatformRevenue">–</div><div class="stat-label">Doanh thu sàn (hoa hồng)</div></div>
       </div>
       <div class="stat-card blue">
         <div class="stat-icon blue"><i class="fas fa-check-circle"></i></div>

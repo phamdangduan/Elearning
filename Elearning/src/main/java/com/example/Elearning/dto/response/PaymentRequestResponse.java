@@ -22,6 +22,10 @@ public class PaymentRequestResponse {
     String instructorId;
     String instructorName;
     BigDecimal amount;
+    BigDecimal paidAmount;
+    BigDecimal commissionRate;
+    BigDecimal platformFee;          // Sàn giữ lại
+    BigDecimal instructorEarning;    // Giảng viên thực nhận
     String paymentProofUrl;
     String transferNote;
     PaymentStatus status;

@@ -2,7 +2,10 @@ package com.example.Elearning.repository;
 
 import com.example.Elearning.entity.PaymentRequest;
 import com.example.Elearning.enums.PaymentStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -47,17 +50,49 @@ public interface PaymentRequestRepository extends JpaRepository<PaymentRequest, 
     );
 
 
-    // Tính tổng doanh thu của instructor (chỉ tính payment CONFIRMED)
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PaymentRequest p " +
+    // Tính tổng doanh thu THỰC NHẬN của instructor (chỉ tính payment CONFIRMED).
+    // Đơn của luồng cũ (tiền chuyển thẳng cho giảng viên) không có instructorEarning → tính 100% amount.
+    @Query("SELECT COALESCE(SUM(COALESCE(p.instructorEarning, p.amount)), 0) FROM PaymentRequest p " +
             "WHERE p.instructorId = :instructorId " +
             "AND p.status = 'CONFIRMED'")
     BigDecimal calculateTotalRevenueByInstructor(@Param("instructorId") String instructorId);
 
-    // Tính doanh thu theo từng khóa học
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PaymentRequest p " +
+    // Tính doanh thu thực nhận của instructor theo từng khóa học
+    @Query("SELECT COALESCE(SUM(COALESCE(p.instructorEarning, p.amount)), 0) FROM PaymentRequest p " +
             "WHERE p.course.id = :courseId " +
             "AND p.status = 'CONFIRMED'")
     BigDecimal calculateRevenueByCourse(@Param("courseId") String courseId);
+
+    // ── Webhook / Settlement ──
+
+    boolean existsByReferenceCode(String referenceCode);
+
+    /** SELECT ... FOR UPDATE theo mã đối soát — xếp hàng các webhook cùng một đơn. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM PaymentRequest p WHERE p.referenceCode = :referenceCode")
+    Optional<PaymentRequest> findByReferenceCodeForUpdate(@Param("referenceCode") String referenceCode);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM PaymentRequest p WHERE p.id = :id")
+    Optional<PaymentRequest> findByIdForUpdate(@Param("id") String id);
+
+    /**
+     * Đánh dấu EXPIRED CHỈ KHI đơn vẫn còn PENDING (compare-and-set).
+     * Không dùng load → setStatus → save, vì webhook có thể vừa CONFIRMED đơn này ở giữa 2 bước đó.
+     */
+    @Modifying
+    @Query("UPDATE PaymentRequest p SET p.status = com.example.Elearning.enums.PaymentStatus.EXPIRED " +
+            "WHERE p.id = :id AND p.status = com.example.Elearning.enums.PaymentStatus.PENDING")
+    int expireIfPending(@Param("id") String id);
+
+    /** Khi một đơn được xác nhận: hủy các đơn PENDING khác của cùng học viên cho cùng khóa học. */
+    @Modifying
+    @Query("UPDATE PaymentRequest p SET p.status = com.example.Elearning.enums.PaymentStatus.CANCELLED " +
+            "WHERE p.studentId = :studentId AND p.courseId = :courseId " +
+            "AND p.status = com.example.Elearning.enums.PaymentStatus.PENDING AND p.id <> :keepId")
+    int cancelOtherPending(@Param("studentId") String studentId,
+                           @Param("courseId") String courseId,
+                           @Param("keepId") String keepId);
 
     // Đếm số payment đã confirmed của instructor
     @Query("SELECT COUNT(p) FROM PaymentRequest p " +
@@ -94,8 +129,13 @@ public interface PaymentRequestRepository extends JpaRepository<PaymentRequest, 
     List<PaymentRequest> findAllWithDetails();
 
     // ── Admin Stats Queries (tính trực tiếp từ DB) ──
+    /** Tổng tiền học viên đã thanh toán (GMV). */
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM PaymentRequest p WHERE p.status = 'CONFIRMED'")
-    BigDecimal calculateTotalPlatformRevenue();
+    BigDecimal calculateTotalGrossRevenue();
+
+    /** Doanh thu thực của sàn = tổng hoa hồng đã giữ lại. */
+    @Query("SELECT COALESCE(SUM(p.platformFee), 0) FROM PaymentRequest p WHERE p.status = 'CONFIRMED'")
+    BigDecimal calculateTotalPlatformFee();
 
     @Query("SELECT COUNT(p) FROM PaymentRequest p WHERE p.status = :status")
     Long countAllByPaymentStatus(@Param("status") PaymentStatus status);

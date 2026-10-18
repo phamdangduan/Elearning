@@ -43,7 +43,8 @@ public class PaymentRequest {
     @JoinColumn(name = "instructor_id", insertable = false, updatable = false)
     User instructor;
 
-    @Column(name = "instructor_bank_account_id", length = 36, nullable = false)
+    // Luồng cũ: tiền chuyển thẳng cho giảng viên. Luồng sàn trung gian: tiền về tài khoản sàn → null.
+    @Column(name = "instructor_bank_account_id", length = 36)
     String instructorBankAccountId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,6 +53,19 @@ public class PaymentRequest {
 
     @Column(name = "amount", precision = 19, scale = 2, nullable = false)
     BigDecimal amount;
+
+    // ── Snapshot phân chia doanh thu tại thời điểm xác nhận (không tính lại khi đổi config) ──
+    @Column(name = "paid_amount", precision = 19, scale = 2)
+    BigDecimal paidAmount;
+
+    @Column(name = "commission_rate", precision = 5, scale = 4)
+    BigDecimal commissionRate;
+
+    @Column(name = "platform_fee", precision = 19, scale = 2)
+    BigDecimal platformFee;
+
+    @Column(name = "instructor_earning", precision = 19, scale = 2)
+    BigDecimal instructorEarning;
 
     @Column(name = "payment_proof_url", length = 500)
     String paymentProofUrl;

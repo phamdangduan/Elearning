@@ -91,6 +91,8 @@ public class SecurityConfig {
 
                 // ── Auth ───────────────────────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
+                // Webhook cổng thanh toán: không có JWT, xác thực bằng API key trong PaymentWebhookController
+                .requestMatchers(HttpMethod.POST, "/api/webhooks/**").permitAll()
 
                 // ── Course: các GET cần đăng nhập/quyền, đặt trước rule public "/course/**" ──
                 .requestMatchers(HttpMethod.GET, "/course/search/admin").hasAuthority("ROLE_ADMIN")
